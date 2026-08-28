@@ -87,7 +87,7 @@
   <a href="#home">홈</a>
   <a href="#learn-survey">조사 배우기</a>
   <a href="#species">축종 배우기</a>
-  <a href="production-cost.html">생산비 분석</a>
+  <a href="chukbi.html">생산비 분석</a>
   <a href="cattle.html">소이력 조회</a>
   <a href="disease.html">질병현황</a>
   <a href="#terms">조사용어</a>
@@ -113,8 +113,8 @@
     <a class="card" href="cattle.html"><div class="ico">🐄</div><div class="t">소이력 조회</div><div class="d">이력번호로 개체정보 확인</div></a>
     <a class="card" href="cattle.html"><div class="ico">🧮</div><div class="t">자동계산</div><div class="d">소이력 자료 기반 계산</div></a>
     <a class="card" href="disease.html"><div class="ico">🗺️</div><div class="t">가축질병현황<span class="badge">지도</span></div><div class="d">최근 가축전염병 발생현황</div></a>
-    <a class="card" href="production-cost.html"><div class="ico">📊</div><div class="t">생산비 분석<span class="badge">신규</span></div><div class="d">조사자료 월별·연간 분석·내검</div></a>
-    <a class="card" href="#species"><div class="ico">📚</div><div class="t">축종 배우기</div><div class="d">7개 축종 생애·사육방법</div></a>
+    <a class="card" href="chukbi.html"><div class="ico">📊</div><div class="t">생산비 분석<span class="badge">신규</span></div><div class="d">조사자료 월별·연간 분석·내검</div></a>
+    <a class="card" href="species.html"><div class="ico">📚</div><div class="t">축종 배우기</div><div class="d">7개 축종 생애·사육방법</div></a>
     <a class="card" href="#terms"><div class="ico">🔎</div><div class="t">조사용어<span class="badge soon">준비중</span></div><div class="d">현장 축산·조사용어 검색</div></a>
   </div>
 
@@ -137,16 +137,16 @@
   <!-- 축종 빠른학습 -->
   <h3 class="sec" id="species">축종 빠른학습</h3>
   <div class="species">
-    <a class="soon" href="#species" onclick="speciesSoon('한우 번식우')"><span class="ico">🐮</span>한우 번식우</a>
-    <a class="soon" href="#species" onclick="speciesSoon('한우 비육우')"><span class="ico">🐄</span>한우 비육우</a>
-    <a class="soon" href="#species" onclick="speciesSoon('육우')"><span class="ico">🐂</span>육우</a>
-    <a class="soon" href="#species" onclick="speciesSoon('젖소')"><span class="ico">🥛</span>젖소</a>
-    <a class="soon" href="#species" onclick="speciesSoon('비육돈')"><span class="ico">🐖</span>비육돈</a>
-    <a class="soon" href="#species" onclick="speciesSoon('산란계')"><span class="ico">🥚</span>산란계</a>
-    <a class="soon" href="#species" onclick="speciesSoon('육계')"><span class="ico">🐔</span>육계</a>
-    <a class="soon" href="#terms" onclick="return false"><span class="ico">🔎</span>용어검색</a>
+    <a href="species.html?s=hanwoo-breeding"><span class="ico">🐮</span>한우 번식우</a>
+    <a href="species.html?s=hanwoo-fattening"><span class="ico">🐄</span>한우 비육우</a>
+    <a href="species.html?s=beef-cattle"><span class="ico">🐂</span>육우</a>
+    <a href="species.html?s=dairy"><span class="ico">🥛</span>젖소</a>
+    <a href="species.html?s=pig"><span class="ico">🐖</span>비육돈</a>
+    <a href="species.html?s=layer"><span class="ico">🥚</span>산란계</a>
+    <a href="species.html?s=broiler"><span class="ico">🐔</span>육계</a>
+    <a href="species.html"><span class="ico">📚</span>전체 보기</a>
   </div>
-  <div class="note">※ 축종 콘텐츠(생애주기·용어·사료·시설·조사포인트)는 <code>data/*.json</code> 기반으로 한우 번식우부터 시범 제작 예정입니다.</div>
+  <div class="note">※ 축종 콘텐츠(생애주기·용어·사료·시설·조사포인트)는 <code>data/species/*.json</code> 기반입니다. <b>한우 번식우</b>부터 시범 제작했고, 나머지는 순차 추가됩니다.</div>
 </main>
 
 <footer>

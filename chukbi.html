@@ -1,0 +1,654 @@
+<!-- dudang_web_v2.html · 저장: 2026-08-20 03:03 KST -->
+<!-- 두당(DUDANG) 웹판 v2 · 오프라인 단일 HTML · 가져오기/월별·누적/연간표/그래프/내검(단가포함)/성축환산/CSV -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>두당 DUDANG (웹)</title>
+<style>
+  :root{--blue:#2b6cb0;--red:#c53030;--line:#e2e8f0;--head:#eef3fb;--muted:#718096;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:#1a202c;background:#f7fafc;}
+  header{background:#1a365d;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  header h1{font-size:18px;margin:0;cursor:pointer;user-select:none;}
+  header .ver{font-size:12px;color:#a0c4e8;}
+  .tabs{display:flex;flex-wrap:wrap;gap:2px;background:#2c5282;padding:0 8px;}
+  .tabs button{background:transparent;color:#cfe0f2;border:0;padding:9px 14px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;}
+  .tabs button.active{color:#fff;border-bottom-color:#63b3ed;font-weight:600;}
+  main{padding:14px;max-width:1200px;margin:0 auto;}
+  .panel{display:none;} .panel.active{display:block;}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;}
+  .bar label{font-size:13px;color:var(--muted);}
+  select,input[type=number]{padding:6px 8px;border:1px solid #cbd5e0;border-radius:6px;font-size:14px;background:#fff;}
+  button.btn{background:var(--blue);color:#fff;border:0;border-radius:6px;padding:7px 12px;font-size:14px;cursor:pointer;}
+  button.btn.grey{background:#718096;}
+  .summary{font-weight:600;color:var(--blue);margin:8px 0;line-height:1.5;}
+  .hint{color:var(--muted);font-size:13px;margin:4px 0;}
+  .tablewrap{overflow:auto;border:1px solid var(--line);border-radius:8px;max-height:64vh;}
+  table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap;}
+  th,td{border:1px solid var(--line);padding:5px 8px;text-align:right;}
+  th{background:var(--head);position:sticky;top:0;cursor:pointer;user-select:none;}
+  td:first-child,th:first-child{text-align:left;}
+  tr.sub td{font-weight:700;background:#f8fafc;}
+  .pos{color:var(--red);} .neg{color:var(--blue);}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px;}
+  canvas{width:100%;max-width:100%;height:320px;background:#fff;border:1px solid var(--line);border-radius:8px;}
+  .warn{color:#c05621;font-size:13px;}
+  .file-drop{border:2px dashed #cbd5e0;border-radius:8px;padding:18px;text-align:center;color:var(--muted);}
+  #coeffTable td{text-align:right;} #coeffTable td:first-child{text-align:left;}
+  .pill{display:inline-block;background:#edf2f7;border-radius:10px;padding:1px 8px;font-size:12px;color:#4a5568;}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" style="color:#a0c4e8;text-decoration:none;font-size:14px;font-weight:600">← 두당 홈</a>
+  <h1 id="title" style="margin-left:4px">축산물생산비 집계·검토</h1>
+  <span class="ver">웹 · 한우 번식우</span>
+  <span id="admin" class="ver" style="margin-left:auto"></span>
+</header>
+<div class="tabs" id="tabs"></div>
+<main>
+  <!-- 가져오기 -->
+  <section class="panel" id="p-import">
+    <div class="card">
+      <div class="file-drop">
+        <input type="file" id="fileInput" accept=".xlsx" multiple>
+        <div class="hint">조사자료 Excel(.xlsx) 여러 개를 함께 선택하세요. (예: 사육현황·사료·생산비·노동 등)</div>
+      </div>
+      <div style="margin-top:10px">
+        <label><input type="checkbox" id="maskChk"> 개인정보(이름·담당자·주소) 마스킹 저장</label>
+      </div>
+      <div id="importLog" class="summary"></div>
+    </div>
+    <div class="card">
+      <div class="bar"><b>등록 현황</b><span style="flex:1"></span>
+        <button class="btn grey" id="clearBtn">전체 삭제</button>
+        <button class="btn grey" id="exportBtn">백업(JSON)</button>
+        <label class="btn grey" style="cursor:pointer">복원<input type="file" id="restoreInput" accept=".json" hidden></label>
+      </div>
+      <div id="statusSummary" class="hint"></div>
+      <div class="tablewrap"><table id="statusTable"></table></div>
+    </div>
+  </section>
+
+  <!-- 월별 현황 -->
+  <section class="panel" id="p-monthly">
+    <div class="bar" id="sel-monthly"></div>
+    <div class="bar">
+      <label>분석방식</label>
+      <label><input type="radio" name="mmode" value="month" checked> 당월</label>
+      <label><input type="radio" name="mmode" value="cum"> 누적(1~N월)</label>
+    </div>
+    <div class="summary" id="monthlySummary"></div>
+    <div class="hint">※ 총액 증감과 두당 증감을 비교해, 총액 변화가 실제 투입인지 두수 변화 때문인지 구분하세요.</div>
+    <div class="tablewrap"><table id="monthlyTable"></table></div>
+  </section>
+
+  <!-- 연간 월별표 -->
+  <section class="panel" id="p-year">
+    <div class="bar" id="sel-year"></div>
+    <div class="summary" id="yearSummary"></div>
+    <div class="tablewrap"><table id="yearTable"></table></div>
+  </section>
+
+  <!-- 그래프 -->
+  <section class="panel" id="p-trend">
+    <div class="bar" id="sel-trend"></div>
+    <div class="bar"><label>지표</label><select id="metricSel"></select></div>
+    <div class="summary" id="trendSummary"></div>
+    <canvas id="chart" width="900" height="320"></canvas>
+  </section>
+
+  <!-- 내검센터 -->
+  <section class="panel" id="p-review">
+    <div class="bar" id="sel-review"></div>
+    <div class="bar">
+      <button class="btn" id="runReview">내검 실행</button>
+      <button class="btn grey" id="exportReview">CSV 내보내기</button>
+      <label>판정필터</label>
+      <select id="reviewFilter"><option value="">(전체)</option><option>오류</option><option>오류의심</option><option>확인권장</option><option>정상</option></select>
+    </div>
+    <details class="card"><summary>검증규칙 임계값 (관리자 설정)</summary>
+      <div class="bar" style="margin-top:8px">
+        <label>전월대비 확인권장 ±</label><input type="number" id="vWarn" style="width:70px"> %
+        <label>오류의심 ±</label><input type="number" id="vStrong" style="width:70px"> %
+      </div>
+      <div class="bar">
+        <label>단가차이 확인권장 ±</label><input type="number" id="upWarn" style="width:70px"> %
+        <label>오류의심 ±</label><input type="number" id="upStrong" style="width:70px"> %
+      </div>
+      <button class="btn" id="saveRules">임계값 저장</button>
+    </details>
+    <div class="summary" id="reviewSummary"></div>
+    <div class="hint">확정형(논리)만 '오류', 비교형·단가차이는 통계적 이상값이므로 '확인권장/오류의심'으로만 표시합니다.</div>
+    <div class="tablewrap"><table id="reviewTable"></table></div>
+  </section>
+
+  <!-- 성축환산 설정 -->
+  <section class="panel" id="p-ae">
+    <div class="card">
+      <div class="bar">
+        <label>적용두수 기준</label>
+        <label><input type="radio" name="basis" value="month_begin"> 월초</label>
+        <label><input type="radio" name="basis" value="month_end" checked> 월말</label>
+        <label><input type="radio" name="basis" value="month_avg"> 월평균</label>
+        <span class="hint">(기본=월말: 당월월말=익월월초)</span>
+      </div>
+      <table id="coeffTable"></table>
+      <div style="margin-top:8px"><button class="btn" id="saveCoeff">계수 저장</button>
+        <span class="warn" id="coeffWarn"></span></div>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+/* ===================== 코어 (검증 완료) ===================== */
+function norm(s){ return s==null?'':(''+s).replace(/\s+/g,''); }
+async function inflateRaw(bytes){
+  const ds=new DecompressionStream('deflate-raw');
+  const w=ds.writable.getWriter(); w.write(bytes); w.close();
+  const chunks=[]; const r=ds.readable.getReader();
+  for(;;){ const {done,value}=await r.read(); if(done)break; chunks.push(value);}
+  let n=chunks.reduce((a,c)=>a+c.length,0), out=new Uint8Array(n), o=0;
+  for(const c of chunks){ out.set(c,o); o+=c.length; } return out;
+}
+async function readZip(buf){
+  const u8=new Uint8Array(buf), dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength), len=u8.length;
+  let eocd=-1; for(let i=len-22;i>=0;i--){ if(dv.getUint32(i,true)===0x06054b50){eocd=i;break;} }
+  const cnt=dv.getUint16(eocd+10,true), off=dv.getUint32(eocd+16,true), dec=new TextDecoder();
+  const out={}; let p=off;
+  for(let i=0;i<cnt;i++){
+    if(dv.getUint32(p,true)!==0x02014b50)break;
+    const method=dv.getUint16(p+10,true), compSize=dv.getUint32(p+20,true);
+    const nameLen=dv.getUint16(p+28,true), extraLen=dv.getUint16(p+30,true), cmtLen=dv.getUint16(p+32,true);
+    const localOff=dv.getUint32(p+42,true), name=dec.decode(u8.subarray(p+46,p+46+nameLen));
+    const lNameLen=dv.getUint16(localOff+26,true), lExtraLen=dv.getUint16(localOff+28,true);
+    const dataStart=localOff+30+lNameLen+lExtraLen, comp=u8.subarray(dataStart,dataStart+compSize);
+    out[name]= method===0 ? comp : await inflateRaw(comp);
+    p+=46+nameLen+extraLen+cmtLen;
+  }
+  return out;
+}
+function colToNum(ref){ let s=ref.match(/^[A-Z]+/)[0], n=0; for(const ch of s){ n=n*26+(ch.charCodeAt(0)-64);} return n-1; }
+function unesc(s){ s=s.replace(/&#x([0-9A-Fa-f]+);/g,(_,h)=>String.fromCodePoint(parseInt(h,16))).replace(/&#([0-9]+);/g,(_,d)=>String.fromCodePoint(parseInt(d,10)));
+  return s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&'); }
+async function readXlsx(buf){
+  const files=await readZip(buf); const dec=new TextDecoder();
+  const wbXml=dec.decode(files['xl/workbook.xml']||new Uint8Array());
+  const relsXml=dec.decode(files['xl/_rels/workbook.xml.rels']||new Uint8Array());
+  const rid={}; for(const m of relsXml.matchAll(/<Relationship\b[^>]*>/g)){ const t=m[0]; const id=(t.match(/Id="([^"]+)"/)||[])[1]; const tg=(t.match(/Target="([^"]+)"/)||[])[1]; if(id&&tg) rid[id]=tg; }
+  let shared=[];
+  if(files['xl/sharedStrings.xml']){ const ss=dec.decode(files['xl/sharedStrings.xml']);
+    for(const si of ss.matchAll(/<si>([\s\S]*?)<\/si>/g)){ const parts=[...si[1].matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map(x=>unesc(x[1])); shared.push(parts.join('')); } }
+  const sheets=[];
+  for(const m of wbXml.matchAll(/<sheet\b[^>]*\/?>/g)){ const tag=m[0];
+    const nm=(tag.match(/name="([^"]+)"/)||[])[1]; if(nm==null) continue;
+    const rIdAttr=(tag.match(/r:id="([^"]+)"/)||[])[1];
+    let tgt=rIdAttr?rid[rIdAttr]:''; tgt=(tgt||'').replace(/^\//,'').replace(/^xl\//,'');
+    const key='xl/'+tgt; const sx=files[key]?dec.decode(files[key]):'';
+    if(sx) sheets.push({name:unesc(nm), ...parseSheet(sx, shared)});
+  }
+  return sheets;
+}
+function parseSheet(xml, shared){
+  let maxR=0,maxC=0; const cells=[];
+  for(const rm of xml.matchAll(/<c r="([A-Z]+\d+)"([^>]*)>([\s\S]*?)<\/c>|<c r="([A-Z]+\d+)"([^>]*)\/>/g)){
+    const ref=rm[1]||rm[4]; const attr=rm[2]||rm[5]||''; const inner=rm[3]||'';
+    const r=parseInt(ref.match(/\d+$/)[0])-1, c=colToNum(ref);
+    let val=null; const t=(attr.match(/t="([^"]+)"/)||[])[1];
+    if(t==='inlineStr'){ const tm=inner.match(/<t[^>]*>([\s\S]*?)<\/t>/); val=tm?unesc(tm[1]):''; }
+    else { const vm=inner.match(/<v>([\s\S]*?)<\/v>/); if(vm){ const raw=vm[1];
+      if(t==='s') val=shared[parseInt(raw)]; else if(t==='str'||t==='b') val=unesc(raw);
+      else { const nu=parseFloat(raw); val=isNaN(nu)?raw:nu; } } }
+    if(val!=null){ cells.push([r,c,val]); if(r>maxR)maxR=r; if(c>maxC)maxC=c; }
+  }
+  const grid=Array.from({length:maxR+1},()=>Array(maxC+1).fill(null));
+  for(const [r,c,v] of cells) grid[r][c]=v;
+  const merges=[...xml.matchAll(/<mergeCell ref="([A-Z]+\d+):([A-Z]+\d+)"/g)].map(m=>{const a=m[1],b=m[2];
+    return {r1:parseInt(a.match(/\d+$/)[0])-1,c1:colToNum(a),r2:parseInt(b.match(/\d+$/)[0])-1,c2:colToNum(b)};});
+  return {grid, merges};
+}
+function combinedHeaders(sheet, headerRows){
+  const {grid,merges}=sheet; const nc=(grid[0]||[]).length;
+  const g=[]; for(let r=0;r<headerRows;r++) g.push((grid[r]||[]).slice(0,nc).map(x=>x==null?null:x));
+  for(const m of merges){ if(m.r1>=headerRows) continue; const val=grid[m.r1]?grid[m.r1][m.c1]:null;
+    for(let r=m.r1;r<=Math.min(m.r2,headerRows-1);r++) for(let c=m.c1;c<=m.c2;c++){ if(!g[r])g[r]=[]; g[r][c]=val; } }
+  const out=[]; for(let c=0;c<nc;c++){ const top=norm(g[0]&&g[0][c]); const sub=headerRows>=2?norm(g[1]&&g[1][c]):'';
+    out.push(!sub||sub===top?top:top+'/'+sub); } return out;
+}
+const COMMON_ID={"농가번호":"farm_no","조사년도":"survey_year","조사월":"survey_month","이름":"owner_name","주품목":"main_item","규모(계산)":"scale","지방청":"office_regional","사무소":"office_local","분소":"office_branch","행정구역":"admin_area","조사표ID":"sheet_form_id","담당자":"surveyor_name"};
+const SHEET_DEFS={
+ "일계부-대동물사육현황":{type:"livestock_status",display:"대동물 사육현황",hr:2,payload:{"구분":"breed_class","월초":"cnt_begin","증가/분만":"inc_birth","증가/구입":"inc_purchase","증가/편입":"inc_transfer_in","감소/편입":"dec_transfer_out","감소/판매":"dec_sale","감소/도태":"dec_cull","감소/폐사":"dec_death","월말":"cnt_end"}},
+ "일계부-대동물월중사육현황":{type:"livestock_monthly",display:"대동물 월중",hr:1,payload:{"자연종부":"natural_mating","인공수정":"artificial_insem","착유우":"milking_cows","건유우":"dry_cows","초임분만(모돈분만)":"first_calving","경산분만":"multi_calving","암컷중비육":"female_fattening"}},
+ "일계부-대·소동물구입및판매":{type:"livestock_trade",display:"구입/판매",hr:2,payload:{"일자":"trade_date","품명/부호":"item_code","품명/부호명":"item_name","구입/구분":"buy_class","구입/수량":"buy_qty","구입/체중":"buy_weight","구입/금액":"buy_amount","구입/구입시비용":"buy_cost","구입/실구입(평가금액)":"buy_real","판매/구분":"sell_class","판매/수량":"sell_qty","판매/체중":"sell_weight","판매/금액":"sell_amount","판매/판매시비용":"sell_cost","판매/실판매금액":"sell_real"}},
+ "일계부-축산부산물판매수입및자가소비":{type:"byproduct_income",display:"부산물",hr:2,payload:{"일자":"date","수입내용/부호명":"income_name","판매수량":"sale_qty","판매금액":"sale_amount","자가소비/수량":"selfuse_qty","자가소비/금액":"selfuse_amount"}},
+ "일계부-사료비(농후사료,TMR사료)":{type:"feed_concentrate",display:"농후/TMR",hr:2,payload:{"일자":"date","축종명/부호명":"species_name","사료/부호명":"feed_name","사료/부호":"feed_code","구입구분":"buy_class","급여량":"feed_qty","단가(원)":"unit_price","평가액(원)":"amount"}},
+ "일계부-사료비(조사료)":{type:"feed_roughage",display:"조사료",hr:2,payload:{"일자":"date","사료명/부호명":"feed_name","사료명/부호":"feed_code","구입구분":"buy_class","작물/부호명":"crop_name","급여량":"feed_qty","단가(원)":"unit_price","평가액(원)":"amount"}},
+ "일계부-생산비투입내역":{type:"production_cost",display:"생산비",hr:2,payload:{"일자":"date","지출내용/부호명":"cost_name","지출내용/부호":"cost_code","수량":"qty","단가(원)":"unit_price","평가액(원)":"amount"}},
+ "일계부-농업노동투입내역":{type:"labor_input",display:"노동",hr:2,payload:{"일자":"date","영농작업명/부호명":"work_name","가족노동/남":"fam_m","가족노동/여":"fam_f","품앗이/남":"exch_m","품앗이/여":"exch_f","고용노동/남":"hire_m","고용노동/여":"hire_f","일손돕기/남":"help_m","일손돕기/여":"help_f"}},
+};
+const COMMON_ID_NORM={}; for(const [k,v] of Object.entries(COMMON_ID)) COMMON_ID_NORM[norm(k)]=v;
+const MASK_FIELDS=new Set(["owner_name","surveyor_name","admin_area"]);
+function detectWorkbook(sheets, sourceFile){
+  const out=[];
+  for(const s of sheets){ const def=SHEET_DEFS[norm(s.name)];
+    if(!def){ out.push({recognized:false, source_sheet:s.name}); continue; }
+    const hdr=combinedHeaders(s, def.hr); const idx={}; hdr.forEach((h,i)=>{if(h&&!(h in idx))idx[h]=i;});
+    const payNorm={}; for(const [k,f] of Object.entries(def.payload)) payNorm[norm(k)]=f;
+    const rows=[];
+    for(let r=def.hr; r<s.grid.length; r++){ const g=s.grid[r]||[]; const rec={_row:r+1};
+      for(const [h,f] of Object.entries(COMMON_ID_NORM)) if(h in idx) rec[f]=g[idx[h]];
+      for(const [h,f] of Object.entries(payNorm)) if(h in idx) rec[f]=g[idx[h]];
+      const blank=Object.values(payNorm).every(f=>rec[f]==null||rec[f]==='');
+      if(blank) continue; rows.push(rec);
+    }
+    out.push({recognized:true, sheet_type:def.type, display:def.display, source_sheet:s.name, source_file:sourceFile, rows});
+  }
+  return out;
+}
+function toRecords(detected, mask){
+  const recs=[];
+  for(const d of detected){ if(!d.recognized) continue;
+    for(const rec of d.rows){ const p={...rec}; delete p._row;
+      if(mask) for(const mf of MASK_FIELDS) if(p[mf]!=null&&p[mf]!=='') p[mf]='***';
+      recs.push({sheet_type:d.sheet_type, farm_no:p.farm_no!=null?String(p.farm_no):null,
+        survey_year:p.survey_year!=null?String(p.survey_year):null, survey_month:p.survey_month!=null?String(p.survey_month):null,
+        source_file:d.source_file, source_sheet:d.source_sheet, source_row:rec._row, payload:p});
+    }
+  }
+  return recs;
+}
+const num=v=>{const n=parseFloat(v); return isNaN(n)?0:n;};
+function monthlyAggregate(recs, farm, year, month){
+  const F=r=>r.farm_no==String(farm)&&r.survey_year==String(year)&&r.survey_month==String(month);
+  const by=t=>recs.filter(r=>r.sheet_type===t&&F(r)).map(r=>r.payload);
+  const A={concentrate:{}, roughage:{}, cost:{}, labor:{}, buy:{heads:0,total:0}, sell:{heads:0,total:0}, bp_sale:0, bp_self:0};
+  for(const p of by("feed_concentrate")){ const k=p.feed_name||"농후"; (A.concentrate[k]=A.concentrate[k]||{qty:0,amount:0}); A.concentrate[k].qty+=num(p.feed_qty); A.concentrate[k].amount+=num(p.amount); }
+  for(const p of by("feed_roughage")){ const k=p.feed_name||"조사료"; (A.roughage[k]=A.roughage[k]||{qty:0,amount:0}); A.roughage[k].qty+=num(p.feed_qty); A.roughage[k].amount+=num(p.amount); }
+  for(const p of by("production_cost")){ const k=p.cost_name||p.cost_code||"(미상)"; A.cost[k]=(A.cost[k]||0)+num(p.amount); }
+  const LAB={"가족노동":["fam_m","fam_f"],"품앗이":["exch_m","exch_f"],"고용노동":["hire_m","hire_f"],"일손돕기":["help_m","help_f"]};
+  for(const p of by("labor_input")) for(const [lbl,[a,b]] of Object.entries(LAB)){ const h=num(p[a])+num(p[b]); if(h) A.labor[lbl]=(A.labor[lbl]||0)+h; }
+  for(const p of by("livestock_trade")){ const bq=num(p.buy_qty); if(bq){A.buy.heads+=bq; A.buy.total+=num(p.buy_real)||num(p.buy_amount);} const sq=num(p.sell_qty); if(sq){A.sell.heads+=sq; A.sell.total+=num(p.sell_real)||num(p.sell_amount);} }
+  for(const p of by("byproduct_income")){ A.bp_sale+=num(p.sale_amount); A.bp_self+=num(p.selfuse_amount); }
+  const sumF=o=>Object.values(o).reduce((a,f)=>({qty:a.qty+f.qty,amount:a.amount+f.amount}),{qty:0,amount:0});
+  A.concTotal=sumF(A.concentrate); A.roughTotal=sumF(A.roughage);
+  A.feedTotal=A.concTotal.amount+A.roughTotal.amount;
+  A.costTotal=Object.values(A.cost).reduce((a,b)=>a+b,0);
+  A.laborTotal=Object.values(A.labor).reduce((a,b)=>a+b,0);
+  A.bpTotal=A.bp_sale+A.bp_self; return A;
+}
+const BREEDS=["송아지암컷","송아지수컷","육성우암컷","육성우수컷","초임우","경산우","번식용수소","번식우"];
+function aeCompute(recs, farm, year, month, coeffs, basis){
+  const rows=recs.filter(r=>r.sheet_type==="livestock_status"&&r.farm_no==String(farm)&&r.survey_year==String(year)&&r.survey_month==String(month)).map(r=>r.payload);
+  let total=0; const cnt={};
+  for(const p of rows){ const b=p.breed_class; if(!b)continue; const be=num(p.cnt_begin),en=num(p.cnt_end);
+    const v=basis==="month_begin"?be:basis==="month_avg"?(be+en)/2:en; cnt[b]=(cnt[b]||0)+v; }
+  for(const b of BREEDS){ const hc=cnt[b]||0, cf=(coeffs&&coeffs[b]!=null)?coeffs[b]:1.0; total+=hc*cf; }
+  return {total, cnt};
+}
+// 월별 분석 항목 평탄화(라벨→값)
+function metricsOf(A){
+  const m=[];
+  for(const [k,v] of Object.entries(A.concentrate)) m.push(["[농후] "+k, v.amount, false]);
+  m.push(["[농후] 농후사료 계", A.concTotal.amount, false]);
+  for(const [k,v] of Object.entries(A.roughage)) m.push(["[조사료] "+k, v.amount, false]);
+  m.push(["[조사료] 조사료 계", A.roughTotal.amount, false]);
+  m.push(["[사료] 전체 사료비", A.feedTotal, false]);
+  for(const [k,v] of Object.entries(A.cost)) m.push(["[생산비] "+k, v, false]);
+  m.push(["[생산비] 합계", A.costTotal, false]);
+  for(const [k,v] of Object.entries(A.labor)) m.push(["[노동] "+k, v, true]);
+  m.push(["[노동] 전체 노동시간", A.laborTotal, true]);
+  m.push(["[구입] 두수", A.buy.heads, true]); m.push(["[구입] 총액", A.buy.total, false]);
+  m.push(["[판매] 두수", A.sell.heads, true]); m.push(["[판매] 총액", A.sell.total, false]);
+  m.push(["[부산물] 수입", A.bpTotal, false]);
+  return m;
+}
+
+/* ===================== 저장(IndexedDB) ===================== */
+let DB=null;
+function openDB(){ return new Promise((res,rej)=>{ const q=indexedDB.open("dudang",1);
+  q.onupgradeneeded=e=>{ const db=e.target.result;
+    if(!db.objectStoreNames.contains("records")){ const os=db.createObjectStore("records",{keyPath:"id",autoIncrement:true}); os.createIndex("period",["farm_no","survey_year","survey_month","sheet_type"]); }
+    if(!db.objectStoreNames.contains("settings")) db.createObjectStore("settings",{keyPath:"key"});
+  };
+  q.onsuccess=e=>{DB=e.target.result;res();}; q.onerror=e=>rej(e); }); }
+function tx(store,mode){ return DB.transaction(store,mode).objectStore(store); }
+function getAllRecords(){ return new Promise(res=>{ const r=tx("records","readonly").getAll(); r.onsuccess=()=>res(r.result||[]); }); }
+function saveRecords(recs){ return new Promise((res)=>{
+  // 같은 (농가,년,월,시트) 기존행 삭제 후 추가
+  const keys=new Set(recs.map(r=>[r.farm_no,r.survey_year,r.survey_month,r.sheet_type].join("|")));
+  const store=tx("records","readwrite");
+  const cur=store.getAll(); cur.onsuccess=()=>{
+    for(const ex of cur.result){ if(keys.has([ex.farm_no,ex.survey_year,ex.survey_month,ex.sheet_type].join("|"))) store.delete(ex.id); }
+    for(const r of recs) store.add(r);
+    store.transaction.oncomplete=()=>res();
+  };
+}); }
+function clearRecords(){ return new Promise(res=>{ const s=tx("records","readwrite").clear(); s.onsuccess=()=>res(); }); }
+function getSetting(k){ return new Promise(res=>{ const r=tx("settings","readonly").get(k); r.onsuccess=()=>res(r.result?r.result.value:null); }); }
+function setSetting(k,v){ return new Promise(res=>{ const r=tx("settings","readwrite").put({key:k,value:v}); r.onsuccess=()=>res(); }); }
+
+/* ===================== 상태 & 유틸 ===================== */
+let RECORDS=[];      // 메모리 캐시
+let FARMS=[];        // {farm_no,owner_name,office_regional,office_local,office_branch}
+let COEFFS=null, BASIS="month_end";
+const money=v=>v==null?"":Math.round(v).toLocaleString();
+const fmtHours=v=>v==null?"":(''+ (Math.round(v*10)/10));
+function buildFarms(){
+  const m=new Map();
+  for(const r of RECORDS){ if(!r.farm_no) continue; if(!m.has(r.farm_no)){ const p=r.payload;
+    m.set(r.farm_no,{farm_no:r.farm_no,owner_name:p.owner_name||"",office_regional:p.office_regional||"",office_local:p.office_local||"",office_branch:p.office_branch||"",scale:p.scale}); } }
+  FARMS=[...m.values()].sort((a,b)=>a.farm_no<b.farm_no?-1:1);
+}
+function yearsAvailable(){ return [...new Set(RECORDS.filter(r=>r.survey_year).map(r=>r.survey_year))].sort().reverse(); }
+function periodHasData(farm,year,month){ return RECORDS.some(r=>r.farm_no==farm&&r.survey_year==year&&r.survey_month==month); }
+
+/* ===================== 농가 선택기(지방청→사무소→분소→농가) ===================== */
+function makeSelector(id, onChange){
+  const wrap=document.getElementById(id); wrap.innerHTML="";
+  const mk=(label)=>{ const l=document.createElement("label"); l.textContent=label; const s=document.createElement("select"); wrap.appendChild(l); wrap.appendChild(s); return s; };
+  const reg=mk("지방청"), off=mk("사무소"), br=mk("분소"), farm=mk("농가");
+  function fill(sel, items, withAll){ sel.innerHTML=""; if(withAll){const o=document.createElement("option");o.value="";o.textContent="(전체)";sel.appendChild(o);} for(const it of items){const o=document.createElement("option");o.value=it.v; o.textContent=it.t; sel.appendChild(o);} }
+  function uniq(f){ return [...new Set(FARMS.filter(f.filter).map(f.key))].filter(Boolean).sort(); }
+  function refresh(level){
+    const rv=reg.value, ov=off.value, bv=br.value;
+    if(level<=0) fill(reg, uniq({filter:()=>true,key:x=>x.office_regional}).map(v=>({v,t:v})), true);
+    if(level<=1) fill(off, uniq({filter:x=>!rv||x.office_regional==rv,key:x=>x.office_local}).map(v=>({v,t:v})), true);
+    if(level<=2) fill(br, uniq({filter:x=>(!rv||x.office_regional==rv)&&(!ov||x.office_local==ov),key:x=>x.office_branch}).map(v=>({v,t:v})), true);
+    const fl=FARMS.filter(x=>(!rv||x.office_regional==rv)&&(!ov||x.office_local==ov)&&(!bv||x.office_branch==bv));
+    fill(farm, fl.map(x=>({v:x.farm_no,t:x.farm_no+(x.owner_name?` (${x.owner_name})`:"")})), false);
+  }
+  reg.onchange=()=>{refresh(1);onChange();}; off.onchange=()=>{refresh(2);onChange();}; br.onchange=()=>{refresh(3);onChange();}; farm.onchange=onChange;
+  refresh(0);
+  return { current:()=>farm.value, display:()=>{const f=FARMS.find(x=>x.farm_no==farm.value); return f?f.farm_no+(f.owner_name?` (${f.owner_name})`:""):"";}, reload:()=>refresh(0) };
+}
+function yearMonthControls(barId, withMonth, onChange){
+  const bar=document.getElementById(barId);
+  const ys=document.createElement("select"); const yl=document.createElement("label"); yl.textContent="연";
+  for(const y of yearsAvailable().length?yearsAvailable():["2026"]){const o=document.createElement("option");o.value=y;o.textContent=y;ys.appendChild(o);}
+  bar.appendChild(yl); bar.appendChild(ys); let ms=null;
+  if(withMonth){ const ml=document.createElement("label"); ml.textContent="월"; ms=document.createElement("select");
+    for(let m=1;m<=12;m++){const o=document.createElement("option");o.value=String(m).padStart(2,"0");o.textContent=m+"월";ms.appendChild(o);}
+    bar.appendChild(ml); bar.appendChild(ms); ms.onchange=onChange; }
+  ys.onchange=onChange;
+  return {year:()=>ys.value, month:()=>ms?ms.value:null};
+}
+
+/* ===================== 표 렌더(정렬·자동너비) ===================== */
+function renderTable(tableEl, headers, rows, opts={}){
+  opts.sortState = opts.sortState || {col:-1,dir:0};
+  const orig=rows.slice();
+  function draw(rws){
+    let html="<thead><tr>"+headers.map((h,i)=>`<th data-c="${i}">${h}</th>`).join("")+"</tr></thead><tbody>";
+    for(const r of rws){ const cls=r._sub?' class="sub"':''; html+=`<tr${cls}>`+r.cells.map((c,i)=>{
+      const cl=c.cls?` class="${c.cls}"`:''; const al=i===0?' style="text-align:left"':'';
+      return `<td${cl}${al}>${c.t}</td>`;}).join("")+"</tr>"; }
+    html+="</tbody>"; tableEl.innerHTML=html;
+    tableEl.querySelectorAll("th").forEach(th=>th.onclick=()=>{
+      const c=+th.dataset.c; const st=opts.sortState;
+      if(st.col!==c){st.col=c;st.dir=1;} else {st.dir=(st.dir+1)%3;}
+      if(st.dir===0){ draw(orig); return; }
+      const key=x=>{ const t=(x.cells[c].t||"").replace(/,/g,"").replace(/%/g,"").replace(/\+/g,""); const n=parseFloat(t); return isNaN(n)?[1,t]:[0,n]; };
+      const s=orig.slice().sort((a,b)=>{const ka=key(a),kb=key(b); return ka[0]!==kb[0]?ka[0]-kb[0]:(ka[1]<kb[1]?-1:ka[1]>kb[1]?1:0);});
+      if(st.dir===2) s.reverse(); draw(s);
+    });
+  }
+  draw(orig);
+}
+
+/* ===================== 탭 ===================== */
+const TABS=[["import","가져오기"],["monthly","월별 현황"],["year","연간 월별표"],["trend","그래프"],["review","내검센터"],["ae","성축환산 설정"]];
+function initTabs(){ const t=document.getElementById("tabs");
+  TABS.forEach(([id,label],i)=>{ const b=document.createElement("button"); b.textContent=label; b.onclick=()=>showTab(id);
+    if(i===0)b.classList.add("active"); t.appendChild(b); }); }
+function showTab(id){
+  document.querySelectorAll(".tabs button").forEach((b,i)=>b.classList.toggle("active",TABS[i][0]===id));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById("p-"+id).classList.add("active");
+  if(id==="monthly") renderMonthly(); else if(id==="year") renderYear();
+  else if(id==="trend") renderTrend(); else if(id==="ae") renderAE(); else if(id==="import") renderStatus();
+  else if(id==="review") renderReview();
+}
+
+/* ===================== 가져오기 ===================== */
+document.getElementById("fileInput").onchange=async e=>{
+  const files=[...e.target.files]; if(!files.length) return;
+  const log=document.getElementById("importLog"); log.textContent="읽는 중...";
+  if(typeof DecompressionStream==="undefined"){ log.textContent="이 브라우저는 지원되지 않습니다. 최신 Chrome/Edge에서 열어주세요."; return; }
+  const mask=document.getElementById("maskChk").checked;
+  let all=[], recog=0, unrec=[];
+  for(const f of files){ try{
+    const buf=await f.arrayBuffer(); const sheets=await readXlsx(buf); const det=detectWorkbook(sheets,f.name);
+    det.forEach(d=>{ if(d.recognized) recog++; else unrec.push(f.name+":"+d.source_sheet); });
+    all=all.concat(toRecords(det, mask));
+  }catch(err){ log.textContent="오류: "+f.name+" — "+err.message; return; } }
+  await saveRecords(all);
+  RECORDS=await getAllRecords(); buildFarms();
+  log.innerHTML=`가져오기 완료 · 파일 ${files.length}개 · 인식 시트 ${recog}개 · 저장 행 ${all.length}건`
+    + (unrec.length?`<br><span class="warn">미인식: ${unrec.slice(0,6).join(", ")}${unrec.length>6?" 외":""}</span>`:"");
+  e.target.value=""; renderStatus();
+};
+document.getElementById("clearBtn").onclick=async()=>{ if(!confirm("모든 자료를 삭제할까요?"))return; await clearRecords(); RECORDS=[]; buildFarms(); renderStatus(); document.getElementById("importLog").textContent="전체 삭제됨."; };
+document.getElementById("exportBtn").onclick=()=>{ const blob=new Blob([JSON.stringify(RECORDS)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="dudang_backup_"+Date.now()+".json"; a.click(); };
+document.getElementById("restoreInput").onchange=async e=>{ const f=e.target.files[0]; if(!f)return;
+  const data=JSON.parse(await f.text()); await clearRecords(); const store=tx("records","readwrite");
+  data.forEach(r=>{ delete r.id; store.add(r); }); store.transaction.oncomplete=async()=>{ RECORDS=await getAllRecords(); buildFarms(); renderStatus(); alert("복원 완료 "+data.length+"건"); }; };
+function renderStatus(){
+  const sm={}; for(const r of RECORDS){ const k=[r.farm_no,r.survey_year,r.survey_month,r.sheet_type].join("|"); sm[k]=(sm[k]||0)+1; }
+  document.getElementById("statusSummary").textContent=`농가 ${FARMS.length}호 · 저장 행 ${RECORDS.length}건 · 연도 ${yearsAvailable().join(", ")||"없음"}`;
+  const rows=Object.entries(sm).map(([k,c])=>{ const [f,y,m,t]=k.split("|"); const farm=FARMS.find(x=>x.farm_no==f);
+    return {cells:[{t:f},{t:farm?farm.owner_name:""},{t:y},{t:m},{t:(SHEET_DEFS_TYPE[t]||t)},{t:String(c)}]}; })
+    .sort((a,b)=>a.cells[0].t<b.cells[0].t?-1:1);
+  renderTable(document.getElementById("statusTable"),["농가번호","이름","연","월","시트","행수"],rows);
+}
+const SHEET_DEFS_TYPE={}; for(const d of Object.values(SHEET_DEFS)) SHEET_DEFS_TYPE[d.type]=d.display;
+
+/* ===================== 월별 현황 ===================== */
+let selMonthly;
+function initMonthly(){ selMonthly={sel:makeSelector("sel-monthly",renderMonthly), ...yearMonthControls("sel-monthly",true,renderMonthly)};
+  const b=document.createElement("button"); b.className="btn grey"; b.textContent="CSV 내보내기"; b.onclick=()=>downloadCSV(document.getElementById("monthlyTable"),"월별분석.csv"); document.getElementById("sel-monthly").appendChild(b); }
+function repMonths(farm,year,upto){ // 누적 대표두수 = 자료있는 월 성축환산두수 평균
+  let sum=0,n=0; for(let m=1;m<=upto;m++){const mm=String(m).padStart(2,"0"); if(RECORDS.some(r=>r.sheet_type==="livestock_status"&&r.farm_no==farm&&r.survey_year==year&&r.survey_month==mm)){ sum+=aeCompute(RECORDS,farm,year,mm,COEFFS,BASIS).total; n++; }} return n?sum/n:0; }
+function renderMonthly(){
+  if(!selMonthly) return; const farm=selMonthly.sel.current(); const year=selMonthly.year(), month=selMonthly.month();
+  const mode=document.querySelector('input[name=mmode]:checked').value;
+  const sumEl=document.getElementById("monthlySummary"); const tbl=document.getElementById("monthlyTable");
+  if(!farm){ sumEl.textContent="농가를 선택하세요(먼저 자료를 가져오세요)."; tbl.innerHTML=""; return; }
+  if(mode==="month"){
+    const A=monthlyAggregate(RECORDS,farm,year,month); const ae=aeCompute(RECORDS,farm,year,month,COEFFS,BASIS).total;
+    // 전월
+    let py=+year,pm=+month-1; if(pm===0){py--;pm=12;} const pmm=String(pm).padStart(2,"0"),pys=String(py);
+    const hasPrev=periodHasData(farm,pys,pmm); const Ap=hasPrev?monthlyAggregate(RECORDS,farm,pys,pmm):null; const aep=hasPrev?aeCompute(RECORDS,farm,pys,pmm,COEFFS,BASIS).total:0;
+    sumEl.textContent=`[당월] ${selMonthly.sel.display()} · ${year}년 ${month}월 · 성축환산두수 ${ae.toLocaleString(undefined,{maximumFractionDigits:2})} (기준 ${BASISLABEL[BASIS]})` + (hasPrev?` | 전월 ${aep.toFixed(2)}`:" | 전월 자료없음");
+    const cur=Object.fromEntries(metricsOf(A).map(m=>[m[0],[m[1],m[2]]]));
+    const prev=Ap?Object.fromEntries(metricsOf(Ap).map(m=>[m[0],[m[1],m[2]]])):{};
+    const labels=metricsOf(A).map(m=>m[0]);
+    const rows=labels.map(lb=>{ const [v,isH]=cur[lb]; const per=ae?v/ae:null; const pv=prev[lb]?prev[lb][0]:null; const pper=(hasPrev&&aep)?(pv/aep):null;
+      const momT=pv!=null&&pv!==0?((v-pv)/pv*100):null; const momP=(pper!=null&&pper!==0&&per!=null)?((per-pper)/pper*100):null;
+      const sub=/계|합계|전체/.test(lb);
+      return {_sub:sub, cells:[{t:lb},{t:isH?fmtHours(v):money(v)},{t:isH?fmtHours(per):money(per)},pctCell(momT),pctCell(momP)]}; });
+    renderTable(tbl,["항목","총액","성축환산 두당","총액 전월비","두당 전월비"],rows);
+  } else {
+    const upto=+month; const rep=repMonths(farm,year,upto);
+    const agg={}; for(let m=1;m<=upto;m++){const mm=String(m).padStart(2,"0"); if(!periodHasData(farm,year,mm))continue;
+      for(const [lb,v,isH] of metricsOf(monthlyAggregate(RECORDS,farm,year,mm))){ if(!agg[lb])agg[lb]={v:0,isH}; agg[lb].v+=v; } }
+    sumEl.textContent=`[누적] ${selMonthly.sel.display()} · ${year}년 1~${String(upto).padStart(2,"0")}월 · 기간대표 성축환산두수 ${rep.toFixed(2)} (월평균)`;
+    const rows=Object.entries(agg).map(([lb,o])=>{ const per=rep?o.v/rep:null; const sub=/계|합계|전체/.test(lb);
+      return {_sub:sub, cells:[{t:lb},{t:o.isH?fmtHours(o.v):money(o.v)},{t:o.isH?fmtHours(per):money(per)}]}; });
+    renderTable(tbl,["항목","누적 총액","성축환산 두당"],rows);
+  }
+}
+const BASISLABEL={month_begin:"월초",month_end:"월말",month_avg:"월평균"};
+function pctCell(v){ if(v==null) return {t:"-"}; return {t:(v>=0?"+":"")+v.toFixed(1)+"%", cls:v>0?"pos":v<0?"neg":""}; }
+document.querySelectorAll('input[name=mmode]').forEach(r=>r.onchange=renderMonthly);
+
+/* ===================== 연간 월별표 ===================== */
+let selYear;
+function initYear(){ selYear={sel:makeSelector("sel-year",renderYear), ...yearMonthControls("sel-year",false,renderYear)};
+  const b=document.createElement("button"); b.className="btn grey"; b.textContent="CSV 내보내기"; b.onclick=()=>downloadCSV(document.getElementById("yearTable"),"연간월별집계.csv"); document.getElementById("sel-year").appendChild(b); }
+function renderYear(){
+  if(!selYear)return; const farm=selYear.sel.current(), year=selYear.year();
+  const sumEl=document.getElementById("yearSummary"), tbl=document.getElementById("yearTable");
+  if(!farm){ sumEl.textContent="농가를 선택하세요."; tbl.innerHTML=""; return; }
+  const rep=repMonths(farm,year,12);
+  const per={}, order=[], isH={};
+  for(let m=1;m<=12;m++){ const mm=String(m).padStart(2,"0"); if(!periodHasData(farm,year,mm))continue;
+    for(const [lb,v,h] of metricsOf(monthlyAggregate(RECORDS,farm,year,mm))){ if(!(lb in per)){per[lb]=Array(12).fill(null);order.push(lb);isH[lb]=h;} per[lb][m-1]=v; } }
+  sumEl.textContent=`${selYear.sel.display()} · ${year}년 · 기간대표 성축환산두수 ${rep.toFixed(2)} · 두당 = 합계 ÷ 대표두수`;
+  const headers=["항목",...Array.from({length:12},(_,i)=>(i+1)+"월"),"합계","성축환산 두당"];
+  const rows=order.map(lb=>{ const vals=per[lb]; const tot=vals.reduce((a,b)=>a+(b||0),0); const ph=rep?tot/rep:null; const h=isH[lb];
+    const cells=[{t:lb}]; for(const v of vals) cells.push({t:v==null?"":(h?fmtHours(v):money(v))});
+    cells.push({t:h?fmtHours(tot):money(tot)}); cells.push({t:h?fmtHours(ph):money(ph)});
+    return {_sub:/계|합계|전체/.test(lb), cells};
+  });
+  renderTable(tbl,headers,rows);
+}
+
+/* ===================== 그래프 ===================== */
+let selTrend; const TREND_METRICS=[["성축환산두수","두","avg"],["전체 사료비","원","sum"],["성축환산 두당 사료비","원/두","avg"],["조사료비","원","sum"],["생산비 합계","원","sum"],["성축환산 두당 투입비","원/두","avg"],["전체 노동시간","시간","sum"],["구입 총액","원","sum"],["판매 총액","원","sum"],["부산물 수입","원","sum"]];
+function initTrend(){ selTrend={sel:makeSelector("sel-trend",renderTrend), ...yearMonthControls("sel-trend",false,renderTrend)};
+  const ms=document.getElementById("metricSel"); TREND_METRICS.forEach(m=>{const o=document.createElement("option");o.value=m[0];o.textContent=m[0];ms.appendChild(o);}); ms.onchange=drawChart; }
+let TREND_SERIES=null;
+function renderTrend(){
+  if(!selTrend)return; const farm=selTrend.sel.current(), year=selTrend.year();
+  const sumEl=document.getElementById("trendSummary");
+  if(!farm){ sumEl.textContent="농가를 선택하세요."; TREND_SERIES=null; drawChart(); return; }
+  const S={}; TREND_METRICS.forEach(m=>S[m[0]]=Array(12).fill(null)); const have=[];
+  for(let m=1;m<=12;m++){ const mm=String(m).padStart(2,"0"); if(!periodHasData(farm,year,mm))continue; have.push(m);
+    const A=monthlyAggregate(RECORDS,farm,year,mm); const ae=aeCompute(RECORDS,farm,year,mm,COEFFS,BASIS).total; const dh=x=>ae?x/ae:null;
+    S["성축환산두수"][m-1]=ae; S["전체 사료비"][m-1]=A.feedTotal; S["성축환산 두당 사료비"][m-1]=dh(A.feedTotal);
+    S["조사료비"][m-1]=A.roughTotal.amount; S["생산비 합계"][m-1]=A.costTotal; S["성축환산 두당 투입비"][m-1]=dh(A.costTotal);
+    S["전체 노동시간"][m-1]=A.laborTotal; S["구입 총액"][m-1]=A.buy.total; S["판매 총액"][m-1]=A.sell.total; S["부산물 수입"][m-1]=A.bpTotal;
+  }
+  TREND_SERIES=S; sumEl.textContent=`${selTrend.sel.display()} · ${year}년 · 자료 있는 월: ${have.join(", ")||"없음"}`; drawChart();
+}
+function drawChart(){
+  const cv=document.getElementById("chart"), ctx=cv.getContext("2d"); const W=cv.width=cv.clientWidth||900,H=cv.height;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
+  const name=document.getElementById("metricSel").value; const vals=TREND_SERIES?TREND_SERIES[name]:null;
+  const ml=56,mr=16,mt=26,mb=26, x0=ml,y0=H-mb,x1=W-mr,y1=mt, pw=x1-x0,ph=y0-y1;
+  ctx.fillStyle="#333"; ctx.font="bold 13px sans-serif"; ctx.fillText(name||"",ml,18);
+  const nums=(vals||[]).filter(v=>v!=null); if(!nums.length){ ctx.fillStyle="#999"; ctx.fillText("자료 없음",ml,mt+30); return; }
+  let vmax=Math.max(...nums),vmin=Math.min(0,...nums); if(vmax===vmin)vmax=vmin+1; const span=vmax-vmin;
+  ctx.strokeStyle="#eee"; ctx.fillStyle="#888"; ctx.font="10px sans-serif"; ctx.textAlign="right";
+  for(let k=0;k<=4;k++){ const yy=y0-ph*k/4, val=vmin+span*k/4; ctx.beginPath();ctx.moveTo(x0,yy);ctx.lineTo(x1,yy);ctx.stroke();
+    ctx.fillText(fmtAxis(val),x0-4,yy+3); }
+  ctx.textAlign="center"; for(let i=0;i<12;i++){ const x=x0+pw*i/11; ctx.fillText(String(i+1),x,y0+14); }
+  ctx.strokeStyle="#2b6cb0"; ctx.lineWidth=2; ctx.beginPath(); let started=false;
+  for(let i=0;i<12;i++){ const v=vals[i]; if(v==null){started=false;continue;} const x=x0+pw*i/11,y=y0-ph*(v-vmin)/span; if(started)ctx.lineTo(x,y); else ctx.moveTo(x,y); started=true; }
+  ctx.stroke(); ctx.fillStyle="#2b6cb0";
+  for(let i=0;i<12;i++){ const v=vals[i]; if(v==null)continue; const x=x0+pw*i/11,y=y0-ph*(v-vmin)/span; ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill(); }
+}
+function fmtAxis(v){ const a=Math.abs(v); if(a>=1e6)return (v/1e6).toFixed(1)+"M"; if(a>=1e3)return Math.round(v/1e3)+"k"; return (v===Math.round(v)?v:v.toFixed(1))+""; }
+
+/* ===================== 성축환산 설정 ===================== */
+function renderAE(){
+  document.querySelector(`input[name=basis][value=${BASIS}]`).checked=true;
+  const t=document.getElementById("coeffTable"); let h="<thead><tr><th>사육구분</th><th>성축환산계수</th></tr></thead><tbody>";
+  for(const b of BREEDS){ const v=(COEFFS&&COEFFS[b]!=null)?COEFFS[b]:1.0; h+=`<tr><td>${b}</td><td><input type="number" step="0.05" value="${v}" data-b="${b}" style="width:90px"></td></tr>`; }
+  t.innerHTML=h+"</tbody>";
+  document.getElementById("coeffWarn").textContent=(!COEFFS)?"⚠ 현재 계수는 기본값 1.0입니다. 실제 성축환산계수를 입력 후 저장하세요.":"";
+}
+document.querySelectorAll('input[name=basis]').forEach(r=>r.onchange=async()=>{ BASIS=r.value; await setSetting("basis",BASIS); });
+document.getElementById("saveCoeff").onclick=async()=>{ const c={}; document.querySelectorAll("#coeffTable input").forEach(i=>c[i.dataset.b]=parseFloat(i.value)||0);
+  COEFFS=c; await setSetting("coeffs",c); document.getElementById("coeffWarn").textContent="저장됨."; };
+
+/* ===================== 내검(검증) ===================== */
+const V_OK="정상",V_ERR="오류",V_WARN="확인권장",V_SUS="오류의심";
+let VWARN=30,VSTRONG=50,UPWARN=20,UPSTRONG=50;
+function relClose(a,b,tol=0.01){ if(b===0)return Math.abs(a)<1e-6; return Math.abs(a-b)/Math.abs(b)<=tol; }
+function statusByPct(pct,warn,strong){ if(pct==null)return V_OK; const a=Math.abs(pct); return a>=strong?V_SUS:a>=warn?V_WARN:V_OK; }
+function median(xs){ xs=xs.slice().sort((a,b)=>a-b); const n=xs.length; if(!n)return null; return n%2?xs[(n-1)/2]:(xs[n/2-1]+xs[n/2])/2; }
+function byPM(recs,t,farm,year,month){ return recs.filter(r=>r.sheet_type===t&&r.farm_no==farm&&r.survey_year==year&&r.survey_month==month).map(r=>({p:r.payload,sr:r.source_row})); }
+function confirmChecks(recs,farm,year,month){
+  const out=[];
+  for(const {p,sr} of byPM(recs,"livestock_status",farm,year,month)){
+    const inc=num(p.inc_birth)+num(p.inc_purchase)+num(p.inc_transfer_in);
+    const dec=num(p.dec_transfer_out)+num(p.dec_sale)+num(p.dec_cull)+num(p.dec_death);
+    const calc=num(p.cnt_begin)+inc-dec, end=num(p.cnt_end);
+    out.push({vtype:"확정형",cat:"사육두수 항등",item:p.breed_class||("행"+sr),expected:end,actual:calc,pct:null,status:relClose(calc,end)?V_OK:V_ERR,msg:`월초+증가−감소=${calc} vs 월말=${end}`});
+  }
+  for(const [t,cat] of [["feed_concentrate","농후 평가액"],["feed_roughage","조사료 평가액"]])
+    for(const {p,sr} of byPM(recs,t,farm,year,month)){ const calc=num(p.feed_qty)*num(p.unit_price),amt=num(p.amount);
+      if(!relClose(calc,amt)) out.push({vtype:"확정형",cat,item:(p.feed_name||"")+"(행"+sr+")",expected:amt,actual:calc,pct:null,status:V_ERR,msg:"급여량×단가≈평가액 불일치"}); }
+  return out;
+}
+function compareChecks(recs,farm,year,month){
+  let py=+year,pm=+month-1; if(pm===0){py--;pm=12;} const pmm=String(pm).padStart(2,"0"),pys=String(py);
+  if(!periodHasData(farm,pys,pmm))return [];
+  const cur=Object.fromEntries(metricsOf(monthlyAggregate(recs,farm,year,month)).map(m=>[m[0],m[1]]));
+  const prev=Object.fromEntries(metricsOf(monthlyAggregate(recs,farm,pys,pmm)).map(m=>[m[0],m[1]]));
+  const out=[]; for(const [lb,v] of Object.entries(cur)){ const pv=prev[lb]; if(pv==null||pv===0)continue;
+    const pct=(v-pv)/pv*100; out.push({vtype:"비교형",cat:"전월대비 증감",item:lb,expected:pv,actual:v,pct,status:statusByPct(pct,VWARN,VSTRONG),msg:`총액 전월비 ${pct.toFixed(1)}%`}); }
+  return out;
+}
+function unitPriceChecks(recs,farm,year,month){
+  const out=[]; const specs=[
+    ["feed_concentrate","농후사료 단가",p=>p.feed_name||"농후",p=>num(p.unit_price)||(num(p.feed_qty)?num(p.amount)/num(p.feed_qty):null)],
+    ["feed_roughage","조사료 단가",p=>p.feed_name||"조사료",p=>num(p.unit_price)||(num(p.feed_qty)?num(p.amount)/num(p.feed_qty):null)],
+    ["livestock_trade","구입 두당가",p=>p.item_name||"구입",p=>num(p.buy_qty)?(num(p.buy_real)||num(p.buy_amount))/num(p.buy_qty):null],
+    ["livestock_trade","판매 두당가",p=>p.item_name||"판매",p=>num(p.sell_qty)?(num(p.sell_real)||num(p.sell_amount))/num(p.sell_qty):null],
+  ];
+  for(const [t,label,keyf,pricef] of specs){
+    const all=recs.filter(r=>r.sheet_type===t&&r.farm_no==farm).map(r=>({p:r.payload,mm:r.survey_month,sr:r.source_row}));
+    const samples={}; for(const {p} of all){ const pr=pricef(p); if(pr&&pr>0)(samples[keyf(p)]=samples[keyf(p)]||[]).push(pr); }
+    const med={}; for(const [k,v] of Object.entries(samples)) if(v.length>=2) med[k]=median(v);
+    for(const {p,mm,sr} of all){ if(mm!=month)continue; const pr=pricef(p),k=keyf(p); if(!pr||pr<=0||med[k]==null)continue;
+      const diff=(pr-med[k])/med[k]*100, st=statusByPct(diff,UPWARN,UPSTRONG); if(st===V_OK)continue;
+      out.push({vtype:"비교형",cat:"단가차이",item:`${label}:${k}(행${sr})`,expected:med[k],actual:pr,pct:diff,status:st,msg:`같은품목 중앙값 대비 ${diff>=0?"+":""}${diff.toFixed(1)}%`}); }
+  }
+  return out;
+}
+const STATUS_ORDER={"오류":0,"오류의심":1,"확인권장":2,"정상":3};
+function runValidation(recs,farm,year,month){
+  return [...confirmChecks(recs,farm,year,month),...compareChecks(recs,farm,year,month),...unitPriceChecks(recs,farm,year,month)]
+    .sort((a,b)=>STATUS_ORDER[a.status]-STATUS_ORDER[b.status]);
+}
+let selReview, REVIEW_RESULTS=[];
+function initReview(){ selReview={sel:makeSelector("sel-review",()=>{}), ...yearMonthControls("sel-review",true,()=>{})};
+  document.getElementById("vWarn").value=VWARN; document.getElementById("vStrong").value=VSTRONG;
+  document.getElementById("upWarn").value=UPWARN; document.getElementById("upStrong").value=UPSTRONG;
+}
+function renderReview(){ if(!selReview)return; const tbl=document.getElementById("reviewTable"), sum=document.getElementById("reviewSummary");
+  const flt=document.getElementById("reviewFilter").value;
+  let rows=REVIEW_RESULTS.filter(r=>!flt||r.status===flt);
+  const cnt={}; REVIEW_RESULTS.forEach(r=>cnt[r.status]=(cnt[r.status]||0)+1);
+  sum.textContent=REVIEW_RESULTS.length?`검증 ${REVIEW_RESULTS.length}건 · 오류 ${cnt["오류"]||0} · 오류의심 ${cnt["오류의심"]||0} · 확인권장 ${cnt["확인권장"]||0} · 정상 ${cnt["정상"]||0}`:"‘내검 실행’을 눌러 검증하세요.";
+  const SCLS={"오류":"pos","오류의심":"pos","확인권장":"neg","정상":""};
+  const trows=rows.map(r=>({cells:[{t:r.vtype},{t:r.cat},{t:r.item},{t:typeof r.actual==="number"?money(r.actual):r.actual},{t:typeof r.expected==="number"?money(r.expected):r.expected},{t:r.pct==null?"-":(r.pct>=0?"+":"")+r.pct.toFixed(1)+"%"},{t:r.status,cls:SCLS[r.status]}]}));
+  renderTable(tbl,["종류","분류","항목","현재값","비교값","증감률","판정"],trows);
+}
+document.getElementById("runReview").onclick=()=>{ const farm=selReview.sel.current(); if(!farm){alert("농가를 선택하세요");return;}
+  REVIEW_RESULTS=runValidation(RECORDS,farm,selReview.year(),selReview.month()); renderReview(); };
+document.getElementById("reviewFilter").onchange=renderReview;
+document.getElementById("saveRules").onclick=async()=>{ VWARN=+document.getElementById("vWarn").value; VSTRONG=+document.getElementById("vStrong").value;
+  UPWARN=+document.getElementById("upWarn").value; UPSTRONG=+document.getElementById("upStrong").value;
+  await setSetting("rules",{VWARN,VSTRONG,UPWARN,UPSTRONG}); alert("임계값 저장됨"); };
+
+/* ===================== CSV 내보내기 ===================== */
+function tableToCSV(tableEl){ const lines=[];
+  tableEl.querySelectorAll("tr").forEach(tr=>{ const cells=[...tr.children].map(td=>{ let t=td.textContent.replace(/,/g,""); if(/[",\n]/.test(t))t='"'+t.replace(/"/g,'""')+'"'; return t; }); lines.push(cells.join(",")); });
+  return "﻿"+lines.join("\n"); }
+function downloadCSV(tableEl,name){ const blob=new Blob([tableToCSV(tableEl)],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); }
+document.getElementById("exportReview").onclick=()=>downloadCSV(document.getElementById("reviewTable"),"내검결과.csv");
+
+/* ===================== 시작 ===================== */
+(async function(){
+  // 제목 5회 클릭 = (프로토타입) 관리자 표시 토글
+  let clicks=[]; document.getElementById("title").onclick=()=>{ const now=Date.now(); clicks.push(now); clicks=clicks.filter(t=>now-t<3000);
+    if(clicks.length>=5){ clicks=[]; document.getElementById("admin").textContent="관리자 표시 ON (프로토타입)"; } };
+  initTabs();
+  try{ await openDB(); }catch(e){ document.getElementById("importLog").textContent="저장소 열기 실패: "+e; }
+  RECORDS=await getAllRecords(); buildFarms();
+  COEFFS=await getSetting("coeffs"); BASIS=(await getSetting("basis"))||"month_end";
+  const rules=await getSetting("rules"); if(rules){ VWARN=rules.VWARN;VSTRONG=rules.VSTRONG;UPWARN=rules.UPWARN;UPSTRONG=rules.UPSTRONG; }
+  initMonthly(); initYear(); initTrend(); initReview();
+  renderStatus();
+})();
+</script>
+</body>
+</html>
