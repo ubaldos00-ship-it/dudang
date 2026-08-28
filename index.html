@@ -1,0 +1,186 @@
+<!-- index.html · 저장: 2026-08-28 13:41 KST -->
+<!-- 두당(頭當) 통합대시보드 · 1단계 뼈대 · 기존 기능(cattle/disease/생산비) 허브 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>두당 頭當 · 가축동향·축산물생산비조사 현장지원 시스템</title>
+<style>
+  :root{
+    --navy:#1a365d; --navy2:#2c5282; --blue:#2b6cb0; --sky:#3182ce;
+    --bg:#f4f6f9; --card:#fff; --line:#e2e8f0; --text:#1a202c; --muted:#718096;
+    --ok:#2f855a; --warn:#c05621; --red:#c53030;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:var(--text);background:var(--bg);line-height:1.5;}
+  a{color:inherit;text-decoration:none;}
+  /* 상단 */
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:16px 18px;}
+  .head-row{max-width:1160px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .brand{font-size:26px;font-weight:800;letter-spacing:1px;}
+  .brand small{font-size:13px;font-weight:400;color:#bcd4ef;margin-left:8px;letter-spacing:0;}
+  .slogan{color:#cfe0f2;font-size:14px;margin-top:2px;}
+  nav.top{background:#22497a;}
+  nav.top .inner{max-width:1160px;margin:0 auto;display:flex;flex-wrap:wrap;}
+  nav.top a{color:#dbe8f7;padding:11px 15px;font-size:14px;border-bottom:3px solid transparent;}
+  nav.top a:hover{color:#fff;border-bottom-color:#63b3ed;background:rgba(255,255,255,.05);}
+  main{max-width:1160px;margin:0 auto;padding:18px 16px 60px;}
+  /* 검색 */
+  .search{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0 20px;box-shadow:0 2px 10px rgba(0,0,0,.03);}
+  .search h2{margin:0 0 10px;font-size:18px;}
+  .search .box{display:flex;gap:8px;}
+  .search input{flex:1;padding:13px 14px;font-size:16px;border:1px solid #cbd5e0;border-radius:10px;}
+  .search button{padding:0 20px;font-size:16px;background:var(--blue);color:#fff;border:0;border-radius:10px;cursor:pointer;}
+  .search .tags{margin-top:10px;font-size:13px;color:var(--muted);}
+  .search .tags span{display:inline-block;background:#edf2f7;border-radius:12px;padding:3px 10px;margin:3px 4px 0 0;cursor:pointer;}
+  /* 섹션 */
+  h3.sec{font-size:17px;margin:26px 0 12px;padding-left:10px;border-left:4px solid var(--blue);}
+  /* 바로가기 카드 */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .card{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;transition:.15s;box-shadow:0 1px 4px rgba(0,0,0,.03);}
+  .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(43,108,176,.14);border-color:#bcd0ea;}
+  .card .ico{font-size:30px;}
+  .card .t{font-size:17px;font-weight:700;margin-top:8px;}
+  .card .d{font-size:13px;color:var(--muted);margin-top:4px;}
+  .card .badge{display:inline-block;font-size:11px;color:#fff;background:var(--ok);border-radius:8px;padding:1px 7px;margin-left:6px;vertical-align:middle;}
+  .card .badge.soon{background:#a0aec0;}
+  /* 질병 */
+  .disease{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .disease .bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .disease .bar .pills button{border:1px solid #cbd5e0;background:#fff;border-radius:20px;padding:5px 12px;margin-right:6px;font-size:13px;cursor:pointer;}
+  .disease .bar .pills button.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .map-ph{height:280px;border:1px dashed #cbd5e0;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;background:#fafbfc;}
+  .recent{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .recent .r{border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;}
+  .recent .r b{color:var(--red);} .recent .r span{color:var(--muted);}
+  .rightbtn{text-align:right;margin-top:10px;}
+  .rightbtn a{display:inline-block;background:#edf2f7;border-radius:10px;padding:8px 14px;font-size:14px;color:var(--navy);font-weight:600;}
+  /* 축종 */
+  .species{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .species a{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;font-weight:600;}
+  .species a .ico{font-size:26px;display:block;margin-bottom:6px;}
+  .species a.soon{color:#a0aec0;}
+  footer{max-width:1160px;margin:0 auto;padding:24px 16px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);}
+  .note{font-size:12px;color:var(--warn);margin-top:6px;}
+  /* 반응형 */
+  @media(max-width:760px){
+    .cards{grid-template-columns:repeat(2,1fr);}
+    .species{grid-template-columns:repeat(2,1fr);}
+    .recent{grid-template-columns:1fr;}
+    nav.top{display:none;}
+    .brand{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-row">
+    <div>
+      <div class="brand">두당 <span style="font-weight:400">頭當</span> <small>가축동향 · 축산물생산비조사 현장지원 시스템</small></div>
+      <div class="slogan">“축산을 이해하면 조사가 보입니다.”</div>
+    </div>
+  </div>
+</header>
+<nav class="top"><div class="inner">
+  <a href="#home">홈</a>
+  <a href="#learn-survey">조사 배우기</a>
+  <a href="#species">축종 배우기</a>
+  <a href="production-cost.html">생산비 분석</a>
+  <a href="cattle.html">소이력 조회</a>
+  <a href="disease.html">질병현황</a>
+  <a href="#terms">조사용어</a>
+</div></nav>
+
+<main id="home">
+  <!-- 통합검색 -->
+  <section class="search">
+    <h2>무엇이 궁금하세요?</h2>
+    <div class="box">
+      <input id="q" placeholder="건유, TMR, 번식우, 사료비 등을 검색하세요" autocomplete="off">
+      <button id="qbtn">검색</button>
+    </div>
+    <div class="tags">추천:
+      <span>번식우</span><span>TMR</span><span>건유</span><span>인공수정</span><span>사료비</span><span>초임우</span>
+    </div>
+    <div class="note" id="qnote">※ 통합검색은 다음 단계(조사용어·축종 JSON 연동)에서 실제 동작합니다.</div>
+  </section>
+
+  <!-- 메인 바로가기 -->
+  <h3 class="sec">주요 업무 바로가기</h3>
+  <div class="cards">
+    <a class="card" href="cattle.html"><div class="ico">🐄</div><div class="t">소이력 조회</div><div class="d">이력번호로 개체정보 확인</div></a>
+    <a class="card" href="cattle.html"><div class="ico">🧮</div><div class="t">자동계산</div><div class="d">소이력 자료 기반 계산</div></a>
+    <a class="card" href="disease.html"><div class="ico">🗺️</div><div class="t">가축질병현황<span class="badge">지도</span></div><div class="d">최근 가축전염병 발생현황</div></a>
+    <a class="card" href="production-cost.html"><div class="ico">📊</div><div class="t">생산비 분석<span class="badge">신규</span></div><div class="d">조사자료 월별·연간 분석·내검</div></a>
+    <a class="card" href="#species"><div class="ico">📚</div><div class="t">축종 배우기</div><div class="d">7개 축종 생애·사육방법</div></a>
+    <a class="card" href="#terms"><div class="ico">🔎</div><div class="t">조사용어<span class="badge soon">준비중</span></div><div class="d">현장 축산·조사용어 검색</div></a>
+  </div>
+
+  <!-- 최근 질병 -->
+  <h3 class="sec">최근 가축질병 발생현황</h3>
+  <div class="disease">
+    <div class="bar">
+      <div class="pills">
+        <button data-m="1">1개월</button><button data-m="3" class="on">3개월</button><button data-m="6">6개월</button><button data-m="0">전체</button>
+      </div>
+    </div>
+    <div class="map-ph" id="mapPh">
+      🗺️ 최근 3개월 가축질병 발생지도<br>
+      <span style="font-size:13px">(다음 단계: disease.html의 카카오맵·질병 API를 <code>js/disease-service.js</code>로 공통화하여 이곳에 임베드)</span>
+    </div>
+    <div class="recent">
+      <div class="r"><b>고병원성 AI</b> · 산란계<br><span>○○도 ○○시 · 2026-00-00 (예시)</span></div>
+      <div class="r"><b>ASF</b> · 돼지<br><span>○○도 ○○군 · 2026-00-00 (예시)</span></div>
+      <div class="r"><b>럼피스킨</b> · 소<br><span>○○도 ○○시 · 2026-00-00 (예시)</span></div>
+    </div>
+    <div class="note">※ 위 발생목록은 자리표시(예시)입니다. 실제 데이터는 다음 단계에서 질병 API로 연결합니다. 공개 가능한 지역단위만 표시합니다.</div>
+    <div class="rightbtn"><a href="disease.html">가축질병현황 자세히 보기 →</a></div>
+  </div>
+
+  <!-- 조사 바로가기 -->
+  <h3 class="sec" id="learn-survey">조사 바로가기</h3>
+  <div class="cards" style="grid-template-columns:repeat(2,1fr)">
+    <a class="card" href="#learn-survey" onclick="alert('조사 배우기(가축동향조사)는 다음 단계에서 콘텐츠 연결');"><div class="ico">📈</div><div class="t">가축동향조사<span class="badge soon">준비중</span></div><div class="d">목적·대상·흐름·기본개념</div></a>
+    <a class="card" href="#learn-survey" onclick="alert('조사 배우기(축산물생산비조사)는 다음 단계에서 콘텐츠 연결');"><div class="ico">💰</div><div class="t">축산물생산비조사<span class="badge soon">준비중</span></div><div class="d">목적·대상·흐름·기본개념</div></a>
+  </div>
+
+  <!-- 축종 빠른학습 -->
+  <h3 class="sec" id="species">축종 빠른학습</h3>
+  <div class="species">
+    <a class="soon" href="#species" onclick="speciesSoon('한우 번식우')"><span class="ico">🐮</span>한우 번식우</a>
+    <a class="soon" href="#species" onclick="speciesSoon('한우 비육우')"><span class="ico">🐄</span>한우 비육우</a>
+    <a class="soon" href="#species" onclick="speciesSoon('육우')"><span class="ico">🐂</span>육우</a>
+    <a class="soon" href="#species" onclick="speciesSoon('젖소')"><span class="ico">🥛</span>젖소</a>
+    <a class="soon" href="#species" onclick="speciesSoon('비육돈')"><span class="ico">🐖</span>비육돈</a>
+    <a class="soon" href="#species" onclick="speciesSoon('산란계')"><span class="ico">🥚</span>산란계</a>
+    <a class="soon" href="#species" onclick="speciesSoon('육계')"><span class="ico">🐔</span>육계</a>
+    <a class="soon" href="#terms" onclick="return false"><span class="ico">🔎</span>용어검색</a>
+  </div>
+  <div class="note">※ 축종 콘텐츠(생애주기·용어·사료·시설·조사포인트)는 <code>data/*.json</code> 기반으로 한우 번식우부터 시범 제작 예정입니다.</div>
+</main>
+
+<footer>
+  두당 頭當 · 가축동향·축산물생산비조사 현장지원 시스템 · 콘텐츠 버전 2026.1<br>
+  ⚠ 1단계(대시보드 뼈대)입니다. 소이력조회·자동계산·질병현황은 기존 정상 기능으로 연결되며, 질병지도 임베드·조사도우미·축종 콘텐츠·PWA는 다음 단계에서 추가됩니다.
+</footer>
+
+<script>
+  // 기간 버튼(뼈대: 표시만, 실제 지도 연결은 다음 단계)
+  document.querySelectorAll('.disease .pills button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('.disease .pills button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    const label={1:'1개월',3:'3개월',6:'6개월',0:'전체'}[b.dataset.m];
+    document.getElementById('mapPh').innerHTML='🗺️ 최근 '+label+' 가축질병 발생지도<br><span style="font-size:13px">(다음 단계에서 실제 지도 연결)</span>';
+  });
+  // 검색(뼈대)
+  const doSearch=()=>{ const q=document.getElementById('q').value.trim(); if(!q)return;
+    document.getElementById('qnote').textContent='“'+q+'” 검색은 다음 단계(용어·축종 JSON)에서 실제 결과를 표시합니다.'; };
+  document.getElementById('qbtn').onclick=doSearch;
+  document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+  document.querySelectorAll('.search .tags span').forEach(s=>s.onclick=()=>{document.getElementById('q').value=s.textContent;doSearch();});
+  function speciesSoon(n){ alert(n+' 콘텐츠(생애주기·용어·조사포인트)는 다음 단계에서 제작됩니다.'); }
+</script>
+</body>
+</html>

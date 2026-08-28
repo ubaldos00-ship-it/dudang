@@ -1,0 +1,762 @@
+<!-- disease.html (v12) · 저장: 2026-08-28 06:40 KST · 지도 핀 클러스터(카카오 MarkerClusterer, 밀집지역 자동묶음·줌인시 분리) + (v11)남한중심지도·순서번호·GA -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>가축질병 현장정보</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PYTDP9E5YL');
+</script>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --line:#e5e7eb; --line2:#d1d5db;
+    --t1:#1f2937; --t2:#6b7280; --t3:#9ca3af;
+    --accent:#1d6fe0; --accent-bg:#e8f1fd;
+    --warn:#b45309; --warn-bg:#fef3e2;
+    --red:#d64545; --red-bg:#fdecec;
+    --amber:#e08b16; --purple:#7c3aed; --blue:#1d6fe0; --green:#2fa84f; --gray:#9ca3af;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{background:var(--bg); color:var(--t1); font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-size:16px; line-height:1.5; overflow-x:hidden;}
+  .wrap{max-width:560px; margin:0 auto; padding:0 14px 40px;}
+  header{position:sticky; top:0; z-index:10; background:var(--bg); padding:12px 0 8px; border-bottom:1px solid var(--line);}
+  .h-top{display:flex; align-items:center; gap:8px;}
+  .nav-btn{background:none; border:none; color:var(--accent); font-size:14px; font-weight:700; padding:4px 0; flex:0 0 auto;}
+  .h-title{font-size:18px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none;}
+  .hub-btn{margin-left:auto; flex:0 0 auto; display:inline-flex; align-items:center; gap:4px; background:var(--accent); color:#fff; text-decoration:none; font-size:13px; font-weight:700; padding:7px 12px; border-radius:20px;}
+  .h-time{font-size:12px; color:var(--t3); margin-top:2px;}
+  .search-box{display:flex; gap:6px; margin-top:9px;}
+  .search-box input{flex:1; height:44px; border:1px solid var(--line2); border-radius:12px; padding:0 14px; font-size:16px; background:var(--card); color:var(--t1);}
+  .search-box button{width:50px; border:none; border-radius:12px; background:var(--accent); color:#fff; font-size:19px; font-weight:600;}
+  .rowscroll{display:flex; gap:6px; margin:9px 0 2px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px;}
+  .rowscroll::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto; height:34px; padding:0 13px; border:1px solid var(--line2); background:var(--card); border-radius:20px; font-size:13.5px; color:var(--t2); white-space:nowrap;}
+  .chip.on{background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600;}
+  .chip.cat.on{background:var(--t1); border-color:var(--t1);}
+  .rangeBox{display:flex; align-items:center; gap:6px; margin:6px 0 2px; flex-wrap:wrap;}
+  .rangeBox input{height:38px; border:1px solid var(--line2); border-radius:9px; padding:0 8px; font-size:14px; background:var(--card); color:var(--t1);}
+  .rangeBox button{height:38px; padding:0 14px; border:none; border-radius:9px; background:var(--accent); color:#fff; font-size:14px; font-weight:600;}
+  .share-row{display:flex; gap:8px; margin:9px 0 2px;}
+  .share-row button{flex:1; height:44px; border:none; border-radius:11px; background:var(--t1); color:#fff; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px;}
+  .summary{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:11px 0;}
+  .stat{background:var(--card); border-radius:10px; padding:6px 4px; text-align:center; border:1px solid var(--line);}
+  .stat .n{font-size:20px; font-weight:700; line-height:1.1;}
+  .stat .l{font-size:11px; color:var(--t2); margin-top:0;}
+  .sec-label{font-size:13px; color:var(--t2); margin:15px 2px 8px; font-weight:600;}
+  .filter-tag{display:inline-block; font-size:12px; background:var(--accent-bg); color:var(--accent); border-radius:20px; padding:2px 10px; margin-left:6px; font-weight:600;}
+  .admin-tag{display:inline-block; font-size:12px; background:#fef3e2; color:#b45309; border-radius:20px; padding:2px 10px; margin-left:6px; font-weight:700;}
+  .card{background:var(--card); border:1px solid var(--line); border-left-width:4px; border-radius:10px; padding:11px 13px; margin-bottom:8px;}
+  .card .loc{font-size:16px; font-weight:700; line-height:1.35;}
+  .card .farm{color:#b45309; font-size:13.5px; font-weight:700; margin-left:4px;}
+  .card .dis{font-size:14px; color:var(--accent); margin-top:2px; font-weight:600;}
+  .card .meta{font-size:13px; color:var(--t2); margin-top:3px;}
+  .card .meta .sep{color:var(--line2); margin:0 5px;}
+  .btn-row{display:flex; gap:8px; margin-top:12px;}
+  .btn{flex:1; text-align:center; padding:13px; border:1px solid var(--line2); background:var(--card); border-radius:12px; font-size:15px; font-weight:600; color:var(--t1);}
+  .btn-more{width:100%; text-align:center; padding:13px; border:1px dashed var(--line2); background:transparent; border-radius:12px; font-size:14px; color:var(--t2); margin-top:4px;}
+  .banner-none{background:var(--warn-bg); color:var(--warn); border-radius:10px; padding:12px 14px; font-size:14px; font-weight:600; margin-bottom:10px;}
+  .banner-ok{background:var(--red-bg); color:var(--red); border-radius:10px; padding:12px 14px; font-size:14px; font-weight:600; margin-bottom:10px;}
+  .empty{text-align:center; color:var(--t3); padding:34px 12px; font-size:15px;}
+  .loading{text-align:center; color:var(--t2); padding:26px; font-size:15px;}
+  .hidden{display:none;}
+  .subttl{font-size:15px; font-weight:700; margin:4px 0 10px; padding:11px 13px; background:var(--card); border:1px solid var(--line); border-radius:10px;}
+  .note{font-size:12px; color:var(--t3); text-align:center; margin-top:18px; line-height:1.5;}
+  #mapWrap{margin:11px 0 4px; position:relative;}
+  #map{width:100%; height:470px; border-radius:12px; border:1px solid var(--line); background:#e9edf1;}
+  #mapType{position:absolute; top:8px; right:8px; z-index:5; display:flex; background:#fff; border:1px solid var(--line2); border-radius:8px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15);}
+  #mapType button{border:none; background:#fff; color:var(--t2); font-size:12.5px; font-weight:600; padding:6px 12px;}
+  #mapType button.on{background:var(--accent); color:#fff;}
+  .map-legend{display:flex; flex-wrap:wrap; gap:11px; justify-content:center; margin:8px 0 2px; font-size:12.5px; color:var(--t2);}
+  .map-legend .lg{display:inline-flex; align-items:center; gap:5px;}
+  .map-note{font-size:11.5px; color:var(--t3); text-align:center; margin-top:2px;}
+  .mk-i{display:inline-block; width:12px; height:12px;}
+  .mk-i.mk-asf{background:var(--red); border-radius:50%;}
+  .mk-i.mk-etc{background:var(--gray); border-radius:50%;}
+  .mk-i.mk-fmd{background:var(--purple); border-radius:2px; transform:rotate(45deg);}
+  .mk-i.mk-lumpy{background:var(--green); border-radius:50% 50% 50% 0; transform:rotate(45deg);}
+  .mk-i.mk-ai{width:0; height:0; background:none; border-left:7px solid transparent; border-right:7px solid transparent; border-bottom:12px solid var(--amber);}
+  /* 마커: 파랑 발생수(크게) + 작은 질병표시 */
+  .mk{position:relative; transform:translate(-50%,-50%);}
+  .mk .cbig{display:flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:rgba(29,111,224,.92); color:#fff; font-size:11px; font-weight:800; border:1.5px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .mk .sh{position:absolute; top:-4px; right:-4px; box-shadow:0 1px 2px rgba(0,0,0,.3);}
+  .mk-asf .sh{width:9px; height:9px; background:var(--red); border-radius:50%;}
+  .mk-etc .sh{width:8px; height:8px; background:var(--gray); border-radius:50%;}
+  .mk-fmd .sh{width:9px; height:9px; background:var(--purple); border-radius:2px; transform:rotate(45deg);}
+  .mk-lumpy .sh{width:9px; height:9px; background:var(--green); border-radius:50% 50% 50% 0; transform:rotate(45deg);}
+  .mk-ai .sh{width:0; height:0; background:none; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:9px solid var(--amber); box-shadow:none; filter:drop-shadow(0 1px 2px rgba(0,0,0,.3));}
+  .filters{display:flex; gap:8px; margin:2px 0 10px;}
+  .filters select{flex:1; height:40px; border:1px solid var(--line2); border-radius:10px; background:var(--card); color:var(--t1); font-size:14px; padding:0 10px;}
+  .yr{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;}
+  .yr .y{font-size:16px; font-weight:700;}
+  .yr .cnt2{font-size:13px; color:var(--t3); font-weight:400; margin-left:6px;}
+  .yr .d{font-size:13.5px; color:var(--t2); margin-top:2px;}
+  .chev{color:var(--t3);}
+  .modal{position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.55); overflow-y:auto; padding:16px;}
+  .modal-box{max-width:520px; margin:20px auto; background:#151515; color:#eee; border-radius:16px; padding:18px;}
+  .modal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  .modal-head span{font-size:18px; font-weight:800;}
+  .modal-head button{background:none; border:1px solid #666; color:#ddd; border-radius:20px; padding:6px 14px; font-size:14px;}
+  .modal-guide{font-size:13px; color:#bbb; line-height:1.6; margin-bottom:10px;}
+  .modal-guide b{color:#7fd18a;}
+  .modal-warn{background:#3a1414; color:#ff8a8a; text-align:center; font-weight:700; font-size:14px; padding:12px; border-radius:10px; margin-bottom:14px;}
+  .mbtn{width:100%; border:none; border-radius:12px; padding:16px; font-size:17px; font-weight:800; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px;}
+  .mbtn.save{background:#2f7d20; color:#fff;}
+  .mbtn.share{background:#1666d6; color:#fff;}
+  .modal-file{background:#222; border-radius:10px; padding:12px; text-align:center; font-size:13px; color:#bbb; line-height:1.7; margin-bottom:12px;}
+  .modal-file b{color:#7fd18a;}
+  #imgPreview{width:100%; border-radius:10px; border:1px solid #333; display:block;}
+  #reportCard{position:absolute; left:-99999px; top:0; width:520px; background:#fff; color:#1f2937; padding:18px; font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;}
+  #capBusy{position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="h-top">
+      <button id="backBtn" class="nav-btn hidden">← 뒤로</button>
+      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v12</span></div>
+      <a href="https://ubaldos00-ship-it.github.io/home/" class="hub-btn" aria-label="홈">🏠 홈</a>
+    </div>
+    <div class="h-time" id="dataTime">데이터 확인 중…</div>
+    <div class="search-box">
+      <input id="q" type="search" inputmode="search" placeholder="방문지역 검색 (예: 경상북도, 나주)" autocomplete="off">
+      <button id="btnSearch" aria-label="검색">🔍</button>
+    </div>
+  </header>
+
+  <section id="viewHome">
+    <div class="rowscroll" id="officeChips">
+      <button class="chip on" data-off="전국">전국</button>
+      <button class="chip" data-off="동북청">동북청</button>
+      <button class="chip" data-off="동남청">동남청</button>
+      <button class="chip" data-off="경인청">경인청</button>
+      <button class="chip" data-off="충청청">충청청</button>
+      <button class="chip" data-off="호남청">호남청</button>
+    </div>
+    <div class="rowscroll" id="period">
+      <button class="chip" data-d="7">최근 7일</button>
+      <button class="chip" data-d="30">1개월</button>
+      <button class="chip on" data-d="90">3개월</button>
+      <button class="chip" data-d="180">6개월</button>
+      <button class="chip" data-d="365">1년</button>
+      <button class="chip" id="btnRange">📅 기간설정</button>
+    </div>
+    <div class="rangeBox hidden" id="rangeBox">
+      <input type="month" id="fromM"><span style="color:var(--t3)">~</span><input type="month" id="toM">
+      <button id="applyRange">적용</button>
+    </div>
+    <div class="rowscroll" id="catChips">
+      <button class="chip cat on" data-cat="">전체</button>
+      <button class="chip cat" data-cat="asf">ASF</button>
+      <button class="chip cat" data-cat="ai">AI</button>
+      <button class="chip cat" data-cat="fmd">FMD</button>
+      <button class="chip cat" data-cat="lumpy">럼피스킨</button>
+      <button class="chip cat" data-cat="etc">기타</button>
+    </div>
+    <div class="share-row">
+      <button id="btnCap">🖼 이미지 저장/공유</button>
+      <button id="btnExcel">📊 엑셀(전체)</button>
+    </div>
+
+    <div class="summary">
+      <div class="stat"><div class="n" id="sRegion">–</div><div class="l">발생지역</div></div>
+      <div class="stat"><div class="n" id="sCase">–</div><div class="l">발생건수</div></div>
+      <div class="stat"><div class="n" id="s7">–</div><div class="l">최근 7일</div></div>
+    </div>
+
+    <div id="mapWrap">
+      <div id="mapType"><button data-mt="road" class="on">일반</button><button data-mt="sky">위성</button></div>
+      <div id="map"></div>
+      <div class="map-legend">
+        <span class="lg"><i class="mk-i mk-asf"></i>ASF</span>
+        <span class="lg"><i class="mk-i mk-ai"></i>AI</span>
+        <span class="lg"><i class="mk-i mk-fmd"></i>FMD</span>
+        <span class="lg"><i class="mk-i mk-lumpy"></i>럼피스킨</span>
+        <span class="lg"><i class="mk-i mk-etc"></i>기타</span>
+      </div>
+      <div class="map-note">파랑 원 숫자는 발생건수, 옆의 작은 색·모양은 대표 질병(ASF›AI›FMD›럼피스킨›기타)입니다. 위치는 실제 농가가 아닌 행정구역(시·군) 중심점 기준.</div>
+    </div>
+
+    <div class="sec-label" id="homeLabel">발생 목록 · 최신순</div>
+    <div id="homeList"></div>
+    <div class="btn-row">
+      <button class="btn" id="btnHistHome">전국 과거자료</button>
+    </div>
+    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v12</span></div>
+  </section>
+
+  <section id="viewArea" class="hidden">
+    <div class="subttl" id="areaTitle"></div>
+    <div id="areaBody"></div>
+    <button class="btn-more" id="btnAreaHist">이 지역 과거자료 보기</button>
+  </section>
+
+  <section id="viewHist" class="hidden">
+    <div class="subttl" id="histTitle"></div>
+    <button class="btn-more" id="btnHistExcel" style="margin:0 0 10px;">📊 이 과거자료 엑셀 내보내기 (전체)</button>
+    <div id="histBody"></div>
+  </section>
+
+</div>
+
+<div id="imgModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><span>📷 결과 이미지</span><button id="imgClose">✕ 닫기</button></div>
+    <div class="modal-guide">
+      📱 <b>iPhone</b>: [iPhone 공유 / 파일에 저장] → 공유창에서 "사진에 추가"·"파일에 저장"·"카카오톡"<br>
+      💻 <b>PC/Android</b>: [이미지 저장] → Downloads 폴더에 자동 저장
+    </div>
+    <div class="modal-warn">⚠️ 카톡 전송시 원본으로 전송해야 화질이 좋음</div>
+    <button class="mbtn save" id="btnImgSave">⬇️ 이미지 저장</button>
+    <button class="mbtn share" id="btnImgShare">📱 iPhone 공유 / 파일에 저장</button>
+    <div class="modal-file">파일명: <b id="imgFname">-</b><br>저장위치: iOS 사진앱 / Android·PC Downloads</div>
+    <img id="imgPreview" alt="결과 이미지 미리보기">
+  </div>
+</div>
+
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d7a99b2a71a456ad75815e664f3dda20&libraries=services,clusterer&autoload=false"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+const RELAY = "https://induowdrembd3zhtym3ke6prcy0cgajf.lambda-url.ap-northeast-2.on.aws/";
+const SITE = "https://ubaldos00-ship-it.github.io/home/disease.html";
+const SIDO_FULL = {"서울":"서울특별시","부산":"부산광역시","대구":"대구광역시","인천":"인천광역시","광주":"광주광역시","대전":"대전광역시","울산":"울산광역시","세종":"세종특별자치시","경기":"경기도","강원":"강원특별자치도","충북":"충청북도","충남":"충청남도","전북":"전북특별자치도","전남":"전라남도","경북":"경상북도","경남":"경상남도","제주":"제주특별자치도"};
+const OFFICE = {"전국":null,"동북청":["대구","경북","강원"],"동남청":["부산","울산","경남"],"경인청":["서울","인천","경기"],"충청청":["대전","세종","충남","충북"],"호남청":["전북","전남","광주","제주"]};
+const CAT_ORDER = ["asf","ai","fmd","lumpy","etc"];
+const CAT_LABEL = {asf:"ASF",ai:"AI",fmd:"FMD",lumpy:"럼피스킨",etc:"기타"};
+const CAT_HEX = {asf:"#d64545",ai:"#e08b16",fmd:"#7c3aed",lumpy:"#2fa84f",etc:"#9ca3af"};
+
+let allItems=[];
+let curDays=90, curFrom="", curTo="", periodLabel="최근 3개월";
+let curOffice="전국", curCat="", curQ="", admin=false;
+let lastSummary={regionCount:0,caseCount:0,last7d:0};
+let _map=null,_geocoder=null,_places=null,_overlays=[],_pinData=[],_markers=[],_clusterer=null;
+let _capDataUrl="", _capFname="";
+
+function el(id){return document.getElementById(id);}
+function saveState(){ try{ sessionStorage.setItem("diseaseState", JSON.stringify({curOffice,curDays,curFrom,curTo,curCat,curQ,periodLabel,admin})); }catch(e){} }
+function restoreState(){
+  try{
+    const s=JSON.parse(sessionStorage.getItem("diseaseState")||"null"); if(!s) return;
+    curOffice=s.curOffice||"전국"; curDays=s.curDays||90; curFrom=s.curFrom||""; curTo=s.curTo||"";
+    curCat=s.curCat||""; curQ=s.curQ||""; periodLabel=s.periodLabel||"최근 3개월"; admin=!!s.admin;
+    [...el("officeChips").children].forEach(x=>x.classList.toggle("on",x.dataset.off===curOffice));
+    [...el("catChips").children].forEach(x=>x.classList.toggle("on",x.dataset.cat===curCat));
+    if(curFrom||curTo){
+      [...el("period").querySelectorAll("[data-d]")].forEach(x=>x.classList.remove("on"));
+      el("btnRange").classList.add("on");
+      if(curFrom) el("fromM").value=curFrom.slice(0,4)+"-"+curFrom.slice(4,6);
+      if(curTo) el("toM").value=curTo.slice(0,4)+"-"+curTo.slice(4,6);
+    } else {
+      [...el("period").querySelectorAll("[data-d]")].forEach(x=>x.classList.toggle("on",Number(x.dataset.d)===curDays));
+    }
+    if(curQ) el("q").value=curQ;
+  }catch(e){}
+}
+function show(view){
+  ["viewHome","viewArea","viewHist"].forEach(v=>el(v).classList.add("hidden"));
+  el(view).classList.remove("hidden");
+  el("backBtn").classList.toggle("hidden", view==="viewHome");
+  window.scrollTo(0,0);
+  if(view==="viewHome" && _map){ setTimeout(()=>{ try{_map.relayout();}catch(e){} },30); }
+}
+function goHome(){ show("viewHome"); }
+el("backBtn").addEventListener("click", goHome);
+
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function fmtOcc(s){ if(!s||s.length<8) return s||""; return s.slice(2,4)+"."+s.slice(4,6)+"."+s.slice(6,8); }
+function fmtCess(s){ if(!s||s.length<8) return "종식일 미등록"; return "종식 "+s.slice(2,4)+"."+s.slice(4,6)+"."+s.slice(6,8); }
+function fmtTime(iso){ try{ const k=new Date(new Date(iso).getTime()+9*3600000); const p=n=>String(n).padStart(2,"0"); return p(k.getUTCMonth()+1)+"."+p(k.getUTCDate())+" "+p(k.getUTCHours())+":"+p(k.getUTCMinutes()); }catch(e){ return ""; } }
+function ymdDaysAgo(days){ const d=new Date(Date.now()-days*86400000); const p=n=>String(n).padStart(2,"0"); return ""+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate()); }
+function diseaseCat(dis){ if(/아프리카|ASF/.test(dis))return"asf"; if(/고병원성|조류인플루엔자/.test(dis))return"ai"; if(/구제역/.test(dis))return"fmd"; if(/럼피/.test(dis))return"lumpy"; return"etc"; }
+function levelsFromLoc(loc){
+  const t=(loc||"").trim().split(/\s+/);
+  const sgg=[t[0]||""]; let i=1;
+  for(; i<t.length; i++){ sgg.push(t[i]); if(/[시군]$/.test(t[i])){ if(t[i+1]&&/구$/.test(t[i+1])){ sgg.push(t[i+1]); i++; } i++; break; } if(/구$/.test(t[i])){ i++; break; } }
+  const sggKey=sgg.join(" ");
+  return { sgg:sggKey, emd:(i<t.length?sggKey+" "+t[i]:sggKey), ri:t.join(" ") };
+}
+function sgg2FromSgg(sgg){ const t=sgg.split(" "); return t.length>=3?t.slice(0,2).join(" "):sgg; }
+function catColor(c){ return CAT_HEX[c]||"#9ca3af"; }
+function cardHTML(x,n){
+  const lv=levelsFromLoc(x.loc);
+  const farm=(admin && x.farm) ? `<span class="farm">· ${esc(x.farm)}</span>` : "";
+  const num=n?`<span style="color:#9ca3af;font-weight:700;margin-right:5px;">${n}.</span>`:"";
+  return `<div class="card" data-sgg="${esc(lv.sgg)}" data-emd="${esc(lv.emd)}" data-ri="${esc(lv.ri)}" data-title="${esc(x.loc)}" style="border-left-color:${catColor(diseaseCat(x.disease))}">
+    <div class="loc">${num}${esc(x.loc)||"-"}${farm}</div>
+    <div class="dis">${esc(x.disease)||"-"} · ${esc(x.species)||"-"}</div>
+    <div class="meta">${fmtOcc(x.occDe)} 발생<span class="sep">|</span>${x.count?Number(x.count).toLocaleString()+"마리":"두수 미상"}<span class="sep">|</span>${fmtCess(x.cessDe)}</div>
+  </div>`;
+}
+async function api(params){ const res=await fetch(RELAY+"?"+new URLSearchParams(params).toString()); if(!res.ok) throw new Error("HTTP "+res.status); return res.json(); }
+
+async function fetchPeriod(){
+  el("homeList").innerHTML='<div class="loading">불러오는 중…</div>';
+  try{
+    const p={mode:"recent", limit:100000};
+    if(curFrom||curTo){ if(curFrom)p.from=curFrom; if(curTo)p.to=curTo; } else p.days=curDays;
+    const d=await api(p);
+    if(!d.ok) throw new Error(d.message);
+    el("dataTime").textContent="데이터 확인 "+fmtTime(d.fetchedAt);
+    allItems=d.items||[];
+    applyFilters();
+  }catch(e){
+    allItems=[];
+    el("homeList").innerHTML='<div class="empty">현재 가축질병 정보를 불러오지<br>못했습니다. 잠시 후 다시 확인해 주세요.</div>';
+    el("dataTime").textContent="데이터 확인 실패";
+  }
+}
+function currentView(){
+  const offSet=OFFICE[curOffice];
+  return allItems.filter(x=>{
+    if(offSet){ const sido=(x.loc||"").split(" ")[0]; if(!offSet.includes(sido)) return false; }
+    if(curCat && diseaseCat(x.disease)!==curCat) return false;
+    if(curQ && !(x.loc||"").includes(curQ)) return false;
+    return true;
+  });
+}
+function applyFilters(){
+  const v=currentView();
+  const emdSet=new Set(v.map(x=>levelsFromLoc(x.loc).emd));
+  const last7=v.filter(x=>x.occDe>=ymdDaysAgo(7)).length;
+  el("sRegion").textContent=emdSet.size; el("sCase").textContent=v.length; el("s7").textContent=last7;
+  lastSummary={regionCount:emdSet.size, caseCount:v.length, last7d:last7};
+  let tag="";
+  if(curOffice!=="전국") tag+=` <span class="filter-tag">${curOffice}</span>`;
+  if(curQ) tag+=` <span class="filter-tag">검색: ${esc(curQ)}</span>`;
+  if(curCat) tag+=` <span class="filter-tag">${CAT_LABEL[curCat]}</span>`;
+  if(admin) tag+=` <span class="admin-tag">농장정보 ON</span>`;
+  el("homeLabel").innerHTML=`${periodLabel} 발생 목록 · 최신순${tag}`;
+  el("homeList").innerHTML = v.length ? v.slice(0,200).map((x,i)=>cardHTML(x,i+1)).join("") : '<div class="empty">조건에 맞는 발생이 없습니다.</div>';
+  renderPins(v);
+  saveState();
+}
+
+/* 지도 */
+function geoQuery(sgg){ const t=(sgg||"").split(" "); if(t.length&&SIDO_FULL[t[0]]) t[0]=SIDO_FULL[t[0]]; return t.join(" "); }
+function geocode(sgg){
+  return new Promise(res=>{
+    const ck="geo:"+sgg;
+    try{ const c=localStorage.getItem(ck); if(c){ const a=c.split(","); return res([+a[0],+a[1]]); } }catch(e){}
+    const qy=geoQuery(sgg);
+    _geocoder.addressSearch(qy,(r,st)=>{
+      if(st===kakao.maps.services.Status.OK && r[0]){ const la=+r[0].y,ln=+r[0].x; try{localStorage.setItem(ck,la+","+ln);}catch(e){} return res([la,ln]); }
+      _places.keywordSearch(qy,(r2,st2)=>{
+        if(st2===kakao.maps.services.Status.OK && r2[0]){ const la=+r2[0].y,ln=+r2[0].x; try{localStorage.setItem(ck,la+","+ln);}catch(e){} return res([la,ln]); }
+        res(null);
+      });
+    });
+  });
+}
+// 핀(발생수 파랑원 + 작은 질병표시)을 마커 이미지로 생성
+function markerImgURL(cat,total){
+  const s=34, c=document.createElement("canvas"); c.width=s; c.height=s; const g=c.getContext("2d");
+  g.beginPath(); g.arc(16,18,11,0,Math.PI*2); g.fillStyle="rgba(29,111,224,.95)"; g.fill(); g.lineWidth=2; g.strokeStyle="#fff"; g.stroke();
+  g.fillStyle="#fff"; g.font="bold 11px sans-serif"; g.textAlign="center"; g.textBaseline="middle"; g.fillText(String(total),16,18);
+  const bx=26, by=9, hex=CAT_HEX[cat]||"#9ca3af";
+  g.fillStyle=hex; g.strokeStyle="rgba(0,0,0,.25)"; g.lineWidth=1; g.beginPath();
+  if(cat==="ai"){ g.moveTo(bx,by-5); g.lineTo(bx+4,by+3); g.lineTo(bx-4,by+3); g.closePath(); }
+  else if(cat==="fmd"){ g.moveTo(bx,by-4); g.lineTo(bx+4,by); g.lineTo(bx,by+4); g.lineTo(bx-4,by); g.closePath(); }
+  else { g.arc(bx,by,cat==="etc"?3:4,0,Math.PI*2); }
+  g.fill(); g.stroke();
+  return c.toDataURL();
+}
+let _pinToken=0;
+async function renderPins(items){
+  if(!_map||!_geocoder) return;
+  const token=++_pinToken;
+  const m=new Map();
+  for(const x of (items||[])){
+    const k=sgg2FromSgg(levelsFromLoc(x.loc).sgg);
+    if(!m.has(k)) m.set(k,{sgg:k,asf:0,ai:0,fmd:0,lumpy:0,etc:0,total:0});
+    const o=m.get(k); o[diseaseCat(x.disease)]++; o.total++;
+  }
+  const arr=[...m.values()];
+  const coords=await Promise.all(arr.map(p=>geocode(p.sgg)));
+  if(token!==_pinToken) return;
+  // 초기화
+  if(_clusterer) _clusterer.clear();
+  _markers.forEach(mk=>mk.setMap(null)); _markers=[]; _pinData=[];
+  arr.forEach((p,idx)=>{
+    const c=coords[idx]; if(!c) return;
+    let cat="etc"; for(const cc of CAT_ORDER){ if(p[cc]>0){ cat=cc; break; } }
+    _pinData.push({sgg:p.sgg,total:p.total,cat,lat:c[0],lng:c[1]});
+    const img=new kakao.maps.MarkerImage(markerImgURL(cat,p.total), new kakao.maps.Size(34,34), {offset:new kakao.maps.Point(16,18)});
+    const mk=new kakao.maps.Marker({position:new kakao.maps.LatLng(c[0],c[1]), image:img, title:p.sgg});
+    kakao.maps.event.addListener(mk,"click",()=>filterByRegion(p.sgg));
+    _markers.push(mk);
+  });
+  if(!_clusterer){
+    _clusterer=new kakao.maps.MarkerClusterer({ map:_map, averageCenter:true, minLevel:7, gridSize:50, disableClickZoom:false,
+      styles:[{width:"38px",height:"38px",background:"rgba(45,55,72,.88)",color:"#fff",textAlign:"center",lineHeight:"38px",borderRadius:"19px",border:"2px solid #fff",fontWeight:"800",fontSize:"13px"}] });
+  }
+  _clusterer.addMarkers(_markers);
+}
+
+/* 필터 컨트롤 */
+el("officeChips").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; curOffice=b.dataset.off; [...el("officeChips").children].forEach(x=>x.classList.toggle("on",x===b)); applyFilters(); });
+el("catChips").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; curCat=b.dataset.cat; [...el("catChips").children].forEach(x=>x.classList.toggle("on",x===b)); applyFilters(); });
+el("period").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b||b.id==="btnRange")return;
+  curDays=Number(b.dataset.d); curFrom=""; curTo="";
+  [...el("period").querySelectorAll("[data-d]")].forEach(x=>x.classList.toggle("on",x===b));
+  el("btnRange").classList.remove("on"); el("rangeBox").classList.add("hidden");
+  periodLabel={7:"최근 7일",30:"최근 1개월",90:"최근 3개월",180:"최근 6개월",365:"최근 1년"}[curDays];
+  fetchPeriod();
+});
+el("btnRange").addEventListener("click",()=>{
+  const opening = el("rangeBox").classList.contains("hidden");
+  el("rangeBox").classList.toggle("hidden");
+  if(opening){ el("btnRange").classList.add("on"); [...el("period").querySelectorAll("[data-d]")].forEach(x=>x.classList.remove("on")); }
+});
+el("applyRange").addEventListener("click",()=>{
+  const f=el("fromM").value, t=el("toM").value;
+  if(!f&&!t){ alert("시작 또는 종료 년월을 선택하세요."); return; }
+  curFrom=f?f.replace("-","")+"01":""; curTo=t?t.replace("-","")+"31":"";
+  [...el("period").querySelectorAll("[data-d]")].forEach(x=>x.classList.remove("on"));
+  el("btnRange").classList.add("on");
+  periodLabel=(f||"~")+" ~ "+(t||"~");
+  fetchPeriod();
+});
+
+/* 검색 */
+function doSearch(){ curQ=el("q").value.trim(); goHome(); applyFilters(); }
+function filterByRegion(sgg){ curQ=sgg; el("q").value=sgg; goHome(); applyFilters(); const t=el("homeLabel"); if(t&&t.scrollIntoView) t.scrollIntoView({behavior:"smooth",block:"start"}); }
+el("btnSearch").addEventListener("click",doSearch);
+el("q").addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
+el("q").addEventListener("search",()=>{ if(el("q").value.trim()==="" && curQ){ curQ=""; applyFilters(); } });
+el("homeList").addEventListener("click",e=>{ const t=e.target.closest(".card"); if(!t)return; openArea({sgg:t.dataset.sgg,emd:t.dataset.emd,ri:t.dataset.ri,title:t.dataset.title}); });
+
+/* 위성/일반 토글 */
+el("mapType").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b||!_map)return;
+  [...el("mapType").children].forEach(x=>x.classList.toggle("on",x===b));
+  curMapType=b.dataset.mt;
+  _map.setMapTypeId(b.dataset.mt==="sky"?kakao.maps.MapTypeId.HYBRID:kakao.maps.MapTypeId.ROADMAP);
+});
+
+/* 농장정보: 제목 5번 클릭 */
+let _tc=0, _tt=null;
+el("hTitle").addEventListener("click",()=>{
+  _tc++; clearTimeout(_tt); _tt=setTimeout(()=>{_tc=0;},1500);
+  if(_tc>=5){ _tc=0; admin=!admin; saveState(); alert(admin?"농장명·농장주 표시 ON":"농장명·농장주 표시 OFF"); applyFilters(); }
+});
+
+/* 결과 이미지 — 자체 캔버스 지도(외부 타일 없음) */
+const ANCHORS=[
+ {name:"서울",lat:37.56,lng:126.98},{name:"인천",lat:37.46,lng:126.70},{name:"경기",lat:37.25,lng:127.10},
+ {name:"강원",lat:37.85,lng:128.20},{name:"충북",lat:36.85,lng:127.75},{name:"충남",lat:36.55,lng:126.75},
+ {name:"대전",lat:36.35,lng:127.38},{name:"세종",lat:36.58,lng:127.26},{name:"전북",lat:35.72,lng:127.15},
+ {name:"전남",lat:34.85,lng:126.90},{name:"광주",lat:35.16,lng:126.85},{name:"경북",lat:36.35,lng:128.85},
+ {name:"대구",lat:35.87,lng:128.60},{name:"경남",lat:35.30,lng:128.30},{name:"부산",lat:35.18,lng:129.08},
+ {name:"울산",lat:35.54,lng:129.31},{name:"제주",lat:33.40,lng:126.55}
+];
+const KOREA_PATH=[
+ [124.35,39.95],[125.0,40.05],[125.9,40.9],[126.5,41.5],[127.3,41.6],[128.0,41.4],[128.9,42.0],[129.7,42.4],
+ [130.3,42.35],[130.65,42.28],[130.4,41.6],[129.8,40.9],[129.2,40.2],[128.6,39.6],[127.95,39.1],[127.55,39.55],
+ [128.35,38.62],[128.72,38.05],[129.00,37.55],[129.12,37.10],[129.30,36.70],[129.40,36.30],[129.48,36.00],
+ [129.56,35.75],[129.48,35.55],[129.35,35.40],[129.30,35.20],[129.10,35.08],[128.90,35.02],[128.70,34.95],
+ [128.55,34.80],[128.40,34.86],[128.20,34.75],[128.00,34.82],[127.80,34.72],[127.65,34.90],[127.50,34.60],
+ [127.35,34.75],[127.20,34.35],[127.00,34.55],[126.90,34.38],[126.75,34.30],[126.60,34.45],[126.50,34.30],
+ [126.42,34.65],[126.48,35.00],[126.40,35.35],[126.52,35.62],[126.42,35.95],[126.60,36.20],[126.50,36.50],
+ [126.68,36.80],[126.85,37.05],[126.75,37.25],[126.55,37.40],[126.10,37.75],[125.5,38.25],[125.35,38.65],
+ [124.75,39.15],[125.10,39.60],[124.35,39.95]
+];
+const JEJU={lng:126.53,lat:33.40,rx:0.34,ry:0.17};
+const ISLANDS=[{name:"울릉도",lat:37.50,lng:130.87,r:3.5},{name:"독도",lat:37.24,lng:131.87,r:2.5}];
+const MAP_BBOX={latMax:43.0,latMin:32.9,lngMin:124.0,lngMax:132.2};
+const MAP_ASPECT=(MAP_BBOX.latMax-MAP_BBOX.latMin)/((MAP_BBOX.lngMax-MAP_BBOX.lngMin)*Math.cos(38*Math.PI/180));
+function roundRect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+function trunc(g,s,max){ s=s||""; if(g.measureText(s).width<=max) return s; while(s.length>1 && g.measureText(s+"…").width>max) s=s.slice(0,-1); return s+"…"; }
+let curMapType="road";
+function drawPins(g,pins,proj){
+  pins.forEach(p=>{
+    const [x,y]=proj(p.lat,p.lng);
+    g.beginPath(); g.arc(x,y,9,0,Math.PI*2); g.fillStyle="rgba(29,111,224,.92)"; g.fill(); g.lineWidth=1.5; g.strokeStyle="#fff"; g.stroke();
+    g.fillStyle="#fff"; g.font="bold 10px sans-serif"; g.textAlign="center"; g.textBaseline="middle"; g.fillText(String(p.total),x,y);
+    const bx=x+8, by=y-8, hex=CAT_HEX[p.cat]||"#9ca3af";
+    g.fillStyle=hex; g.strokeStyle="rgba(0,0,0,.2)"; g.lineWidth=1; g.beginPath();
+    if(p.cat==="ai"){ g.moveTo(bx,by-5); g.lineTo(bx+4,by+3); g.lineTo(bx-4,by+3); g.closePath(); }
+    else if(p.cat==="fmd"){ g.moveTo(bx,by-4); g.lineTo(bx+4,by); g.lineTo(bx,by+4); g.lineTo(bx-4,by); g.closePath(); }
+    else { g.arc(bx,by,p.cat==="etc"?3:4,0,Math.PI*2); }
+    g.fill(); g.stroke();
+  });
+}
+function lngLatToMerc(lng,lat){ const x=lng*20037508.34/180; let y=Math.log(Math.tan((90+lat)*Math.PI/360))/(Math.PI/180); return [x, y*20037508.34/180]; }
+function loadImg(url){ return new Promise((res,rej)=>{ const im=new Image(); const t=setTimeout(()=>rej(new Error("timeout")),8000); im.onload=()=>{clearTimeout(t);res(im);}; im.onerror=()=>{clearTimeout(t);rej(new Error("err"));}; im.src=url; }); }
+async function getMapCanvas(w,h){
+  try{
+    const cx=127.7, cy=36.15, zoom=7; const [Cx,Cy]=lngLatToMerc(cx,cy);
+    const basemap=curMapType==="sky"?"PHOTO":"GRAPHIC";
+    const r=await api({mode:"staticmap", center:Cx.toFixed(2)+","+Cy.toFixed(2), zoom:zoom, size:w+","+h, basemap:basemap});
+    if(!r || !r.ok || !r.img) throw new Error("no img");
+    const img=await loadImg(r.img);
+    const c=document.createElement("canvas"); c.width=w; c.height=h; const g=c.getContext("2d");
+    g.drawImage(img,0,0,w,h);
+    if(curMapType!=="sky"){ g.fillStyle="rgba(255,255,255,0.42)"; g.fillRect(0,0,w,h); } // 도로·라벨 뮤트
+    const resM=156543.03392804097/Math.pow(2,zoom);
+    const proj=(lat,lng)=>{ const [mx,my]=lngLatToMerc(lng,lat); return [ w/2+(mx-Cx)/resM, h/2-(my-Cy)/resM ]; };
+    drawPins(g,_pinData,proj);
+    return c;
+  }catch(e){
+    const c=document.createElement("canvas"); c.width=w; c.height=h; drawMapInto(c.getContext("2d"),_pinData,0,0,w,h); return c;
+  }
+}
+function drawMapInto(g,pins,ox,oy,w,h){
+  const {latMax,latMin,lngMin,lngMax}=MAP_BBOX;
+  g.save(); roundRect(g,ox,oy,w,h,10); g.clip();
+  g.fillStyle="#d9e6ef"; g.fillRect(ox,oy,w,h);
+  const proj=(lat,lng)=>[ ox+(lng-lngMin)/(lngMax-lngMin)*w, oy+(latMax-lat)/(latMax-latMin)*h ];
+  g.beginPath();
+  KOREA_PATH.forEach((p,i)=>{ const [x,y]=proj(p[1],p[0]); if(i===0) g.moveTo(x,y); else g.lineTo(x,y); });
+  g.closePath(); g.fillStyle="#eef3e8"; g.fill(); g.strokeStyle="#bcc8cf"; g.lineWidth=1.1; g.stroke();
+  const [jx,jy]=proj(JEJU.lat,JEJU.lng),[jx2]=proj(JEJU.lat,JEJU.lng+JEJU.rx),[,jy2]=proj(JEJU.lat-JEJU.ry,JEJU.lng);
+  g.beginPath(); g.ellipse(jx,jy,Math.abs(jx2-jx),Math.abs(jy2-jy),0,0,Math.PI*2); g.fillStyle="#eef3e8"; g.fill(); g.strokeStyle="#bcc8cf"; g.stroke();
+  g.fillStyle="#eef3e8";
+  ISLANDS.forEach(o=>{ const [x,y]=proj(o.lat,o.lng); g.beginPath(); g.arc(x,y,o.r,0,Math.PI*2); g.fill(); g.stroke(); });
+  g.fillStyle="#8a97a3"; g.font="12px sans-serif"; g.textAlign="center"; g.textBaseline="middle";
+  ANCHORS.forEach(a=>{ const [x,y]=proj(a.lat,a.lng); g.fillText(a.name,x,y); });
+  g.font="10px sans-serif"; ISLANDS.forEach(o=>{ const [x,y]=proj(o.lat,o.lng); g.fillText(o.name,x,y-7); });
+  const [nx,ny]=proj(40.2,126.8); g.fillStyle="#c2cbd3"; g.font="14px sans-serif"; g.fillText("북한",nx,ny);
+  drawPins(g,pins,(lat,lng)=>proj(lat,lng));
+  g.restore();
+}
+// 리포트 전체를 canvas로 직접 렌더 (html2canvas 미사용 → 멈춤 불가)
+async function drawFullReport(){
+  const v=currentView(); const pins=_pinData;
+  const W=520, PAD=18, mapW=W-PAD*2, mapH=Math.round(mapW*1.2);
+  const listRows=Math.min(v.length,22);
+  const H = PAD +26+20 +72 +mapH+8 +18 +16 +18 + listRows*22 +42 +PAD;
+  const S=2, cv=document.createElement("canvas"); cv.width=W*S; cv.height=H*S;
+  const g=cv.getContext("2d"); g.scale(S,S);
+  g.fillStyle="#ffffff"; g.fillRect(0,0,W,H);
+  let y=PAD;
+  g.textBaseline="top"; g.textAlign="left";
+  g.fillStyle="#1f2937"; g.font="800 20px sans-serif"; g.fillText("🐾 가축질병 현장정보", PAD, y); y+=27;
+  const dt=el("dataTime").textContent.replace("데이터 확인 ","");
+  const flt=`${curOffice} · ${periodLabel}`+(curCat?` · ${CAT_LABEL[curCat]}`:"")+(curQ?` · 검색:${curQ}`:"");
+  g.fillStyle="#8a8f96"; g.font="12px sans-serif"; g.fillText(trunc(g,"데이터 확인 "+dt+" · "+flt, mapW), PAD, y); y+=20;
+  const sw=(mapW-16)/3;
+  [["발생지역",lastSummary.regionCount],["발생건수",lastSummary.caseCount],["최근 7일",lastSummary.last7d]].forEach((s,i)=>{
+    const x=PAD+i*(sw+8);
+    g.fillStyle="#f4f5f7"; roundRect(g,x,y,sw,64,10); g.fill();
+    g.textAlign="center"; g.fillStyle="#1f2937"; g.font="800 23px sans-serif"; g.fillText(String(s[1]), x+sw/2, y+11);
+    g.fillStyle="#666"; g.font="11px sans-serif"; g.fillText(s[0], x+sw/2, y+42);
+  });
+  g.textAlign="left"; y+=72;
+  const mc=await getMapCanvas(mapW,mapH);
+  g.save(); roundRect(g,PAD,y,mapW,mapH,10); g.clip(); g.drawImage(mc,PAD,y,mapW,mapH); g.restore();
+  g.strokeStyle="#e5e7eb"; g.lineWidth=1; roundRect(g,PAD,y,mapW,mapH,10); g.stroke(); y+=mapH+8;
+  const cats=Object.keys(CAT_LABEL);
+  g.font="11.5px sans-serif"; g.textBaseline="middle";
+  let totW=0; cats.forEach(k=>{ totW+=16+g.measureText(CAT_LABEL[k]).width+14; });
+  let lx=(W-totW)/2, ly=y+9;
+  cats.forEach(k=>{ g.fillStyle=CAT_HEX[k]; g.beginPath(); g.arc(lx+5,ly,5,0,Math.PI*2); g.fill(); g.fillStyle="#555"; g.textAlign="left"; g.fillText(CAT_LABEL[k], lx+13, ly); lx+=16+g.measureText(CAT_LABEL[k]).width+14; });
+  g.textBaseline="top"; y+=18;
+  g.fillStyle="#999"; g.font="10.5px sans-serif"; g.textAlign="center"; g.fillText("핀 위치는 실제 농가가 아닌 행정구역(시·군) 중심점 기준", W/2, y); y+=16;
+  g.textAlign="left"; g.fillStyle="#666"; g.font="700 12.5px sans-serif"; g.fillText(`발생 목록 (상위 ${listRows}건)`, PAD, y); y+=18;
+  for(let i=0;i<listRows;i++){ const x=v[i];
+    g.font="12.5px sans-serif"; g.textAlign="left"; g.fillStyle="#222";
+    const loc=(i+1)+". "+x.loc+((admin&&x.farm)?(" · "+x.farm):"");
+    g.fillText(trunc(g,loc,mapW*0.60), PAD, y);
+    g.textAlign="right"; g.fillStyle="#666"; g.fillText(trunc(g,x.disease+" · "+fmtOcc(x.occDe),mapW*0.42), W-PAD, y);
+    g.strokeStyle="#eee"; g.lineWidth=1; g.beginPath(); g.moveTo(PAD,y+16); g.lineTo(W-PAD,y+16); g.stroke();
+    y+=22;
+  }
+  if(!listRows){ g.textAlign="center"; g.fillStyle="#999"; g.font="13px sans-serif"; g.fillText("조건에 맞는 발생이 없습니다.", W/2, y); y+=22; }
+  y+=8; g.textAlign="center"; g.fillStyle="#aaa"; g.font="10.5px sans-serif";
+  g.fillText("농림축산검역본부 공개데이터 · 방역 판단 자료 아님", W/2, y);
+  return cv;
+}
+el("btnCap").addEventListener("click",async()=>{
+  const btn=el("btnCap"); const o=btn.innerHTML; btn.innerHTML="⏳ 생성 중…"; btn.disabled=true;
+  try{
+    const cv=await drawFullReport();
+    const url=cv.toDataURL("image/png");
+    _capDataUrl=url; _capFname="가축질병_"+curOffice+"_"+new Date().toISOString().slice(0,10)+".png";
+    el("imgPreview").src=url; el("imgFname").textContent=_capFname;
+    el("imgModal").classList.remove("hidden");
+  }catch(e){ alert("이미지 생성에 실패했습니다."); }
+  finally{ btn.innerHTML=o; btn.disabled=false; }
+});
+
+/* 파일 저장: 모바일=공유시트, 데스크톱(맥/윈)=직접 다운로드 */
+async function saveFile(blob, fname){
+  const isMobile=/Android|iP(hone|ad|od)/.test(navigator.userAgent);
+  if(isMobile && navigator.share){
+    try{ const file=new File([blob],fname,{type:blob.type}); if(!navigator.canShare || navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:fname}); return; } }
+    catch(e){ if(e&&e.name==="AbortError") return; }
+  }
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=fname; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500);
+}
+/* 엑셀 내보내기 (지도이미지 + 목록 전체) */
+function fmtYmd(s){ if(!s||s.length<8) return s||""; return s.slice(0,4)+"-"+s.slice(4,6)+"-"+s.slice(6,8); }
+function locParts(loc){ const t=(loc||"").trim().split(/\s+/); const lv=levelsFromLoc(loc); const sgg=lv.sgg.split(" ").slice(1).join(" "); const rest=loc.startsWith(lv.sgg)?loc.slice(lv.sgg.length).trim():t.slice(sgg.split(" ").length+1).join(" "); return { sido:t[0]||"", sgg, emdri:rest }; }
+async function exportExcel(){
+  if(!window.ExcelJS){ alert("엑셀 모듈이 아직 로딩되지 않았습니다. 잠시 후 다시 시도하세요."); return; }
+  const btn=el("btnExcel"); const orig=btn.innerHTML; btn.innerHTML="⏳ 생성 중…"; btn.disabled=true;
+  try{
+    const v=currentView();
+    const dt=el("dataTime").textContent.replace("데이터 확인 ","");
+    const flt=`${curOffice} · ${periodLabel}`+(curCat?` · ${CAT_LABEL[curCat]}`:"")+(curQ?` · 검색:${curQ}`:"");
+    const wb=new ExcelJS.Workbook();
+    const ws=wb.addWorksheet("발생현황");
+    ws.getCell("A1").value="가축질병 현장정보"; ws.getCell("A1").font={size:16,bold:true};
+    ws.getCell("A2").value=`데이터확인 ${dt} · ${flt}`; ws.getCell("A2").font={color:{argb:"FF666666"}};
+    ws.getCell("A3").value=`발생지역 ${lastSummary.regionCount} · 발생건수 ${lastSummary.caseCount} · 최근7일 ${lastSummary.last7d}`; ws.getCell("A3").font={bold:true};
+    try{
+      const mc=await getMapCanvas(480, Math.round(480*1.2));
+      const dataUrl=mc.toDataURL("image/png");
+      const imgId=wb.addImage({ base64:dataUrl.split(",")[1], extension:"png" });
+      ws.addImage(imgId, { tl:{col:0,row:4}, ext:{width:430,height:Math.round(430*1.2)} });
+    }catch(e){}
+    const head=5, cols=["번호","지역","질병","축종","발생두수(마리)","발생일","종식일"].concat(admin?["농장명(농장주)"]:[]);
+    // 목록은 지도 오른쪽(H열~)에 표로 배치 (지도와 안 겹치게)
+    const C0=8; // H열
+    cols.forEach((c,i)=>{ const cell=ws.getRow(head).getCell(C0+i); cell.value=c; cell.font={bold:true}; cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFEFEFEF"}}; });
+    v.forEach((x,i)=>{
+      const r=ws.getRow(head+1+i);
+      const row=[i+1, x.loc, x.disease, x.species, x.count, fmtYmd(x.occDe), (x.cessDe?fmtYmd(x.cessDe):"미등록")].concat(admin?[x.farm||""]:[]);
+      row.forEach((val,j)=>{ r.getCell(C0+j).value=val; });
+    });
+    // 열너비
+    const widths={8:7,9:36,10:20,11:12,12:14,13:12,14:12,15:18};
+    Object.entries(widths).forEach(([c,w])=>{ ws.getColumn(Number(c)).width=w; });
+    const buf=await wb.xlsx.writeBuffer();
+    const blob=new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+    const fname="가축질병_"+curOffice+"_"+new Date().toISOString().slice(0,10)+".xlsx";
+    await saveFile(blob, fname);
+  }catch(e){ if(e&&e.name==="AbortError"){} else alert("엑셀 내보내기에 실패했습니다."); }
+  finally{ btn.innerHTML=orig; btn.disabled=false; }
+}
+el("btnExcel").addEventListener("click", exportExcel);
+el("imgClose").addEventListener("click",()=>el("imgModal").classList.add("hidden"));
+el("imgModal").addEventListener("click",e=>{ if(e.target===el("imgModal")) el("imgModal").classList.add("hidden"); });
+el("btnImgSave").addEventListener("click",()=>{
+  if(!_capDataUrl){ alert("저장할 이미지가 없습니다."); return; }
+  try{ const a=document.createElement("a"); a.download=_capFname; a.href=_capDataUrl; a.rel="noopener"; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),100); }
+  catch(e){ alert("저장 실패: 위 이미지를 길게 눌러 저장해주세요."); }
+});
+el("btnImgShare").addEventListener("click",async()=>{
+  if(!_capDataUrl){ alert("이미지가 준비되지 않았습니다."); return; }
+  try{
+    const blob=await (await fetch(_capDataUrl)).blob();
+    const file=new File([blob], _capFname, {type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:"가축질병 현장정보", text:"가축질병 현장정보"}); }
+    else{ alert("이 기기에서는 파일 공유를 지원하지 않습니다.\n[이미지 저장]을 이용해주세요."); }
+  }catch(e){ if(e&&e.name==="AbortError") return; alert("공유 중 오류가 발생했습니다."); }
+});
+
+/* 지역 드릴다운 */
+let curArea=null;
+async function openArea(scope){
+  curArea=scope; show("viewArea");
+  el("areaTitle").textContent=scope.title;
+  el("areaBody").innerHTML='<div class="loading">불러오는 중…</div>';
+  try{
+    const p={mode:"area", sgg:scope.sgg};
+    if(curFrom||curTo){ if(curFrom)p.from=curFrom; if(curTo)p.to=curTo; } else p.days=curDays;
+    if(curCat) p.cat=curCat;
+    if(scope.emd) p.emd=scope.emd; if(scope.ri) p.ri=scope.ri;
+    const d=await api(p); if(!d.ok) throw new Error(d.message);
+    let html="";
+    if(scope.ri){
+      html += d.ri.count>0 ? `<div class="banner-ok">해당 리 · 최근 발생 ${d.ri.count}건</div>`+d.ri.items.map((x,i)=>cardHTML(x,i+1)).join("") : `<div class="banner-none">해당 리 · 최근 발생 없음</div>`;
+      html += `<div class="sec-label">같은 읍·면·동 <b>${d.emd.count}건</b></div>`;
+      html += d.emd.count ? d.emd.items.map((x,i)=>cardHTML(x,i+1)).join("") : '<div class="empty" style="padding:16px">발생 없음</div>';
+    }
+    html += `<div class="sec-label">${scope.ri?"같은 ":""}시·군·구 <b>${d.sigungu.count}건</b></div>`;
+    html += d.sigungu.count ? d.sigungu.items.map((x,i)=>cardHTML(x,i+1)).join("") : '<div class="empty" style="padding:16px">해당 기간 발생 없음</div>';
+    el("areaBody").innerHTML=html;
+  }catch(e){ el("areaBody").innerHTML='<div class="empty">정보를 불러오지 못했습니다.</div>'; }
+}
+el("btnAreaHist").addEventListener("click",()=>{ if(curArea) openHist(curArea); });
+async function exportHistExcel(){
+  if(!window.ExcelJS){ alert("엑셀 모듈이 아직 로딩되지 않았습니다. 잠시 후 다시 시도하세요."); return; }
+  const btn=el("btnHistExcel"); const o=btn.innerHTML; btn.innerHTML="⏳ 생성 중…"; btn.disabled=true;
+  try{
+    const p={mode:"history", limit:100000};
+    if(histScope.sgg) p.sgg=histScope.sgg; if(histScope.emd) p.emd=histScope.emd; if(histScope.ri) p.ri=histScope.ri;
+    if(histFilter.disease) p.disease=histFilter.disease; if(histFilter.species) p.species=histFilter.species;
+    const d=await api(p); const list=d.items||[];
+    const wb=new ExcelJS.Workbook(); const ws=wb.addWorksheet("과거자료");
+    ws.getCell("A1").value=(histScope.title||"전국")+" · 과거자료"; ws.getCell("A1").font={size:14,bold:true};
+    ws.getCell("A2").value="총 "+Number(d.total).toLocaleString()+"건"+(histFilter.disease?(" · "+histFilter.disease):"")+(histFilter.species?(" · "+histFilter.species):"");
+    const cols=["번호","시도","시군구","읍면동/리","질병","축종","발생두수(마리)","발생일","종식일"].concat(admin?["농장명(농장주)"]:[]);
+    const hr=3;
+    cols.forEach((c,i)=>{ const cell=ws.getRow(hr).getCell(1+i); cell.value=c; cell.font={bold:true}; cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFEFEFEF"}}; });
+    list.forEach((x,i)=>{ const lp=locParts(x.loc); const row=[i+1,lp.sido,lp.sgg,lp.emdri,x.disease,x.species,x.count,fmtYmd(x.occDe),x.cessDe?fmtYmd(x.cessDe):"미등록"].concat(admin?[x.farm||""]:[]); const r=ws.getRow(hr+1+i); row.forEach((v,j)=>r.getCell(1+j).value=v); });
+    [7,16,18,24,18,12,14,12,12,18].forEach((w,i)=>{ ws.getColumn(1+i).width=w; });
+    const buf=await wb.xlsx.writeBuffer();
+    const blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+    await saveFile(blob, "과거자료_"+(histScope.title||"전국").replace(/\s/g,"")+"_"+new Date().toISOString().slice(0,10)+".xlsx");
+  }catch(e){ if(!(e&&e.name==="AbortError")) alert("엑셀 내보내기에 실패했습니다."); }
+  finally{ btn.innerHTML=o; btn.disabled=false; }
+}
+el("btnHistExcel").addEventListener("click", exportHistExcel);
+el("btnHistHome").addEventListener("click",()=>openHist({sgg:"",emd:"",ri:"",title:"전국"}));
+el("viewArea").addEventListener("click",e=>{ const t=e.target.closest(".card"); if(!t)return; openArea({sgg:t.dataset.sgg,emd:t.dataset.emd,ri:t.dataset.ri,title:t.dataset.title}); });
+
+/* 과거자료 */
+let histScope=null, histFilter={disease:"",species:""};
+function openHist(scope){ histScope=scope; histFilter={disease:"",species:""}; loadHist(); }
+async function loadHist(){
+  show("viewHist");
+  el("histTitle").textContent=(histScope.title||"전국")+" · 과거자료";
+  el("histBody").innerHTML='<div class="loading">불러오는 중…</div>';
+  try{
+    const p={mode:"history"};
+    if(histScope.sgg) p.sgg=histScope.sgg; if(histScope.emd) p.emd=histScope.emd; if(histScope.ri) p.ri=histScope.ri;
+    if(histFilter.disease) p.disease=histFilter.disease; if(histFilter.species) p.species=histFilter.species;
+    const d=await api(p); if(!d.ok) throw new Error(d.message);
+    const dOpt=`<option value="">질병 전체</option>`+d.diseases.map(x=>`<option ${x===histFilter.disease?"selected":""}>${esc(x)}</option>`).join("");
+    const sOpt=`<option value="">축종 전체</option>`+d.speciesList.map(x=>`<option ${x===histFilter.species?"selected":""}>${esc(x)}</option>`).join("");
+    let html=`<div class="filters"><select id="fDisease">${dOpt}</select><select id="fSpecies">${sOpt}</select></div>`;
+    html+=`<div class="sec-label">총 ${Number(d.total).toLocaleString()}건 · 연도를 누르면 개별기록</div>`;
+    html+= d.byYear.length ? d.byYear.map(y=>{ const dis=y.byDisease.slice(0,4).map(x=>`${esc(x.name)} ${x.count}`).join(" · "); return `<div class="yr" data-year="${y.year}"><div><div class="y">${y.year}<span class="cnt2">${y.count}건</span></div><div class="d">${dis}</div></div><span class="chev">›</span></div>`; }).join("") : '<div class="empty">해당 조건의 발생 이력이 없습니다.</div>';
+    el("histBody").innerHTML=html;
+    el("fDisease").onchange=e=>{ histFilter.disease=e.target.value; loadHist(); };
+    el("fSpecies").onchange=e=>{ histFilter.species=e.target.value; loadHist(); };
+    el("histBody").querySelectorAll(".yr").forEach(r=>{ r.onclick=()=>openYear(r.dataset.year); });
+  }catch(e){ el("histBody").innerHTML='<div class="empty">정보를 불러오지 못했습니다.</div>'; }
+}
+async function openYear(year){
+  el("histBody").innerHTML='<div class="loading">불러오는 중…</div>';
+  try{
+    const p={mode:"history", from:year+"0101", to:year+"1231"};
+    if(histScope.sgg) p.sgg=histScope.sgg; if(histScope.emd) p.emd=histScope.emd; if(histScope.ri) p.ri=histScope.ri;
+    if(histFilter.disease) p.disease=histFilter.disease; if(histFilter.species) p.species=histFilter.species;
+    const d=await api(p);
+    let html=`<button class="btn-more" id="backYear" style="margin-bottom:10px">← 연도별로</button>`;
+    html+=`<div class="sec-label">${esc(histScope.title||"전국")} · ${year} · ${Number(d.total).toLocaleString()}건</div>`;
+    html+= d.items.length ? d.items.map((x,i)=>cardHTML(x,i+1)).join("") : '<div class="empty">기록 없음</div>';
+    el("histBody").innerHTML=html;
+    el("backYear").onclick=loadHist;
+  }catch(e){ el("histBody").innerHTML='<div class="empty">정보를 불러오지 못했습니다.</div>'; }
+}
+
+/* 지도 초기화 */
+function initMap(){
+  if(!window.kakao||!kakao.maps){ el("mapWrap").style.display="none"; return; }
+  kakao.maps.load(()=>{
+    _map=new kakao.maps.Map(el("map"),{center:new kakao.maps.LatLng(36.3,127.8),level:13});
+    _geocoder=new kakao.maps.services.Geocoder();
+    _places=new kakao.maps.services.Places();
+    if(allItems.length) renderPins(currentView());
+  });
+}
+
+restoreState();
+fetchPeriod();
+initMap();
+</script>
+</body>
+</html>
