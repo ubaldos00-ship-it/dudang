@@ -121,22 +121,10 @@
   <!-- 최근 질병 -->
   <h3 class="sec">최근 가축질병 발생현황</h3>
   <div class="disease">
-    <div class="bar">
-      <div class="pills">
-        <button data-m="1">1개월</button><button data-m="3" class="on">3개월</button><button data-m="6">6개월</button><button data-m="0">전체</button>
-      </div>
-    </div>
-    <div class="map-ph" id="mapPh">
-      🗺️ 최근 3개월 가축질병 발생지도<br>
-      <span style="font-size:13px">(다음 단계: disease.html의 카카오맵·질병 API를 <code>js/disease-service.js</code>로 공통화하여 이곳에 임베드)</span>
-    </div>
-    <div class="recent">
-      <div class="r"><b>고병원성 AI</b> · 산란계<br><span>○○도 ○○시 · 2026-00-00 (예시)</span></div>
-      <div class="r"><b>ASF</b> · 돼지<br><span>○○도 ○○군 · 2026-00-00 (예시)</span></div>
-      <div class="r"><b>럼피스킨</b> · 소<br><span>○○도 ○○시 · 2026-00-00 (예시)</span></div>
-    </div>
-    <div class="note">※ 위 발생목록은 자리표시(예시)입니다. 실제 데이터는 다음 단계에서 질병 API로 연결합니다. 공개 가능한 지역단위만 표시합니다.</div>
-    <div class="rightbtn"><a href="disease.html">가축질병현황 자세히 보기 →</a></div>
+    <iframe id="diseaseFrame" src="disease.html?embed=1" title="가축질병 발생지도"
+            style="width:100%;height:640px;border:0;border-radius:10px;background:#fafbfc" loading="lazy"></iframe>
+    <div class="note">※ 지도·발생현황은 disease.html(기존 질병 페이지) 그대로 재사용해 여기에 표시합니다. 카카오맵 특성상 <b>github.io/dudang 에서만</b> 지도가 보입니다(로컬 미표시). 공개 가능한 지역단위만 표시합니다.</div>
+    <div class="rightbtn"><a href="disease.html">가축질병현황 전체화면 →</a></div>
   </div>
 
   <!-- 조사 바로가기 -->
@@ -167,13 +155,6 @@
 </footer>
 
 <script>
-  // 기간 버튼(뼈대: 표시만, 실제 지도 연결은 다음 단계)
-  document.querySelectorAll('.disease .pills button').forEach(b=>b.onclick=()=>{
-    document.querySelectorAll('.disease .pills button').forEach(x=>x.classList.remove('on'));
-    b.classList.add('on');
-    const label={1:'1개월',3:'3개월',6:'6개월',0:'전체'}[b.dataset.m];
-    document.getElementById('mapPh').innerHTML='🗺️ 최근 '+label+' 가축질병 발생지도<br><span style="font-size:13px">(다음 단계에서 실제 지도 연결)</span>';
-  });
   // 검색(뼈대)
   const doSearch=()=>{ const q=document.getElementById('q').value.trim(); if(!q)return;
     document.getElementById('qnote').textContent='“'+q+'” 검색은 다음 단계(용어·축종 JSON)에서 실제 결과를 표시합니다.'; };

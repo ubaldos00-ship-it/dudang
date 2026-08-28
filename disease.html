@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>가축질병 현장정보</title>
+<script>try{if(new URLSearchParams(location.search).get('embed'))document.documentElement.classList.add('embed');}catch(e){}</script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
 <script>
@@ -26,6 +27,9 @@
   html,body{margin:0; padding:0;}
   body{background:var(--bg); color:var(--t1); font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-size:16px; line-height:1.5; overflow-x:hidden;}
   .wrap{max-width:560px; margin:0 auto; padding:0 14px 40px;}
+  /* 두당 index 임베드(?embed=1): 헤더·공유 숨김, 지도+목록만 */
+  html.embed header, html.embed .share-row{display:none!important;}
+  html.embed .wrap{padding-top:6px;}
   header{position:sticky; top:0; z-index:10; background:var(--bg); padding:12px 0 8px; border-bottom:1px solid var(--line);}
   .h-top{display:flex; align-items:center; gap:8px;}
   .nav-btn{background:none; border:none; color:var(--accent); font-size:14px; font-weight:700; padding:4px 0; flex:0 0 auto;}
@@ -123,7 +127,7 @@
     <div class="h-top">
       <button id="backBtn" class="nav-btn hidden">← 뒤로</button>
       <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v12</span></div>
-      <a href="https://ubaldos00-ship-it.github.io/home/" class="hub-btn" aria-label="홈">🏠 홈</a>
+      <a href="index.html" class="hub-btn" aria-label="홈">🏠 홈</a>
     </div>
     <div class="h-time" id="dataTime">데이터 확인 중…</div>
     <div class="search-box">
@@ -226,7 +230,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script>
 const RELAY = "https://induowdrembd3zhtym3ke6prcy0cgajf.lambda-url.ap-northeast-2.on.aws/";
-const SITE = "https://ubaldos00-ship-it.github.io/home/disease.html";
+const SITE = "https://ubaldos00-ship-it.github.io/dudang/disease.html";
 const SIDO_FULL = {"서울":"서울특별시","부산":"부산광역시","대구":"대구광역시","인천":"인천광역시","광주":"광주광역시","대전":"대전광역시","울산":"울산광역시","세종":"세종특별자치시","경기":"경기도","강원":"강원특별자치도","충북":"충청북도","충남":"충청남도","전북":"전북특별자치도","전남":"전라남도","경북":"경상북도","경남":"경상남도","제주":"제주특별자치도"};
 const OFFICE = {"전국":null,"동북청":["대구","경북","강원"],"동남청":["부산","울산","경남"],"경인청":["서울","인천","경기"],"충청청":["대전","세종","충남","충북"],"호남청":["전북","전남","광주","제주"]};
 const CAT_ORDER = ["asf","ai","fmd","lumpy","etc"];
