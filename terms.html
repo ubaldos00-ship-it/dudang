@@ -1,0 +1,123 @@
+<!-- terms.html · 저장: 2026-08-28 15:10 KST -->
+<!-- 두당 조사용어 해설집 · data/terms.json 기반 통합검색 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>조사용어 검색 · 두당 頭當</title>
+<style>
+  :root{--navy:#1a365d;--navy2:#2c5282;--blue:#2b6cb0;--bg:#f4f6f9;--card:#fff;--line:#e2e8f0;--text:#1a202c;--muted:#718096;}
+  *{box-sizing:border-box;} html,body{margin:0;}
+  body{font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:var(--text);background:var(--bg);line-height:1.6;}
+  a{color:inherit;text-decoration:none;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 16px;}
+  .hrow{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .home{color:#bcd4ef;font-size:14px;font-weight:600;}
+  header h1{font-size:19px;margin:0;}
+  main{max-width:900px;margin:0 auto;padding:16px;}
+  .searchbox{display:flex;gap:8px;margin-bottom:10px;}
+  .searchbox input{flex:1;padding:12px 14px;font-size:16px;border:1px solid #cbd5e0;border-radius:10px;}
+  .searchbox button{padding:0 18px;background:var(--blue);color:#fff;border:0;border-radius:10px;font-size:16px;cursor:pointer;}
+  .cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+  .cats button{border:1px solid #cbd5e0;background:#fff;border-radius:20px;padding:6px 13px;font-size:13.5px;cursor:pointer;}
+  .cats button.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .count{font-size:13px;color:var(--muted);margin-bottom:8px;}
+  .sp-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .sp-row a{background:#eef3fb;border:1px solid #cfe0f5;border-radius:20px;padding:7px 14px;font-weight:600;color:var(--navy);font-size:14px;}
+  .term{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden;}
+  .term .hd{padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+  .term .name{font-size:16px;font-weight:700;color:var(--navy);}
+  .term .aka{font-size:12px;color:var(--muted);}
+  .term .sp{margin-left:auto;font-size:11px;color:#4a5568;background:#edf2f7;border-radius:8px;padding:1px 8px;}
+  .term .easy{font-size:13.5px;color:var(--muted);padding:0 14px 12px;}
+  .term .body{display:none;padding:0 14px 14px;border-top:1px solid var(--line);}
+  .term.open .body{display:block;}
+  .term.open .easy{display:none;}
+  .term .row{margin-top:10px;font-size:14px;}
+  .term .lb{font-size:12px;color:var(--muted);}
+  .term .survey{background:#eef3fb;border-radius:8px;padding:6px 10px;margin-top:6px;font-size:13px;color:var(--navy);}
+  .term .rel span{display:inline-block;background:#edf2f7;border-radius:12px;padding:2px 9px;margin:4px 4px 0 0;font-size:12.5px;color:#4a5568;cursor:pointer;}
+  .msg{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center;color:var(--muted);}
+  .src{color:var(--muted);font-size:12px;margin-top:16px;border-top:1px solid var(--line);padding-top:10px;}
+  mark{background:#fff3bf;padding:0 1px;}
+</style>
+</head>
+<body>
+<header><div class="hrow">
+  <a class="home" href="index.html">← 두당 홈</a>
+  <h1>🔎 조사용어 검색</h1>
+</div></header>
+<main>
+  <div class="searchbox">
+    <input id="q" placeholder="번식우, TMR, 건유, 성축환산 등 검색" autocomplete="off">
+    <button id="qbtn">검색</button>
+  </div>
+  <div class="cats" id="cats"></div>
+  <div class="sp-row" id="spRow"></div>
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+  <div class="src" id="src"></div>
+</main>
+<script>
+const SPECIES=[
+  {id:"hanwoo-breeding",title:"한우 번식우",emoji:"🐮",ready:true},
+  {id:"hanwoo-fattening",title:"한우 비육우",emoji:"🐄"},
+  {id:"beef-cattle",title:"육우",emoji:"🐂"},
+  {id:"dairy",title:"젖소",emoji:"🥛"},
+  {id:"pig",title:"비육돈",emoji:"🐖"},
+  {id:"layer",title:"산란계",emoji:"🥚"},
+  {id:"broiler",title:"육계",emoji:"🐔"},
+];
+const SURVEY=new Set(["성축환산두수","번식율","사육구분","부담비율","자가노동","성인환산","감가상각","부산물수입","경영비","생산비","두당"]);
+const CATS=["전체","소","돼지","닭","조사용어"];
+const $=id=>document.getElementById(id);
+const esc=s=>(s==null?"":(""+s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])));
+let TERMS=[], curCat="전체", curQ="";
+
+function hl(text,q){ text=esc(text); if(!q)return text; try{const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi"); return text.replace(re,"<mark>$1</mark>");}catch(e){return text;} }
+function inCat(t){ if(curCat==="전체")return true; if(curCat==="조사용어")return SURVEY.has(t.term); return (t.species||[]).includes(curCat); }
+function match(t,q){ if(!q)return true; const hay=[t.term,...(t.aka||[]),t.def,t.easy].join(" ").toLowerCase(); return hay.includes(q.toLowerCase()); }
+
+function renderCats(){ $("cats").innerHTML=CATS.map(c=>`<button data-c="${c}"${c===curCat?' class="on"':''}>${c}</button>`).join("");
+  $("cats").querySelectorAll("button").forEach(b=>b.onclick=()=>{curCat=b.dataset.c;renderCats();renderList();}); }
+function renderSpecies(q){ // 검색어가 축종명과 겹치면 축종 바로가기 노출
+  const sp=SPECIES.filter(s=>!q||s.title.replace(/\s/g,"").includes(q.replace(/\s/g,""))||q.includes(s.title.slice(0,2)));
+  $("spRow").innerHTML = (q&&sp.length)? ("축종 학습: "+sp.map(s=>`<a href="species.html?s=${s.id}">${s.emoji} ${s.title}${s.ready?"":" ·준비중"}</a>`).join("")) : "";
+}
+function renderList(){
+  const q=curQ.trim();
+  const rows=TERMS.filter(t=>inCat(t)&&match(t,q));
+  renderSpecies(q);
+  $("count").textContent=`용어 ${rows.length}개`+(q?` · '${q}' 검색`:"")+(curCat!=="전체"?` · ${curCat}`:"");
+  if(!rows.length){ $("list").innerHTML='<div class="msg">일치하는 용어가 없습니다. 다른 낱말로 검색해 보세요.</div>'; return; }
+  $("list").innerHTML=rows.map((t,i)=>{
+    const sp=(t.species||[]).join("·");
+    const rel=(t.related||[]).map(r=>`<span data-r="${esc(r)}">${esc(r)}</span>`).join("");
+    return `<div class="term" data-i="${i}">
+      <div class="hd"><span class="name">${hl(t.term,q)}</span>${t.aka?`<span class="aka">(${t.aka.map(a=>esc(a)).join(", ")})</span>`:""}<span class="sp">${esc(sp)}</span></div>
+      <div class="easy">${hl(t.easy||t.def,q)}</div>
+      <div class="body">
+        <div class="row"><span class="lb">정확한 정의</span><br>${hl(t.def,q)}</div>
+        ${t.easy?`<div class="row"><span class="lb">쉽게 설명하면</span><br>${esc(t.easy)}</div>`:""}
+        ${t.livestock&&t.livestock!=="—"?`<div class="survey">📈 가축동향조사: ${esc(t.livestock)}</div>`:""}
+        ${t.cost&&t.cost!=="—"?`<div class="survey">💰 생산비조사: ${esc(t.cost)}</div>`:""}
+        ${rel?`<div class="row rel"><span class="lb">관련 용어</span><br>${rel}</div>`:""}
+      </div></div>`;
+  }).join("");
+  // 상호작용
+  $("list").querySelectorAll(".term .hd").forEach(hd=>hd.onclick=()=>hd.parentElement.classList.toggle("open"));
+  $("list").querySelectorAll(".term .rel span").forEach(s=>s.onclick=e=>{e.stopPropagation(); curQ=s.dataset.r; $("q").value=curQ; curCat="전체"; renderCats(); renderList(); window.scrollTo(0,0);});
+}
+function doSearch(){ curQ=$("q").value; renderList(); }
+$("qbtn").onclick=doSearch; $("q").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
+
+(async function(){
+  try{ const d=await (await fetch("data/terms.json",{cache:"no-store"})).json(); TERMS=d.terms||[]; $("src").textContent="출처: "+(d.source||"")+(d.version?(" · 용어 "+d.version):"");}
+  catch(e){ $("list").innerHTML='<div class="msg">용어 데이터를 불러오지 못했습니다.</div>'; return; }
+  const q=new URLSearchParams(location.search).get("q"); if(q){ curQ=q; $("q").value=q; }
+  renderCats(); renderList();
+})();
+</script>
+</body>
+</html>

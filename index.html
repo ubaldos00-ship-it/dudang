@@ -90,7 +90,7 @@
   <a href="chukbi.html">생산비 분석</a>
   <a href="cattle.html">소이력 조회</a>
   <a href="disease.html">질병현황</a>
-  <a href="#terms">조사용어</a>
+  <a href="terms.html">조사용어</a>
 </div></nav>
 
 <main id="home">
@@ -104,7 +104,7 @@
     <div class="tags">추천:
       <span>번식우</span><span>TMR</span><span>건유</span><span>인공수정</span><span>사료비</span><span>초임우</span>
     </div>
-    <div class="note" id="qnote">※ 통합검색은 다음 단계(조사용어·축종 JSON 연동)에서 실제 동작합니다.</div>
+    <div class="note" id="qnote">조사용어·축종을 검색하면 해설집으로 이동합니다.</div>
   </section>
 
   <!-- 메인 바로가기 -->
@@ -115,7 +115,7 @@
     <a class="card" href="disease.html"><div class="ico">🗺️</div><div class="t">가축질병현황<span class="badge">지도</span></div><div class="d">최근 가축전염병 발생현황</div></a>
     <a class="card" href="chukbi.html"><div class="ico">📊</div><div class="t">생산비 분석<span class="badge">신규</span></div><div class="d">조사자료 월별·연간 분석·내검</div></a>
     <a class="card" href="species.html"><div class="ico">📚</div><div class="t">축종 배우기</div><div class="d">7개 축종 생애·사육방법</div></a>
-    <a class="card" href="#terms"><div class="ico">🔎</div><div class="t">조사용어<span class="badge soon">준비중</span></div><div class="d">현장 축산·조사용어 검색</div></a>
+    <a class="card" href="terms.html"><div class="ico">🔎</div><div class="t">조사용어</div><div class="d">현장 축산·조사용어 검색</div></a>
   </div>
 
   <!-- 최근 질병 -->
@@ -155,13 +155,11 @@
 </footer>
 
 <script>
-  // 검색(뼈대)
-  const doSearch=()=>{ const q=document.getElementById('q').value.trim(); if(!q)return;
-    document.getElementById('qnote').textContent='“'+q+'” 검색은 다음 단계(용어·축종 JSON)에서 실제 결과를 표시합니다.'; };
-  document.getElementById('qbtn').onclick=doSearch;
-  document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
-  document.querySelectorAll('.search .tags span').forEach(s=>s.onclick=()=>{document.getElementById('q').value=s.textContent;doSearch();});
-  function speciesSoon(n){ alert(n+' 콘텐츠(생애주기·용어·조사포인트)는 다음 단계에서 제작됩니다.'); }
+  // 통합검색 → 조사용어 해설집(terms.html)으로 이동
+  const goSearch=(q)=>{ q=(q||'').trim(); location.href='terms.html'+(q?('?q='+encodeURIComponent(q)):''); };
+  document.getElementById('qbtn').onclick=()=>goSearch(document.getElementById('q').value);
+  document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')goSearch(document.getElementById('q').value);});
+  document.querySelectorAll('.search .tags span').forEach(s=>s.onclick=()=>goSearch(s.textContent));
 </script>
 </body>
 </html>
