@@ -42,6 +42,9 @@
   .src{color:var(--muted);font-size:12px;margin-top:16px;border-top:1px solid var(--line);padding-top:10px;}
   mark{background:#fff3bf;padding:0 1px;}
 </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
 <header><div class="hrow">
@@ -119,5 +122,6 @@ $("qbtn").onclick=doSearch; $("q").addEventListener("keydown",e=>{if(e.key==="En
   renderCats(); renderList();
 })();
 </script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
 </body>
 </html>

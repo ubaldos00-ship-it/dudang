@@ -73,6 +73,9 @@
     .brand{font-size:22px;}
   }
 </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
 <header>
@@ -161,5 +164,6 @@
   document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')goSearch(document.getElementById('q').value);});
   document.querySelectorAll('.search .tags span').forEach(s=>s.onclick=()=>goSearch(s.textContent));
 </script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
 </body>
 </html>

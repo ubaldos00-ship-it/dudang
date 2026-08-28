@@ -48,6 +48,9 @@
   .msg{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center;color:var(--muted);}
   @media(max-width:640px){ .grid2{grid-template-columns:1fr;} .kv{grid-template-columns:1fr;} }
 </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
 <header><div class="hrow">
@@ -139,5 +142,6 @@ function showStage(lc,i,btn){
 }
 main();
 </script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
 </body>
 </html>

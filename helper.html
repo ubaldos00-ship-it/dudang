@@ -40,6 +40,9 @@
   h3.sec{font-size:16px;margin:8px 0 12px;padding-left:10px;border-left:4px solid var(--blue);}
   @media(max-width:640px){ .cards{grid-template-columns:1fr;} }
 </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
 <header><div class="hrow">
@@ -70,7 +73,7 @@ function renderSurveys(){
 function renderSpecies(sv){
   $("main").innerHTML=`<div class="bc"><a href="helper.html">조사도우미</a> › <b>${esc(sv.title)}</b></div>`+
     `<h3 class="sec">축종을 선택하세요</h3><div class="list">`+
-    sv.species.map(sp=>`<a onclick="nav('${sv.id}','${sp.id}')" style="cursor:pointer">🐮 ${esc(sp.title)}</a>`).join("")+
+    sv.species.map(sp=>`<a onclick="nav('${sv.id}','${sp.id}')" style="cursor:pointer">${sp.emoji||"🐾"} ${esc(sp.title)}</a>`).join("")+
     (sv.species.length<2?'<div class="msg" style="margin-top:8px">다른 축종은 순차 추가 예정입니다.</div>':'')+
     '</div>'+srcHtml();
 }
@@ -104,5 +107,6 @@ function srcHtml(){ return DATA.source?`<div class="src">출처: ${esc(DATA.sour
 })();
 window.nav=nav; window.openTerm=openTerm;
 </script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
 </body>
 </html>
