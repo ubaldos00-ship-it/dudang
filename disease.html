@@ -1,4 +1,4 @@
-<!-- disease.html (v14) · 저장: 2026-09-15 KST · 지도 레이어 순환(질병↔소·돼지·닭·오리 사육두수, 자동순환) 프레임워크 추가. 축종 데이터는 KOSIS 연동 대기(mode=livestock) -->
+<!-- disease.html (v15) · 저장: 2026-09-16 KST · 홈버튼→두당(dudang) + 축종 7종 세분(한우/육우/젖소/돼지/산란계/육계/오리) KOSIS 순환. relay v11+KOSIS_KEY 필요 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -126,8 +126,8 @@
   <header>
     <div class="h-top">
       <button id="backBtn" class="nav-btn hidden">← 뒤로</button>
-      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v14</span></div>
-      <a href="https://ubaldos00-ship-it.github.io/home/" class="hub-btn" aria-label="홈">🏠 홈</a>
+      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v15</span></div>
+      <a href="https://ubaldos00-ship-it.github.io/dudang/" class="hub-btn" aria-label="홈">🏠 홈</a>
     </div>
     <div class="h-time" id="dataTime">데이터 확인 중…</div>
     <div class="search-box">
@@ -178,9 +178,12 @@
 
     <div class="rowscroll" id="layerTabs">
       <button class="chip on" data-layer="disease">🦠 질병</button>
-      <button class="chip" data-layer="cattle">🐂 소</button>
+      <button class="chip" data-layer="hanwoo">🐂 한우</button>
+      <button class="chip" data-layer="yukwoo">🐄 육우</button>
+      <button class="chip" data-layer="dairy">🥛 젖소</button>
       <button class="chip" data-layer="pig">🐷 돼지</button>
-      <button class="chip" data-layer="chicken">🐔 닭</button>
+      <button class="chip" data-layer="layer">🥚 산란계</button>
+      <button class="chip" data-layer="broiler">🐔 육계</button>
       <button class="chip" data-layer="duck">🦆 오리</button>
       <button class="chip" id="btnAuto">⏱ 자동순환</button>
     </div>
@@ -203,7 +206,7 @@
     <div class="btn-row">
       <button class="btn" id="btnHistHome">전국 과거자료</button>
     </div>
-    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v14</span></div>
+    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v15</span></div>
   </section>
 
   <section id="viewArea" class="hidden">
@@ -252,9 +255,9 @@ let curOffice="전국", curCat="", curQ="", admin=false;
 let lastSummary={regionCount:0,caseCount:0,last7d:0};
 let _map=null,_geocoder=null,_places=null,_overlays=[],_pinData=[];
 let curLayer="disease", _autoTimer=null, LIVESTOCK={};
-const SPECIES_LABEL={disease:"질병",cattle:"소",pig:"돼지",chicken:"닭",duck:"오리"};
-const SPECIES_EMOJI={disease:"🦠",cattle:"🐂",pig:"🐷",chicken:"🐔",duck:"🦆"};
-const LAYER_ORDER=["disease","cattle","pig","chicken","duck"];
+const SPECIES_LABEL={disease:"질병",hanwoo:"한우",yukwoo:"육우",dairy:"젖소",pig:"돼지",layer:"산란계",broiler:"육계",duck:"오리"};
+const SPECIES_EMOJI={disease:"🦠",hanwoo:"🐂",yukwoo:"🐄",dairy:"🥛",pig:"🐷",layer:"🥚",broiler:"🐔",duck:"🦆"};
+const LAYER_ORDER=["disease","hanwoo","yukwoo","dairy","pig","layer","broiler","duck"];
 let _capDataUrl="", _capFname="";
 
 function el(id){return document.getElementById(id);}
