@@ -1,4 +1,4 @@
-<!-- disease.html (v11) · 저장: 2026-08-28 06:18 KST · 캡처지도 남한중심 프레이밍+도로뮤트(일반) + 목록/엑셀 순서번호 + (v10)VWorld실지도 -->
+<!-- disease.html (v14) · 저장: 2026-09-15 KST · 지도 레이어 순환(질병↔소·돼지·닭·오리 사육두수, 자동순환) 프레임워크 추가. 축종 데이터는 KOSIS 연동 대기(mode=livestock) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -73,6 +73,10 @@
   #mapType{position:absolute; top:8px; right:8px; z-index:5; display:flex; background:#fff; border:1px solid var(--line2); border-radius:8px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15);}
   #mapType button{border:none; background:#fff; color:var(--t2); font-size:12.5px; font-weight:600; padding:6px 12px;}
   #mapType button.on{background:var(--accent); color:#fff;}
+  #mapMsg{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:6; background:rgba(20,20,22,.78); color:#fff; font-size:14px; font-weight:600; padding:12px 18px; border-radius:12px; text-align:center; max-width:80%;}
+  .lv-bubble{display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(47,168,79,.72); border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.35); transform:translate(-50%,-50%);}
+  .lv-bubble span{color:#fff; font-weight:800; font-size:11px; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,.5);}
+  #btnAuto.on{background:var(--green); color:#fff; border-color:var(--green);}
   .map-legend{display:flex; flex-wrap:wrap; gap:11px; justify-content:center; margin:8px 0 2px; font-size:12.5px; color:var(--t2);}
   .map-legend .lg{display:inline-flex; align-items:center; gap:5px;}
   .map-note{font-size:11.5px; color:var(--t3); text-align:center; margin-top:2px;}
@@ -122,7 +126,7 @@
   <header>
     <div class="h-top">
       <button id="backBtn" class="nav-btn hidden">← 뒤로</button>
-      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v11</span></div>
+      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v14</span></div>
       <a href="https://ubaldos00-ship-it.github.io/home/" class="hub-btn" aria-label="홈">🏠 홈</a>
     </div>
     <div class="h-time" id="dataTime">데이터 확인 중…</div>
@@ -172,9 +176,18 @@
       <div class="stat"><div class="n" id="s7">–</div><div class="l">최근 7일</div></div>
     </div>
 
+    <div class="rowscroll" id="layerTabs">
+      <button class="chip on" data-layer="disease">🦠 질병</button>
+      <button class="chip" data-layer="cattle">🐂 소</button>
+      <button class="chip" data-layer="pig">🐷 돼지</button>
+      <button class="chip" data-layer="chicken">🐔 닭</button>
+      <button class="chip" data-layer="duck">🦆 오리</button>
+      <button class="chip" id="btnAuto">⏱ 자동순환</button>
+    </div>
     <div id="mapWrap">
       <div id="mapType"><button data-mt="road" class="on">일반</button><button data-mt="sky">위성</button></div>
       <div id="map"></div>
+      <div id="mapMsg" class="hidden"></div>
       <div class="map-legend">
         <span class="lg"><i class="mk-i mk-asf"></i>ASF</span>
         <span class="lg"><i class="mk-i mk-ai"></i>AI</span>
@@ -190,7 +203,7 @@
     <div class="btn-row">
       <button class="btn" id="btnHistHome">전국 과거자료</button>
     </div>
-    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v11</span></div>
+    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v14</span></div>
   </section>
 
   <section id="viewArea" class="hidden">
@@ -238,6 +251,10 @@ let curDays=90, curFrom="", curTo="", periodLabel="최근 3개월";
 let curOffice="전국", curCat="", curQ="", admin=false;
 let lastSummary={regionCount:0,caseCount:0,last7d:0};
 let _map=null,_geocoder=null,_places=null,_overlays=[],_pinData=[];
+let curLayer="disease", _autoTimer=null, LIVESTOCK={};
+const SPECIES_LABEL={disease:"질병",cattle:"소",pig:"돼지",chicken:"닭",duck:"오리"};
+const SPECIES_EMOJI={disease:"🦠",cattle:"🐂",pig:"🐷",chicken:"🐔",duck:"🦆"};
+const LAYER_ORDER=["disease","cattle","pig","chicken","duck"];
 let _capDataUrl="", _capFname="";
 
 function el(id){return document.getElementById(id);}
@@ -335,7 +352,7 @@ function applyFilters(){
   if(admin) tag+=` <span class="admin-tag">농장정보 ON</span>`;
   el("homeLabel").innerHTML=`${periodLabel} 발생 목록 · 최신순${tag}`;
   el("homeList").innerHTML = v.length ? v.slice(0,200).map((x,i)=>cardHTML(x,i+1)).join("") : '<div class="empty">조건에 맞는 발생이 없습니다.</div>';
-  renderPins(v);
+  renderCurrentLayer();
   saveState();
 }
 
@@ -382,6 +399,42 @@ async function renderPins(items){
     ov.setMap(_map); _overlays.push(ov);
   });
 }
+
+/* 레이어 순환 (질병 ↔ 축종별 사육두수) */
+function showMapMsg(t){ el("mapMsg").textContent=t; el("mapMsg").classList.remove("hidden"); }
+function fmtCount(n){ if(n>=10000) return (n/10000).toFixed(n>=100000?0:1)+"만"; return String(n); }
+function renderCurrentLayer(){
+  if(curLayer==="disease"){ el("mapMsg").classList.add("hidden"); renderPins(currentView()); }
+  else renderLivestock(curLayer);
+}
+function renderLivestock(species){
+  clearOverlays();
+  const data=LIVESTOCK[species];
+  if(!data || !Object.keys(data).length){ showMapMsg(SPECIES_EMOJI[species]+" "+SPECIES_LABEL[species]+" 사육두수 — KOSIS 데이터 연동 준비 중"); return; }
+  el("mapMsg").classList.add("hidden");
+  const vals=Object.values(data).filter(v=>v>0); const max=Math.max(...vals,1);
+  ANCHORS.forEach(a=>{
+    const cnt=data[a.name]; if(!cnt) return;
+    const r=Math.round(9+24*Math.sqrt(cnt/max));
+    const d=document.createElement("div"); d.className="lv-bubble"; d.style.width=d.style.height=(r*2)+"px";
+    d.innerHTML=`<span>${fmtCount(cnt)}</span>`;
+    const ov=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(a.lat,a.lng),content:d,yAnchor:0.5,xAnchor:0.5});
+    ov.setMap(_map); _overlays.push(ov);
+  });
+}
+function setLayer(layer){
+  curLayer=layer;
+  [...el("layerTabs").querySelectorAll("[data-layer]")].forEach(x=>x.classList.toggle("on",x.dataset.layer===layer));
+  renderCurrentLayer();
+}
+function stopAuto(){ if(_autoTimer){ clearInterval(_autoTimer); _autoTimer=null; el("btnAuto").classList.remove("on"); } }
+async function loadLivestock(){ try{ const d=await api({mode:"livestock"}); if(d&&d.ok&&d.data) LIVESTOCK=d.data; }catch(e){} }
+el("layerTabs").addEventListener("click",e=>{ const b=e.target.closest("[data-layer]"); if(!b)return; stopAuto(); setLayer(b.dataset.layer); });
+el("btnAuto").addEventListener("click",()=>{
+  if(_autoTimer){ stopAuto(); return; }
+  el("btnAuto").classList.add("on");
+  _autoTimer=setInterval(()=>{ const i=LAYER_ORDER.indexOf(curLayer); setLayer(LAYER_ORDER[(i+1)%LAYER_ORDER.length]); }, 5000);
+});
 
 /* 필터 컨트롤 */
 el("officeChips").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; curOffice=b.dataset.off; [...el("officeChips").children].forEach(x=>x.classList.toggle("on",x===b)); applyFilters(); });
@@ -740,6 +793,7 @@ function initMap(){
 restoreState();
 fetchPeriod();
 initMap();
+loadLivestock();
 </script>
 </body>
 </html>
