@@ -1,4 +1,4 @@
-<!-- disease.html (v15) · 저장: 2026-09-16 KST · 홈버튼→두당(dudang) + 축종 7종 세분(한우/육우/젖소/돼지/산란계/육계/오리) KOSIS 순환. relay v11+KOSIS_KEY 필요 -->
+<!-- disease.html (v16) · 저장: 2026-09-16 KST · embed 모드(?embed=1: 지도+축종순환만 표시, 두당홈 iframe용) 추가. 홈버튼 두당, 7종 KOSIS 순환 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -68,6 +68,11 @@
   .hidden{display:none;}
   .subttl{font-size:15px; font-weight:700; margin:4px 0 10px; padding:11px 13px; background:var(--card); border:1px solid var(--line); border-radius:10px;}
   .note{font-size:12px; color:var(--t3); text-align:center; margin-top:18px; line-height:1.5;}
+  /* 임베드(지도만) 모드 — 두당 홈 iframe */
+  body.embed header, body.embed #officeChips, body.embed #period, body.embed #rangeBox, body.embed #catChips, body.embed .share-row, body.embed .summary, body.embed #homeLabel, body.embed #homeList, body.embed .btn-row, body.embed .note{ display:none !important; }
+  body.embed .wrap{ padding:0; max-width:none; }
+  body.embed #mapWrap{ margin:6px 0 4px; }
+  body.embed #layerTabs{ margin:6px 8px 2px; }
   #mapWrap{margin:11px 0 4px; position:relative;}
   #map{width:100%; height:470px; border-radius:12px; border:1px solid var(--line); background:#e9edf1;}
   #mapType{position:absolute; top:8px; right:8px; z-index:5; display:flex; background:#fff; border:1px solid var(--line2); border-radius:8px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.15);}
@@ -126,7 +131,7 @@
   <header>
     <div class="h-top">
       <button id="backBtn" class="nav-btn hidden">← 뒤로</button>
-      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v15</span></div>
+      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v16</span></div>
       <a href="https://ubaldos00-ship-it.github.io/dudang/" class="hub-btn" aria-label="홈">🏠 홈</a>
     </div>
     <div class="h-time" id="dataTime">데이터 확인 중…</div>
@@ -206,7 +211,7 @@
     <div class="btn-row">
       <button class="btn" id="btnHistHome">전국 과거자료</button>
     </div>
-    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v15</span></div>
+    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v16</span></div>
   </section>
 
   <section id="viewArea" class="hidden">
@@ -242,6 +247,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script>
 const RELAY = "https://induowdrembd3zhtym3ke6prcy0cgajf.lambda-url.ap-northeast-2.on.aws/";
+const EMBED = new URLSearchParams(location.search).get("embed")==="1";
+if(EMBED) document.body.classList.add("embed");
 const SITE = "https://ubaldos00-ship-it.github.io/home/disease.html";
 const SIDO_FULL = {"서울":"서울특별시","부산":"부산광역시","대구":"대구광역시","인천":"인천광역시","광주":"광주광역시","대전":"대전광역시","울산":"울산광역시","세종":"세종특별자치시","경기":"경기도","강원":"강원특별자치도","충북":"충청북도","충남":"충청남도","전북":"전북특별자치도","전남":"전라남도","경북":"경상북도","경남":"경상남도","제주":"제주특별자치도"};
 const OFFICE = {"전국":null,"동북청":["대구","경북","강원"],"동남청":["부산","울산","경남"],"경인청":["서울","인천","경기"],"충청청":["대전","세종","충남","충북"],"호남청":["전북","전남","광주","제주"]};
@@ -797,6 +804,7 @@ restoreState();
 fetchPeriod();
 initMap();
 loadLivestock();
+if(EMBED){ setTimeout(()=>{ try{ el("btnAuto").click(); }catch(e){} }, 2500); }
 </script>
 </body>
 </html>

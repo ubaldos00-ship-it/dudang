@@ -1,4 +1,4 @@
-<!-- index.html · 저장: 2026-08-28 13:41 KST -->
+<!-- index.html · 저장: 2026-09-16 KST · 처음열기=맨위/뒤로=위치복원, 소이력조회 및 계산 통합(🐂), 질병현황 임베드 지도전용 -->
 <!-- 두당(頭當) 통합대시보드 · 1단계 뼈대 · 기존 기능(cattle/disease/생산비) 허브 -->
 <!doctype html>
 <html lang="ko">
@@ -89,6 +89,7 @@
 <nav class="top"><div class="inner">
   <a href="#home">홈</a>
   <a href="helper.html">조사도우미</a>
+  <a href="field.html">현장도우미</a>
   <a href="#species">축종 배우기</a>
   <a href="chukbi.html">생산비 분석</a>
   <a href="cattle.html">소이력 조회</a>
@@ -113,8 +114,7 @@
   <!-- 메인 바로가기 -->
   <h3 class="sec">주요 업무 바로가기</h3>
   <div class="cards">
-    <a class="card" href="cattle.html"><div class="ico">🐄</div><div class="t">소이력 조회</div><div class="d">이력번호로 개체정보 확인</div></a>
-    <a class="card" href="cattle.html"><div class="ico">🧮</div><div class="t">자동계산</div><div class="d">소이력 자료 기반 계산</div></a>
+    <a class="card" href="cattle.html"><div class="ico">🐂</div><div class="t">소이력조회 및 계산</div><div class="d">이력번호 조회 + 개월수·생체중·판매 자동계산</div></a>
     <a class="card" href="disease.html"><div class="ico">🗺️</div><div class="t">가축질병현황<span class="badge">지도</span></div><div class="d">최근 가축전염병 발생현황</div></a>
     <a class="card" href="chukbi.html"><div class="ico">📊</div><div class="t">생산비 분석<span class="badge">신규</span></div><div class="d">조사자료 월별·연간 분석·내검</div></a>
     <a class="card" href="species.html"><div class="ico">📚</div><div class="t">축종 배우기</div><div class="d">7개 축종 생애·사육방법</div></a>
@@ -150,11 +150,14 @@
     <a href="species.html"><span class="ico">📚</span>전체 보기</a>
   </div>
   <div class="note">※ 축종 콘텐츠(생애주기·용어·사료·시설·조사포인트)는 <code>data/species/*.json</code> 기반입니다. <b>한우 번식우</b>부터 시범 제작했고, 나머지는 순차 추가됩니다.</div>
+  <!-- 현장도우미 -->
+  <h3 class="sec">현장도우미</h3>
+  <a class="card" href="field.html" style="display:block"><div class="ico">🧭</div><div class="t">농가 방문 전 3분 브리핑</div><div class="d">축종 핵심·생애·용어·조사 체크포인트를 한 화면에 (모바일 최적)</div></a>
 </main>
 
 <footer>
   두당 頭當 · 가축동향·축산물생산비조사 현장지원 시스템 · 콘텐츠 버전 2026.1<br>
-  ⚠ 1단계(대시보드 뼈대)입니다. 소이력조회·자동계산·질병현황은 기존 정상 기능으로 연결되며, 질병지도 임베드·조사도우미·축종 콘텐츠·PWA는 다음 단계에서 추가됩니다.
+  소이력조회 및 계산 · 질병현황 지도(임베드) · 조사도우미 · 축종 배우기 · 조사용어 · PWA 연결 완료. 질병지도는 카카오맵 특성상 github.io/dudang 배포본에서만 표시됩니다.
 </footer>
 
 <script>
@@ -163,6 +166,17 @@
   document.getElementById('qbtn').onclick=()=>goSearch(document.getElementById('q').value);
   document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')goSearch(document.getElementById('q').value);});
   document.querySelectorAll('.search .tags span').forEach(s=>s.onclick=()=>goSearch(s.textContent));
+</script>
+<script>
+  // 처음 열기=맨 위 / 뒤로가기=이전 위치 복원
+  if('scrollRestoration' in history) history.scrollRestoration='manual';
+  window.addEventListener('scroll',function(){ try{ sessionStorage.setItem('idxScroll', window.scrollY); }catch(e){} }, {passive:true});
+  window.addEventListener('pageshow',function(e){
+    var nav=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};
+    var isBack = e.persisted || nav.type==='back_forward';
+    if(isBack){ var y=0; try{ y=+(sessionStorage.getItem('idxScroll')||0); }catch(e){} window.scrollTo(0,y); }
+    else { window.scrollTo(0,0); }
+  });
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
 </body>

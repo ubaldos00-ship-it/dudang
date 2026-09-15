@@ -1,4 +1,4 @@
-<!-- species.html · 저장: 2026-08-28 14:41 KST -->
+<!-- species.html · 저장: 2026-09-16 KST · 상단 ←뒤로(좌)/🏠두당홈(우) 분리, 육우 콘텐츠 추가 -->
 <!-- 두당 축종 배우기 · data/species/*.json 기반 콘텐츠 뷰어 -->
 <!doctype html>
 <html lang="ko">
@@ -13,7 +13,8 @@
   a{color:inherit;text-decoration:none;}
   header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 16px;}
   .hrow{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:12px;}
-  .home{color:#bcd4ef;font-size:14px;font-weight:600;}
+  .home{color:#bcd4ef;font-size:14px;font-weight:600;white-space:nowrap;}
+  .back{color:#fff;font-size:22px;font-weight:700;line-height:1;padding:2px 6px;}
   header h1{font-size:20px;margin:0;}
   header .cat{font-size:13px;color:#bcd4ef;}
   main{max-width:960px;margin:0 auto;padding:16px;}
@@ -54,18 +55,19 @@
 </head>
 <body>
 <header><div class="hrow">
-  <a class="home" href="index.html">← 두당 홈</a>
-  <h1 id="hTitle">축종 배우기</h1>
+  <a class="back" href="#" onclick="if(history.length>1){history.back();}else{location.href='index.html';}return false;" aria-label="뒤로">←</a>
+  <h1 id="hTitle" style="flex:1">축종 배우기</h1>
   <span class="cat" id="hCat"></span>
+  <a class="home" href="index.html">🏠 두당홈</a>
 </div></header>
 <main id="main"><div class="msg">불러오는 중…</div></main>
 
 <script>
 const SPECIES=[
-  {id:"hanwoo-breeding",title:"한우 번식우",emoji:"🐮"},
-  {id:"hanwoo-fattening",title:"한우 비육우",emoji:"🐄"},
-  {id:"beef-cattle",title:"육우",emoji:"🐂"},
-  {id:"dairy",title:"젖소",emoji:"🥛"},
+  {id:"hanwoo-breeding",title:"한우 번식우",emoji:"🐮",ready:1},
+  {id:"hanwoo-fattening",title:"한우 비육우",emoji:"🐄",ready:1},
+  {id:"beef-cattle",title:"육우",emoji:"🐂",ready:1},
+  {id:"dairy",title:"젖소",emoji:"🥛",ready:1},
   {id:"pig",title:"비육돈",emoji:"🐖"},
   {id:"layer",title:"산란계",emoji:"🥚"},
   {id:"broiler",title:"육계",emoji:"🐔"},
@@ -86,13 +88,13 @@ function renderList(){
   $("hTitle").textContent="축종 배우기";
   $("main").innerHTML='<h3 class="sec">축종을 선택하세요</h3><div class="list">'+
     SPECIES.map(s=>`<a href="species.html?s=${s.id}">${s.emoji} ${s.title}`+
-      (s.id==="hanwoo-breeding"?"":' <span class="soon">· 준비 중</span>')+`</a>`).join("")+'</div>';
+      (s.ready?"":' <span class="soon">· 준비 중</span>')+`</a>`).join("")+'</div>';
 }
 function renderMissing(){
   const s=SPECIES.find(x=>x.id===id);
   $("hTitle").textContent=(s?s.emoji+" "+s.title:"축종")+" 배우기";
-  $("main").innerHTML='<div class="msg">이 축종 콘텐츠는 <b>준비 중</b>입니다.<br>현재 <b>한우 번식우</b>가 시범 제작되어 있습니다.<br><br>'+
-    '<a class="home" style="color:var(--blue)" href="species.html?s=hanwoo-breeding">→ 한우 번식우 보기</a></div>';
+  $("main").innerHTML='<div class="msg">이 축종 콘텐츠는 <b>준비 중</b>입니다.<br>현재 <b>한우 번식우 · 한우 비육우 · 육우 · 젖소</b>가 제작되어 있습니다.<br><br>'+
+    '<a class="home" style="color:var(--blue)" href="species.html">→ 축종 목록 보기</a></div>';
 }
 function render(d){
   $("hTitle").textContent=(d.emoji||"")+" "+d.title;

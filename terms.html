@@ -1,4 +1,4 @@
-<!-- terms.html · 저장: 2026-08-28 15:10 KST -->
+<!-- terms.html · 저장: 2026-09-16 KST · 관련용어 '← 이전 용어로' 버튼(용어 히스토리) 추가 -->
 <!-- 두당 조사용어 해설집 · data/terms.json 기반 통합검색 -->
 <!doctype html>
 <html lang="ko">
@@ -22,6 +22,7 @@
   .cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
   .cats button{border:1px solid #cbd5e0;background:#fff;border-radius:20px;padding:6px 13px;font-size:13.5px;cursor:pointer;}
   .cats button.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .tback{border:1px solid #cbd5e0;background:#fff;border-radius:20px;padding:7px 14px;font-size:14px;cursor:pointer;color:var(--navy);font-weight:600;}
   .count{font-size:13px;color:var(--muted);margin-bottom:8px;}
   .sp-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
   .sp-row a{background:#eef3fb;border:1px solid #cfe0f5;border-radius:20px;padding:7px 14px;font-weight:600;color:var(--navy);font-size:14px;}
@@ -58,6 +59,7 @@
   </div>
   <div class="cats" id="cats"></div>
   <div class="sp-row" id="spRow"></div>
+  <div id="termNav" style="display:none;margin-bottom:10px"><button id="termBack" class="tback">← 이전 용어로</button></div>
   <div class="count" id="count"></div>
   <div id="list"></div>
   <div class="src" id="src"></div>
@@ -76,14 +78,15 @@ const SURVEY=new Set(["성축환산두수","번식율","사육구분","부담비
 const CATS=["전체","소","돼지","닭","조사용어"];
 const $=id=>document.getElementById(id);
 const esc=s=>(s==null?"":(""+s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])));
-let TERMS=[], curCat="전체", curQ="";
+let TERMS=[], curCat="전체", curQ="", termHist=[];
+function updateTermNav(){ const el=document.getElementById("termNav"); if(el) el.style.display=termHist.length?"block":"none"; }
 
 function hl(text,q){ text=esc(text); if(!q)return text; try{const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi"); return text.replace(re,"<mark>$1</mark>");}catch(e){return text;} }
 function inCat(t){ if(curCat==="전체")return true; if(curCat==="조사용어")return SURVEY.has(t.term); return (t.species||[]).includes(curCat); }
 function match(t,q){ if(!q)return true; const hay=[t.term,...(t.aka||[]),t.def,t.easy].join(" ").toLowerCase(); return hay.includes(q.toLowerCase()); }
 
 function renderCats(){ $("cats").innerHTML=CATS.map(c=>`<button data-c="${c}"${c===curCat?' class="on"':''}>${c}</button>`).join("");
-  $("cats").querySelectorAll("button").forEach(b=>b.onclick=()=>{curCat=b.dataset.c;renderCats();renderList();}); }
+  $("cats").querySelectorAll("button").forEach(b=>b.onclick=()=>{termHist=[];curCat=b.dataset.c;renderCats();renderList();updateTermNav();}); }
 function renderSpecies(q){ // 검색어가 축종명과 겹치면 축종 바로가기 노출
   const sp=SPECIES.filter(s=>!q||s.title.replace(/\s/g,"").includes(q.replace(/\s/g,""))||q.includes(s.title.slice(0,2)));
   $("spRow").innerHTML = (q&&sp.length)? ("축종 학습: "+sp.map(s=>`<a href="species.html?s=${s.id}">${s.emoji} ${s.title}${s.ready?"":" ·준비중"}</a>`).join("")) : "";
@@ -110,9 +113,11 @@ function renderList(){
   }).join("");
   // 상호작용
   $("list").querySelectorAll(".term .hd").forEach(hd=>hd.onclick=()=>hd.parentElement.classList.toggle("open"));
-  $("list").querySelectorAll(".term .rel span").forEach(s=>s.onclick=e=>{e.stopPropagation(); curQ=s.dataset.r; $("q").value=curQ; curCat="전체"; renderCats(); renderList(); window.scrollTo(0,0);});
+  $("list").querySelectorAll(".term .rel span").forEach(s=>s.onclick=e=>{e.stopPropagation(); termHist.push({q:curQ,cat:curCat}); curQ=s.dataset.r; $("q").value=curQ; curCat="전체"; renderCats(); renderList(); window.scrollTo(0,0);});
+  updateTermNav();
 }
-function doSearch(){ curQ=$("q").value; renderList(); }
+function doSearch(){ termHist=[]; curQ=$("q").value; renderList(); }
+document.getElementById("termBack").onclick=()=>{ const st=termHist.pop(); if(st){ curQ=st.q; $("q").value=st.q; curCat=st.cat; renderCats(); renderList(); window.scrollTo(0,0);} };
 $("qbtn").onclick=doSearch; $("q").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
 
 (async function(){
