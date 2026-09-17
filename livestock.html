@@ -1,4 +1,4 @@
-<!-- livestock.html · 저장: 2026-09-17 KST · 가축마리수 조회(KOSIS 시계열) · 축종+청 선택→전국/시도 그래프+통계표 -->
+<!-- livestock.html · 저장: 2026-09-17 KST(v2) · 17시도 색깔칩+청 단축선택+초기화+개별시도 단일선택, 전국 항상표시 -->
 <!-- 두당 가축 사육두수 조회 · relay mode=livestock_series 사용 -->
 <!doctype html>
 <html lang="ko">
@@ -31,6 +31,10 @@
   .chips{display:flex;flex-wrap:wrap;gap:7px;}
   .chips button{border:1px solid #cbd5e0;background:#fff;border-radius:20px;padding:8px 14px;font-size:14px;font-weight:600;cursor:pointer;}
   .chips button.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  #office button.reset{background:#fff;color:#c0392b;border-color:#e6a6a0;}
+  #sido button{padding:7px 11px;font-size:13px;}
+  #sido button .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+  #sido button.on{color:#fff;border-color:transparent;}
   .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
   select{padding:9px 12px;font-size:15px;border:1px solid #cbd5e0;border-radius:9px;background:#fff;}
   .sido-note{font-size:13px;color:var(--muted);margin-top:8px;}
@@ -63,8 +67,9 @@
     <div class="chips" id="species"></div>
   </div>
   <div class="card">
-    <div class="lb"><span class="num">2</span>지역(청) 선택 · 전국은 항상 표시</div>
+    <div class="lb"><span class="num">2</span>지역 선택 · 전국은 항상 표시</div>
     <div class="chips" id="office"></div>
+    <div class="chips" id="sido" style="margin-top:9px"></div>
     <div class="sido-note" id="sidoNote"></div>
   </div>
   <div class="card">
@@ -102,18 +107,44 @@ const SPECIES=[
   {id:"layer",label:"산란계",emoji:"🥚"},{id:"broiler",label:"육계",emoji:"🐔"},
   {id:"duck",label:"오리",emoji:"🦆"}
 ];
-const OFFICE={"전국":[],"동북청":["대구","경북","강원"],"동남청":["부산","울산","경남"],"경인청":["서울","인천","경기"],"충청청":["대전","세종","충남","충북"],"호남청":["전북","전남","광주","제주"]};
-const COLORS=["#1d6fe0","#e0561d","#2f8a3e","#8e44ad","#d4a017","#16a3a3","#c0392b","#2c3e50","#e6739f"];
+const OFFICE={"동북청":["대구","경북","강원"],"동남청":["부산","울산","경남"],"경인청":["서울","인천","경기"],"충청청":["대전","세종","충남","충북"],"호남청":["전북","전남","광주","제주"]};
+// 17개 시도(청 순서로 묶어 색 배정)
+const SIDO=[
+ {n:"서울",c:"#e74c3c"},{n:"인천",c:"#e67e22"},{n:"경기",c:"#f1c40f"},
+ {n:"대전",c:"#16a085"},{n:"세종",c:"#1abc9c"},{n:"충남",c:"#27ae60"},{n:"충북",c:"#2ecc71"},
+ {n:"대구",c:"#2980b9"},{n:"경북",c:"#3498db"},{n:"강원",c:"#5dade2"},
+ {n:"부산",c:"#8e44ad"},{n:"울산",c:"#9b59b6"},{n:"경남",c:"#c39bd3"},
+ {n:"전북",c:"#d35400"},{n:"전남",c:"#e59866"},{n:"광주",c:"#b9770e"},{n:"제주",c:"#7f8c8d"}
+];
+const SIDO_COLOR={}; SIDO.forEach(s=>SIDO_COLOR[s.n]=s.c); SIDO_COLOR["전국"]="#1a365d";
+const colorFor=(nm)=>SIDO_COLOR[nm]||"#95a5a6";
 const $=id=>document.getElementById(id);
-let curSp="hanwoo", curOff="전국", chart=null;
+let curSp="hanwoo", chart=null;
+let sel=new Set();  // 선택된 시도(전국은 항상 그래프에 포함)
 
+function officeOf(name){ for(const o in OFFICE){ if(OFFICE[o].indexOf(name)>=0) return o; } return ""; }
 function renderChips(){
   $("species").innerHTML=SPECIES.map(s=>`<button data-sp="${s.id}"${s.id===curSp?' class="on"':''}>${s.emoji} ${s.label}</button>`).join("");
-  $("office").innerHTML=Object.keys(OFFICE).map(o=>`<button data-off="${o}"${o===curOff?' class="on"':''}>${o}</button>`).join("");
+  // 청 단축버튼 + 초기화
+  let off=Object.keys(OFFICE).map(o=>{
+    const on=OFFICE[o].every(x=>sel.has(x)) && sel.size===OFFICE[o].length;
+    return `<button data-off="${o}"${on?' class="on"':''}>${o}</button>`;
+  }).join("");
+  off+=`<button class="reset" data-reset="1">↺ 초기화(전국만)</button>`;
+  $("office").innerHTML=off;
+  // 17개 시도 색깔칩
+  $("sido").innerHTML=SIDO.map(s=>{
+    const on=sel.has(s.n);
+    return `<button data-sido="${s.n}"${on?' class="on"':''}`+(on?` style="background:${s.c}"`:'')+`><span class="dot" style="background:${s.c}"></span>${s.n}</button>`;
+  }).join("");
   $("species").querySelectorAll("button").forEach(b=>b.onclick=()=>{curSp=b.dataset.sp;renderChips();load();});
-  $("office").querySelectorAll("button").forEach(b=>b.onclick=()=>{curOff=b.dataset.off;renderChips();load();});
-  const s=OFFICE[curOff];
-  $("sidoNote").innerHTML = curOff==="전국" ? "전국 사육두수를 표시합니다." : `<b>${curOff}</b> 관할: ${s.join(" · ")} <span style="color:#a0aec0">(+ 전국)</span>`;
+  $("office").querySelectorAll("[data-off]").forEach(b=>b.onclick=()=>{ sel=new Set(OFFICE[b.dataset.off]); renderChips(); load(); });
+  $("office").querySelectorAll("[data-reset]").forEach(b=>b.onclick=()=>{ sel=new Set(); renderChips(); load(); });
+  // 개별 시도 클릭 → 해당 시도만 선택
+  $("sido").querySelectorAll("[data-sido]").forEach(b=>b.onclick=()=>{ sel=new Set([b.dataset.sido]); renderChips(); load(); });
+  // 안내문
+  if(sel.size===0){ $("sidoNote").innerHTML="전국 사육두수를 표시합니다. (청 또는 시도를 누르면 함께 비교)"; }
+  else{ const arr=[...sel]; const off2=arr.length>1?officeOf(arr[0]):""; $("sidoNote").innerHTML=`선택: <b>${arr.join(" · ")}</b>`+(off2&&arr.every(x=>officeOf(x)===off2)?` <span style="color:#a0aec0">(${off2})</span>`:"")+` <span style="color:#a0aec0">+ 전국</span>`; }
 }
 function fmtQ(prd){ const m=/^(\d{4})(\d{2})$/.exec(prd); if(m){ const q=parseInt(m[2],10); return m[1].slice(2)+"'"+(q>=1&&q<=4?q+"Q":m[2]); } return prd; }
 function fmtQfull(prd){ const m=/^(\d{4})(\d{2})$/.exec(prd); if(m){ const q=parseInt(m[2],10); return m[1]+"년 "+(q>=1&&q<=4?q+"분기":m[2]); } return prd; }
@@ -121,7 +152,7 @@ function fmtNum(v){ return v==null?"–":Number(v).toLocaleString(); }
 
 function regionsToShow(){
   const list=["전국"];
-  (OFFICE[curOff]||[]).forEach(r=>{ if(list.indexOf(r)<0) list.push(r); });
+  SIDO.forEach(s=>{ if(sel.has(s.n)) list.push(s.n); });  // 시도 표준 순서 유지
   return list;
 }
 
@@ -147,11 +178,11 @@ function draw(d, spLabel){
   const periods=d.periods;               // 과거→최신
   const regions=regionsToShow().filter(rg=> d.data[rg]);
   const labels=periods.map(fmtQ);
-  const datasets=regions.map((rg,i)=>({
-    label:rg, data:d.data[rg], borderColor:COLORS[i%COLORS.length],
-    backgroundColor:COLORS[i%COLORS.length], borderWidth:rg==="전국"?3:2,
+  const datasets=regions.map((rg)=>({
+    label:rg, data:d.data[rg], borderColor:colorFor(rg),
+    backgroundColor:colorFor(rg), borderWidth:rg==="전국"?3.5:2,
     tension:.25, pointRadius:3, pointHoverRadius:5, spanGaps:true,
-    borderDash: rg==="전국"?[]:[]
+    borderDash: rg==="전국"?[6,3]:[]
   }));
   $("chartMsg").hidden=true;
   if(chart) chart.destroy();
@@ -177,7 +208,7 @@ function draw(d, spLabel){
   // 통계표: 행=지역, 열=분기(과거→최신)
   let h="<tr><th class='reg'>지역</th>"+periods.map(p=>`<th>${fmtQfull(p)}</th>`).join("")+"</tr>";
   regions.forEach(rg=>{
-    h+=`<tr><td class='reg'>${rg}</td>`+ (d.data[rg]||[]).map(v=>`<td>${fmtNum(v)}</td>`).join("") +"</tr>";
+    h+=`<tr><td class='reg'><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${colorFor(rg)};margin-right:5px;vertical-align:middle"></span>${rg}</td>`+ (d.data[rg]||[]).map(v=>`<td>${fmtNum(v)}</td>`).join("") +"</tr>";
   });
   $("tbl").innerHTML=h;
   const last=periods[periods.length-1];
