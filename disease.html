@@ -1,4 +1,4 @@
-<!-- disease.html (v19) · 저장: 2026-09-17 KST · 분기표시 버그수정(202602=2분기, 이전엔 1분기로 오표시). v18=지역명라벨 강화 -->
+<!-- disease.html (v20) · 저장: 2026-09-17 KST · 시도 좌표 겹침 조정(경기·대전·광주·전남·경남·부산·강원). v19=분기표시 수정 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -135,7 +135,7 @@
   <header>
     <div class="h-top">
       <button id="backBtn" class="nav-btn hidden">← 뒤로</button>
-      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v19</span></div>
+      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v20</span></div>
       <a href="https://ubaldos00-ship-it.github.io/dudang/" class="hub-btn" aria-label="홈">🏠 홈</a>
     </div>
     <div class="h-time" id="dataTime">데이터 확인 중…</div>
@@ -216,7 +216,7 @@
     <div class="btn-row">
       <button class="btn" id="btnHistHome">전국 과거자료</button>
     </div>
-    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v19</span></div>
+    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v20</span></div>
   </section>
 
   <section id="viewArea" class="hidden">
@@ -510,11 +510,11 @@ el("hTitle").addEventListener("click",()=>{
 
 /* 결과 이미지 — 자체 캔버스 지도(외부 타일 없음) */
 const ANCHORS=[
- {name:"서울",lat:37.56,lng:126.98},{name:"인천",lat:37.46,lng:126.70},{name:"경기",lat:37.25,lng:127.10},
- {name:"강원",lat:37.85,lng:128.20},{name:"충북",lat:36.85,lng:127.75},{name:"충남",lat:36.55,lng:126.75},
- {name:"대전",lat:36.35,lng:127.38},{name:"세종",lat:36.58,lng:127.26},{name:"전북",lat:35.72,lng:127.15},
- {name:"전남",lat:34.85,lng:126.90},{name:"광주",lat:35.16,lng:126.85},{name:"경북",lat:36.35,lng:128.85},
- {name:"대구",lat:35.87,lng:128.60},{name:"경남",lat:35.30,lng:128.30},{name:"부산",lat:35.18,lng:129.08},
+ {name:"서울",lat:37.56,lng:126.98},{name:"인천",lat:37.46,lng:126.70},{name:"경기",lat:37.20,lng:127.60},
+ {name:"강원",lat:37.55,lng:128.45},{name:"충북",lat:36.85,lng:127.80},{name:"충남",lat:36.55,lng:126.75},
+ {name:"대전",lat:36.30,lng:127.62},{name:"세종",lat:36.60,lng:127.26},{name:"전북",lat:35.72,lng:127.15},
+ {name:"전남",lat:34.60,lng:126.55},{name:"광주",lat:35.16,lng:127.05},{name:"경북",lat:36.35,lng:128.85},
+ {name:"대구",lat:35.87,lng:128.60},{name:"경남",lat:35.10,lng:128.10},{name:"부산",lat:35.05,lng:129.05},
  {name:"울산",lat:35.54,lng:129.31},{name:"제주",lat:33.40,lng:126.55}
 ];
 const KOREA_PATH=[

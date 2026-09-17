@@ -1,0 +1,193 @@
+<!-- livestock.html · 저장: 2026-09-17 KST · 가축마리수 조회(KOSIS 시계열) · 축종+청 선택→전국/시도 그래프+통계표 -->
+<!-- 두당 가축 사육두수 조회 · relay mode=livestock_series 사용 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>가축마리수 조회 · 두당 頭當</title>
+<!-- Google tag (gtag.js) · 두당 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PYTDP9E5YL');
+</script>
+<style>
+  :root{--navy:#1a365d;--navy2:#2c5282;--blue:#2b6cb0;--bg:#f4f6f9;--card:#fff;--line:#e2e8f0;--text:#1a202c;--muted:#718096;}
+  *{box-sizing:border-box;} html,body{margin:0;}
+  body{font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:var(--text);background:var(--bg);line-height:1.5;}
+  a{color:inherit;text-decoration:none;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 16px;}
+  .hrow{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .back{color:#fff;font-size:22px;font-weight:700;line-height:1;padding:2px 6px;}
+  header h1{font-size:19px;margin:0;flex:1;}
+  .home{color:#bcd4ef;font-size:14px;font-weight:600;white-space:nowrap;}
+  main{max-width:980px;margin:0 auto;padding:16px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .card .lb{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+  .card .lb .num{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;background:var(--blue);color:#fff;border-radius:50%;font-size:12px;margin-right:6px;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chips button{border:1px solid #cbd5e0;background:#fff;border-radius:20px;padding:8px 14px;font-size:14px;font-weight:600;cursor:pointer;}
+  .chips button.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+  select{padding:9px 12px;font-size:15px;border:1px solid #cbd5e0;border-radius:9px;background:#fff;}
+  .sido-note{font-size:13px;color:var(--muted);margin-top:8px;}
+  .sido-note b{color:var(--navy);}
+  .chart-wrap{position:relative;height:340px;}
+  .msg{color:var(--muted);font-size:14px;text-align:center;padding:20px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
+  th,td{border:1px solid var(--line);padding:7px 8px;text-align:right;white-space:nowrap;}
+  th{background:#eef3fb;color:var(--navy);}
+  td.reg,th.reg{text-align:left;font-weight:700;position:sticky;left:0;background:#fff;}
+  th.reg{background:#eef3fb;}
+  .tbl-scroll{overflow-x:auto;}
+  .src{color:var(--muted);font-size:12px;margin-top:10px;}
+  .unit{font-size:12px;color:var(--muted);font-weight:500;}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<header><div class="hrow">
+  <a class="back" href="#" onclick="if(history.length>1){history.back();}else{location.href='index.html';}return false;" aria-label="뒤로">←</a>
+  <h1>🐮 가축마리수 조회</h1>
+  <a class="home" href="index.html">🏠 두당홈</a>
+</div></header>
+<main>
+  <div class="card">
+    <div class="lb"><span class="num">1</span>축종 선택</div>
+    <div class="chips" id="species"></div>
+  </div>
+  <div class="card">
+    <div class="lb"><span class="num">2</span>지역(청) 선택 · 전국은 항상 표시</div>
+    <div class="chips" id="office"></div>
+    <div class="sido-note" id="sidoNote"></div>
+  </div>
+  <div class="card">
+    <div class="lb"><span class="num">3</span>조회기간</div>
+    <div class="row">
+      <select id="periodN">
+        <option value="4">최근 4회(분기)</option>
+        <option value="5" selected>최근 5회(분기)</option>
+        <option value="8">최근 8회(2년)</option>
+        <option value="12">최근 12회(3년)</option>
+        <option value="20">최근 20회(5년)</option>
+      </select>
+      <span class="unit">단위: 마리</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="lb">📈 사육두수 추이 <span class="unit" id="chartSub"></span></div>
+    <div class="chart-wrap"><canvas id="chart"></canvas></div>
+    <div class="msg" id="chartMsg" hidden></div>
+  </div>
+
+  <div class="card">
+    <div class="lb">📋 통계표 <span class="unit">(단위: 마리)</span></div>
+    <div class="tbl-scroll"><table id="tbl"></table></div>
+    <div class="src" id="src"></div>
+  </div>
+</main>
+
+<script>
+const RELAY="https://induowdrembd3zhtym3ke6prcy0cgajf.lambda-url.ap-northeast-2.on.aws/";
+const SPECIES=[
+  {id:"hanwoo",label:"한우",emoji:"🐮"},{id:"yukwoo",label:"육우",emoji:"🐄"},
+  {id:"dairy",label:"젖소",emoji:"🥛"},{id:"pig",label:"돼지",emoji:"🐷"},
+  {id:"layer",label:"산란계",emoji:"🥚"},{id:"broiler",label:"육계",emoji:"🐔"},
+  {id:"duck",label:"오리",emoji:"🦆"}
+];
+const OFFICE={"전국":[],"동북청":["대구","경북","강원"],"동남청":["부산","울산","경남"],"경인청":["서울","인천","경기"],"충청청":["대전","세종","충남","충북"],"호남청":["전북","전남","광주","제주"]};
+const COLORS=["#1d6fe0","#e0561d","#2f8a3e","#8e44ad","#d4a017","#16a3a3","#c0392b","#2c3e50","#e6739f"];
+const $=id=>document.getElementById(id);
+let curSp="hanwoo", curOff="전국", chart=null;
+
+function renderChips(){
+  $("species").innerHTML=SPECIES.map(s=>`<button data-sp="${s.id}"${s.id===curSp?' class="on"':''}>${s.emoji} ${s.label}</button>`).join("");
+  $("office").innerHTML=Object.keys(OFFICE).map(o=>`<button data-off="${o}"${o===curOff?' class="on"':''}>${o}</button>`).join("");
+  $("species").querySelectorAll("button").forEach(b=>b.onclick=()=>{curSp=b.dataset.sp;renderChips();load();});
+  $("office").querySelectorAll("button").forEach(b=>b.onclick=()=>{curOff=b.dataset.off;renderChips();load();});
+  const s=OFFICE[curOff];
+  $("sidoNote").innerHTML = curOff==="전국" ? "전국 사육두수를 표시합니다." : `<b>${curOff}</b> 관할: ${s.join(" · ")} <span style="color:#a0aec0">(+ 전국)</span>`;
+}
+function fmtQ(prd){ const m=/^(\d{4})(\d{2})$/.exec(prd); if(m){ const q=parseInt(m[2],10); return m[1].slice(2)+"'"+(q>=1&&q<=4?q+"Q":m[2]); } return prd; }
+function fmtQfull(prd){ const m=/^(\d{4})(\d{2})$/.exec(prd); if(m){ const q=parseInt(m[2],10); return m[1]+"년 "+(q>=1&&q<=4?q+"분기":m[2]); } return prd; }
+function fmtNum(v){ return v==null?"–":Number(v).toLocaleString(); }
+
+function regionsToShow(){
+  const list=["전국"];
+  (OFFICE[curOff]||[]).forEach(r=>{ if(list.indexOf(r)<0) list.push(r); });
+  return list;
+}
+
+async function load(){
+  const n=$("periodN").value;
+  const spLabel=(SPECIES.find(s=>s.id===curSp)||{}).label||"";
+  $("chartSub").textContent="· "+spLabel;
+  $("chartMsg").hidden=true;
+  try{
+    const r=await fetch(RELAY+"?mode=livestock_series&species="+encodeURIComponent(curSp)+"&n="+encodeURIComponent(n),{cache:"no-store"});
+    const d=await r.json();
+    if(!d||!d.ok||!d.periods||!d.periods.length) throw 0;
+    draw(d, spLabel);
+  }catch(e){
+    if(chart){chart.destroy();chart=null;}
+    $("tbl").innerHTML="";
+    $("chartMsg").hidden=false;
+    $("chartMsg").textContent="데이터를 불러오지 못했습니다. 잠시 후 다시 시도하거나, github.io 배포본에서 확인해 주세요.";
+  }
+}
+
+function draw(d, spLabel){
+  const periods=d.periods;               // 과거→최신
+  const regions=regionsToShow().filter(rg=> d.data[rg]);
+  const labels=periods.map(fmtQ);
+  const datasets=regions.map((rg,i)=>({
+    label:rg, data:d.data[rg], borderColor:COLORS[i%COLORS.length],
+    backgroundColor:COLORS[i%COLORS.length], borderWidth:rg==="전국"?3:2,
+    tension:.25, pointRadius:3, pointHoverRadius:5, spanGaps:true,
+    borderDash: rg==="전국"?[]:[]
+  }));
+  $("chartMsg").hidden=true;
+  if(chart) chart.destroy();
+  chart=new Chart($("chart"),{
+    type:"line",
+    data:{labels,datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:"index",intersect:false},
+      plugins:{
+        legend:{position:"bottom",labels:{boxWidth:14,font:{size:12}}},
+        tooltip:{callbacks:{
+          title:(items)=>fmtQfull(periods[items[0].dataIndex]),
+          label:(it)=>it.dataset.label+": "+fmtNum(it.parsed.y)+" 마리"
+        }}
+      },
+      scales:{
+        y:{ticks:{callback:v=>Number(v).toLocaleString()}},
+        x:{ticks:{font:{size:11}}}
+      }
+    }
+  });
+  // 통계표: 행=지역, 열=분기(과거→최신)
+  let h="<tr><th class='reg'>지역</th>"+periods.map(p=>`<th>${fmtQfull(p)}</th>`).join("")+"</tr>";
+  regions.forEach(rg=>{
+    h+=`<tr><td class='reg'>${rg}</td>`+ (d.data[rg]||[]).map(v=>`<td>${fmtNum(v)}</td>`).join("") +"</tr>";
+  });
+  $("tbl").innerHTML=h;
+  const last=periods[periods.length-1];
+  $("src").textContent="출처: KOSIS 가축동향조사(통계청) · 최신 "+fmtQfull(last)+" 기준 · 자동 갱신";
+}
+
+$("periodN").addEventListener("change",load);
+renderChips();
+load();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
+</body>
+</html>
