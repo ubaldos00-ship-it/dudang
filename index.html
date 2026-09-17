@@ -1,4 +1,4 @@
-<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합) -->
+<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결 -->
 <!-- 두당(頭當) 통합대시보드 · 1단계 뼈대 · 기존 기능(cattle/disease/생산비) 허브 -->
 <!doctype html>
 <html lang="ko">
@@ -189,7 +189,7 @@
      실시간·누적·조회수가 실제 값으로 표시됩니다. (텐아르와 동일 방식)
      비워두면 '오늘'만 이 기기 기준 근사치로 표시됩니다. */
   (function(){
-    var GAS_URL = ''; // ← 여기에 두당 Apps Script(/exec) URL 입력
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycbyjYJmX3hnilpN-SvUWvtZEur6dpiSIpdCxSH5ChCVuaVa1ki49zdmcITxmft0FYwqMig/exec';
     var rtEl=document.getElementById('realtimeCount'),
         tdEl=document.getElementById('todayCount'),
         totEl=document.getElementById('totalCount'),
