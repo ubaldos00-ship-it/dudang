@@ -1,4 +1,4 @@
-<!-- disease.html (v17) · 저장: 2026-09-16 KST · 축종지도: 지역명 라벨+축종명 타이틀 표시, 럼피스킨 핀 노랑(#f2c200). embed 모드 유지 -->
+<!-- disease.html (v18) · 저장: 2026-09-17 KST · 지역명 라벨 가독성 강화(남색배경+흰글씨), GA 유지. v17=지역명·축종명·럼피노랑 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -82,7 +82,7 @@
   .lv-ov{transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; pointer-events:none;}
   .lv-bubble{display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(47,168,79,.75); border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.35);}
   .lv-bubble span{color:#fff; font-weight:800; font-size:11px; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,.5);}
-  .lv-name{margin-top:2px; font-size:10.5px; font-weight:800; color:#14324f; background:rgba(255,255,255,.9); border:1px solid rgba(20,50,79,.15); border-radius:7px; padding:0 5px; line-height:1.5; white-space:nowrap; box-shadow:0 1px 2px rgba(0,0,0,.2);}
+  .lv-name{margin-top:3px; font-size:12.5px; font-weight:800; color:#fff; background:rgba(20,44,72,.94); border:1.5px solid #fff; border-radius:8px; padding:1px 8px; line-height:1.5; white-space:nowrap; letter-spacing:-.2px; box-shadow:0 1px 4px rgba(0,0,0,.45);}
   #lvTitle{position:absolute; top:8px; left:8px; z-index:5; background:rgba(255,255,255,.94); border:1px solid var(--line2); border-radius:9px; padding:5px 11px; font-size:13px; font-weight:800; color:var(--t1); box-shadow:0 1px 3px rgba(0,0,0,.18);}
   #lvTitle .pd{font-size:11px; font-weight:600; color:var(--t2); margin-left:4px;}
   #btnAuto.on{background:var(--green); color:#fff; border-color:var(--green);}
@@ -135,7 +135,7 @@
   <header>
     <div class="h-top">
       <button id="backBtn" class="nav-btn hidden">← 뒤로</button>
-      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v17</span></div>
+      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v18</span></div>
       <a href="https://ubaldos00-ship-it.github.io/dudang/" class="hub-btn" aria-label="홈">🏠 홈</a>
     </div>
     <div class="h-time" id="dataTime">데이터 확인 중…</div>
@@ -216,7 +216,7 @@
     <div class="btn-row">
       <button class="btn" id="btnHistHome">전국 과거자료</button>
     </div>
-    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v17</span></div>
+    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v18</span></div>
   </section>
 
   <section id="viewArea" class="hidden">

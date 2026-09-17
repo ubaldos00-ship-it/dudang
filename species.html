@@ -1,4 +1,4 @@
-<!-- species.html · 저장: 2026-09-16 KST · 상단 ←뒤로(좌)/🏠두당홈(우) 분리, 육우 콘텐츠 추가 -->
+<!-- species.html · 저장: 2026-09-17 KST · 7축종 전체 완성(비육돈·산란계·육계 추가), 이모지 변경(번식우 🐮🐮/비육우 🐂/육우 🐄), GA 태그 -->
 <!-- 두당 축종 배우기 · data/species/*.json 기반 콘텐츠 뷰어 -->
 <!doctype html>
 <html lang="ko">
@@ -6,6 +6,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>축종 배우기 · 두당 頭當</title>
+<!-- Google tag (gtag.js) · 두당 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PYTDP9E5YL');
+</script>
+
 <style>
   :root{--navy:#1a365d;--navy2:#2c5282;--blue:#2b6cb0;--bg:#f4f6f9;--card:#fff;--line:#e2e8f0;--text:#1a202c;--muted:#718096;--accent:#2b6cb0;}
   *{box-sizing:border-box;} html,body{margin:0;}
@@ -64,13 +73,13 @@
 
 <script>
 const SPECIES=[
-  {id:"hanwoo-breeding",title:"한우 번식우",emoji:"🐮",ready:1},
-  {id:"hanwoo-fattening",title:"한우 비육우",emoji:"🐄",ready:1},
-  {id:"beef-cattle",title:"육우",emoji:"🐂",ready:1},
+  {id:"hanwoo-breeding",title:"한우 번식우",emoji:"🐮🐮",ready:1},
+  {id:"hanwoo-fattening",title:"한우 비육우",emoji:"🐂",ready:1},
+  {id:"beef-cattle",title:"육우",emoji:"🐄",ready:1},
   {id:"dairy",title:"젖소",emoji:"🥛",ready:1},
-  {id:"pig",title:"비육돈",emoji:"🐖"},
-  {id:"layer",title:"산란계",emoji:"🥚"},
-  {id:"broiler",title:"육계",emoji:"🐔"},
+  {id:"pig",title:"비육돈",emoji:"🐖",ready:1},
+  {id:"layer",title:"산란계",emoji:"🥚",ready:1},
+  {id:"broiler",title:"육계",emoji:"🐔",ready:1},
 ];
 const esc=s=>(s==null?"":(""+s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])));
 const $=id=>document.getElementById(id);
@@ -93,7 +102,7 @@ function renderList(){
 function renderMissing(){
   const s=SPECIES.find(x=>x.id===id);
   $("hTitle").textContent=(s?s.emoji+" "+s.title:"축종")+" 배우기";
-  $("main").innerHTML='<div class="msg">이 축종 콘텐츠는 <b>준비 중</b>입니다.<br>현재 <b>한우 번식우 · 한우 비육우 · 육우 · 젖소</b>가 제작되어 있습니다.<br><br>'+
+  $("main").innerHTML='<div class="msg">이 축종 콘텐츠는 <b>준비 중</b>입니다.<br>현재 <b>7개 축종(한우 번식우·한우 비육우·육우·젖소·비육돈·산란계·육계)</b>이 모두 제작되어 있습니다.<br><br>'+
     '<a class="home" style="color:var(--blue)" href="species.html">→ 축종 목록 보기</a></div>';
 }
 function render(d){

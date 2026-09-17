@@ -1,4 +1,4 @@
-<!-- index.html · 저장: 2026-09-16 KST · 처음열기=맨위/뒤로=위치복원, 소이력조회 및 계산 통합(🐂), 질병현황 임베드 지도전용 -->
+<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합) -->
 <!-- 두당(頭當) 통합대시보드 · 1단계 뼈대 · 기존 기능(cattle/disease/생산비) 허브 -->
 <!doctype html>
 <html lang="ko">
@@ -6,6 +6,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>두당 頭當 · 가축동향·축산물생산비조사 현장지원 시스템</title>
+<!-- Google tag (gtag.js) · 두당 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PYTDP9E5YL');
+</script>
 <style>
   :root{
     --navy:#1a365d; --navy2:#2c5282; --blue:#2b6cb0; --sky:#3182ce;
@@ -62,7 +70,11 @@
   .species a{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;font-weight:600;}
   .species a .ico{font-size:26px;display:block;margin-bottom:6px;}
   .species a.soon{color:#a0aec0;}
-  footer{max-width:1160px;margin:0 auto;padding:24px 16px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);}
+  footer{max-width:1160px;margin:0 auto;padding:24px 16px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);text-align:center;}
+  footer .counter{margin-top:12px;font-size:13.5px;color:var(--text);display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:5px;}
+  footer .counter strong{color:var(--blue);font-weight:800;}
+  footer .build{margin-top:6px;font-size:12.5px;}
+  footer .build strong{color:var(--navy);}
   .note{font-size:12px;color:var(--warn);margin-top:6px;}
   /* 반응형 */
   @media(max-width:760px){
@@ -90,7 +102,7 @@
   <a href="#home">홈</a>
   <a href="helper.html">조사도우미</a>
   <a href="field.html">현장도우미</a>
-  <a href="#species">축종 배우기</a>
+  <a href="species.html">축종 배우기</a>
   <a href="chukbi.html">생산비 분석</a>
   <a href="cattle.html">소이력 조회</a>
   <a href="disease.html">질병현황</a>
@@ -137,27 +149,20 @@
     <a class="card" href="helper.html?survey=cost"><div class="ico">💰</div><div class="t">축산물생산비조사<span class="badge">도우미</span></div><div class="d">항목별 조사포인트·농가표현·자주틀림</div></a>
   </div>
 
-  <!-- 축종 빠른학습 -->
-  <h3 class="sec" id="species">축종 빠른학습</h3>
-  <div class="species">
-    <a href="species.html?s=hanwoo-breeding"><span class="ico">🐮</span>한우 번식우</a>
-    <a href="species.html?s=hanwoo-fattening"><span class="ico">🐄</span>한우 비육우</a>
-    <a href="species.html?s=beef-cattle"><span class="ico">🐂</span>육우</a>
-    <a href="species.html?s=dairy"><span class="ico">🥛</span>젖소</a>
-    <a href="species.html?s=pig"><span class="ico">🐖</span>비육돈</a>
-    <a href="species.html?s=layer"><span class="ico">🥚</span>산란계</a>
-    <a href="species.html?s=broiler"><span class="ico">🐔</span>육계</a>
-    <a href="species.html"><span class="ico">📚</span>전체 보기</a>
-  </div>
-  <div class="note">※ 축종 콘텐츠(생애주기·용어·사료·시설·조사포인트)는 <code>data/species/*.json</code> 기반입니다. <b>한우 번식우</b>부터 시범 제작했고, 나머지는 순차 추가됩니다.</div>
   <!-- 현장도우미 -->
   <h3 class="sec">현장도우미</h3>
   <a class="card" href="field.html" style="display:block"><div class="ico">🧭</div><div class="t">농가 방문 전 3분 브리핑</div><div class="d">축종 핵심·생애·용어·조사 체크포인트를 한 화면에 (모바일 최적)</div></a>
 </main>
 
 <footer>
-  두당 頭當 · 가축동향·축산물생산비조사 현장지원 시스템 · 콘텐츠 버전 2026.1<br>
-  소이력조회 및 계산 · 질병현황 지도(임베드) · 조사도우미 · 축종 배우기 · 조사용어 · PWA 연결 완료. 질병지도는 카카오맵 특성상 github.io/dudang 배포본에서만 표시됩니다.
+  두당 頭當 · 가축동향·축산물생산비조사 현장지원 시스템 · 콘텐츠 버전 2026.1
+  <div class="counter">
+    실시간 <strong id="realtimeCount">…</strong>명 &nbsp;·&nbsp;
+    오늘 <strong id="todayCount">…</strong>명 &nbsp;·&nbsp;
+    누적 <strong id="totalCount">…</strong>명 &nbsp;·&nbsp;
+    조회수 <strong id="pageviewCount">…</strong>회
+  </div>
+  <div class="build">최초 빌드 2026.9.17 · by <strong>Mr. Hyun</strong></div>
 </footer>
 
 <script>
@@ -177,6 +182,35 @@
     if(isBack){ var y=0; try{ y=+(sessionStorage.getItem('idxScroll')||0); }catch(e){} window.scrollTo(0,y); }
     else { window.scrollTo(0,0); }
   });
+</script>
+<script>
+  /* ===== 방문자 카운터 (GA4 Apps Script 서버값) =====
+     두당 GA4 속성용 Apps Script 배포 URL을 GAS_URL 에 넣으면
+     실시간·누적·조회수가 실제 값으로 표시됩니다. (텐아르와 동일 방식)
+     비워두면 '오늘'만 이 기기 기준 근사치로 표시됩니다. */
+  (function(){
+    var GAS_URL = ''; // ← 여기에 두당 Apps Script(/exec) URL 입력
+    var rtEl=document.getElementById('realtimeCount'),
+        tdEl=document.getElementById('todayCount'),
+        totEl=document.getElementById('totalCount'),
+        pvEl=document.getElementById('pageviewCount');
+    // 오늘 방문(이 기기) 근사치 먼저 표시
+    try{
+      var today=new Date().toISOString().slice(0,10);
+      var d=JSON.parse(localStorage.getItem('dudang_day')||'{}');
+      if(d.date!==today) d={date:today,n:0};
+      d.n+=1; localStorage.setItem('dudang_day',JSON.stringify(d));
+      if(tdEl) tdEl.textContent=d.n.toLocaleString();
+    }catch(e){}
+    if(!GAS_URL){ [rtEl,totEl,pvEl].forEach(function(el){ if(el) el.textContent='–'; }); return; }
+    fetch(GAS_URL).then(function(r){return r.json();}).then(function(data){
+      if(!data||!data.ok) return;
+      if(rtEl &&typeof data.realtime ==='number') rtEl.textContent =data.realtime.toLocaleString();
+      if(tdEl &&typeof data.today    ==='number') tdEl.textContent =data.today.toLocaleString();
+      if(totEl&&typeof data.total    ==='number') totEl.textContent=data.total.toLocaleString();
+      if(pvEl &&typeof data.pageviews==='number') pvEl.textContent =data.pageviews.toLocaleString();
+    }).catch(function(){});
+  })();
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
 </body>

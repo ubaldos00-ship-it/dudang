@@ -1,0 +1,115 @@
+<!-- field.html · 저장: 2026-09-17 KST · 7축종 브리핑 전체 지원(비육돈·산란계·육계 JSON 추가), 이모지 변경, GA 태그 -->
+<!-- 두당 현장도우미 · 농가 방문 전 3분 브리핑 · species/helper JSON 재사용 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>현장도우미 · 두당 頭當</title>
+<!-- Google tag (gtag.js) · 두당 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PYTDP9E5YL');
+</script>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root{--navy:#1a365d;--navy2:#2c5282;--blue:#2b6cb0;--bg:#f4f6f9;--card:#fff;--line:#e2e8f0;--text:#1a202c;--muted:#718096;--warn:#c05621;--ok:#2f855a;}
+  *{box-sizing:border-box;} html,body{margin:0;}
+  body{font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:var(--text);background:var(--bg);line-height:1.6;}
+  a{color:inherit;text-decoration:none;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 16px;}
+  .hrow{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .home{color:#bcd4ef;font-size:14px;font-weight:600;} header h1{font-size:19px;margin:0;}
+  main{max-width:820px;margin:0 auto;padding:16px;}
+  .pick{font-size:15px;font-weight:600;margin-bottom:10px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .chips a{background:var(--card);border:1px solid #cbd5e0;border-radius:20px;padding:9px 15px;font-weight:600;font-size:14px;}
+  .chips a.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;}
+  .sec h3{margin:0 0 8px;font-size:15px;}
+  .life{font-size:14px;color:var(--navy);font-weight:600;line-height:2;}
+  .life span{background:#eef3fb;border-radius:8px;padding:2px 9px;margin:2px;display:inline-block;}
+  .tchips span{display:inline-block;background:#edf2f7;border-radius:12px;padding:3px 10px;margin:3px 4px 0 0;font-size:13px;color:#4a5568;cursor:pointer;}
+  ul{margin:4px 0;padding-left:18px;} li{margin:2px 0;font-size:14px;}
+  .ck li{margin:6px 0;} .ck .m{color:var(--warn);font-size:13px;}
+  .links{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:4px;}
+  .links a{background:var(--navy);color:#fff;border-radius:10px;padding:12px;text-align:center;font-weight:600;font-size:14px;}
+  .links a.alt{background:#edf2f7;color:var(--navy);}
+  .msg{color:var(--muted);font-size:14px;}
+  .src{color:var(--muted);font-size:12px;margin-top:14px;border-top:1px solid var(--line);padding-top:10px;}
+  @media(max-width:560px){ .links{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<header><div class="hrow">
+  <a class="home" href="index.html">← 두당 홈</a>
+  <h1>🧭 현장도우미</h1>
+</div></header>
+<main>
+  <div class="pick">오늘 방문할 축종을 선택하세요</div>
+  <div class="chips" id="chips"></div>
+  <div id="brief"></div>
+</main>
+<script>
+const SPECIES=[
+  {id:"hanwoo-breeding",title:"한우 번식우",emoji:"🐮🐮"},
+  {id:"hanwoo-fattening",title:"한우 비육우",emoji:"🐂"},
+  {id:"beef-cattle",title:"육우",emoji:"🐄"},
+  {id:"dairy",title:"젖소",emoji:"🥛"},
+  {id:"pig",title:"비육돈",emoji:"🐖"},
+  {id:"layer",title:"산란계",emoji:"🥚"},
+  {id:"broiler",title:"육계",emoji:"🐔"},
+];
+const $=id=>document.getElementById(id);
+const esc=s=>(s==null?"":(""+s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])));
+let cur=new URLSearchParams(location.search).get("s")||"";
+
+function renderChips(){ $("chips").innerHTML=SPECIES.map(s=>`<a href="field.html?s=${s.id}"${s.id===cur?' class="on"':''}>${s.emoji} ${s.title}</a>`).join(""); }
+
+async function loadJSON(u){ try{ const r=await fetch(u,{cache:"no-store"}); if(!r.ok)return null; return await r.json(); }catch(e){ return null; } }
+
+async function brief(){
+  if(!cur){ $("brief").innerHTML='<div class="sec msg">축종을 선택하면 방문 전 핵심 브리핑(생애·용어·사료·조사 체크포인트)을 보여드립니다.</div>'; return; }
+  const sp=SPECIES.find(x=>x.id===cur)||{title:cur};
+  const [d,helper]=await Promise.all([loadJSON("data/species/"+cur+".json"),loadJSON("data/helper.json")]);
+  let h="";
+  // 생애주기 1줄
+  if(d&&d.lifecycle){ h+='<div class="sec"><h3>🕐 1분 생애주기</h3><div class="life">'+d.lifecycle.map(s=>`<span>${esc(s.stage)}</span>`).join(" → ")+'</div></div>'; }
+  // 핵심 용어
+  if(d&&d.terms){ h+='<div class="sec"><h3>🔑 핵심 용어</h3><div class="tchips">'+d.terms.slice(0,12).map(t=>`<span onclick="location.href='terms.html?q='+encodeURIComponent('${esc(t)}')">${esc(t)}</span>`).join("")+'</div></div>'; }
+  // 사료·시설
+  if(d&&(d.feed||d.facility)){ h+='<div class="sec"><h3>🌾 주요 사료 · 🏠 시설</h3>';
+    if(d.feed) h+='<ul>'+d.feed.map(f=>`<li><b>${esc(f.name)}</b> — ${esc(f.desc)}</li>`).join("")+'</ul>';
+    if(d.facility) h+='<div style="font-size:13px;color:var(--muted);margin-top:4px">시설: '+d.facility.map(esc).join(" · ")+'</div>';
+    h+='</div>'; }
+  // 조사 체크포인트(생산비 도우미에서)
+  const cost=helper&&helper.surveys.find(x=>x.id==="cost");
+  const csp=cost&&cost.species.find(x=>x.id===cur);
+  if(csp){ h+='<div class="sec"><h3>✔ 조사 체크포인트</h3><ul class="ck">'+
+    csp.items.map(it=>`<li><b>${esc(it.item)}</b> — ${esc(it.check)}`+(it.mistake?`<br><span class="m">⚠ ${esc(it.mistake)}</span>`:"")+`</li>`).join("")+'</ul></div>'; }
+  // 신규 유의
+  if(d&&d.newbie){ h+=`<div class="sec"><h3>💡 신규 조사원 유의</h3><div style="font-size:14px">${esc(d.newbie)}</div></div>`; }
+  // 콘텐츠 없을 때
+  if(!d&&!csp){ h+=`<div class="sec msg">이 축종의 상세 학습 콘텐츠는 <b>준비 중</b>입니다. (한우 번식우는 완성) 아래 바로가기를 이용하세요.</div>`; }
+  // 바로가기
+  h+='<div class="sec"><h3>🔗 바로가기</h3><div class="links">'+
+     `<a href="species.html?s=${cur}">📚 축종 상세 학습</a>`+
+     `<a class="alt" href="helper.html?survey=cost&s=${cur==='hanwoo-breeding'?'hanwoo-breeding':''}">🧭 조사도우미</a>`+
+     `<a class="alt" href="chukbi.html">📊 생산비 집계·검토</a>`+
+     `<a class="alt" href="terms.html">🔎 조사용어</a>`+
+     `<a class="alt" href="disease.html">🗺️ 최근 질병현황</a>`+
+     '</div></div>';
+  if(d&&d.source) h+=`<div class="src">출처: ${esc(d.source)}</div>`;
+  $("brief").innerHTML=h;
+}
+renderChips(); brief();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
+</body>
+</html>
