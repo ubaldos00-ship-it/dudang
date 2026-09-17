@@ -1,4 +1,4 @@
-<!-- survey_breeding.html · 저장: 2026-09-18 KST(v2) · 송아지·육성우 한 구분에 암/수 분리, 사료 사육구분별 매트릭스(성우환산/구분별 선택) -->
+<!-- survey_breeding.html · 저장: 2026-09-18 KST(v3) · 농가 저장/불러오기, 마리수 입력칸 축소, 송아지 편입-·육성우 편입+ * 표시, 초임우 편입-·경산우 편입+ 직접입력(초임분만 자동채움) -->
 <!-- 두당 조사표 · 번식우 · 월초·증감·월말 자동, 초임분만→초임우/경산우 자동편입, 사료 월투입량(먹는량×마리수×월일수)+단가 이월, 성우환산두수 선택 -->
 <!doctype html>
 <html lang="ko">
@@ -28,12 +28,14 @@
   input[type=number]{width:74px;text-align:right;}
   .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   table{border-collapse:collapse;font-size:12.5px;min-width:100%;}
-  th,td{border:1px solid var(--line);padding:5px 6px;text-align:center;white-space:nowrap;}
+  th,td{border:1px solid var(--line);padding:4px 4px;text-align:center;white-space:nowrap;}
   th{background:#eef3fb;color:var(--navy);font-weight:700;}
   td.rc{text-align:left;font-weight:700;background:#fafbfc;position:sticky;left:0;z-index:1;}
   td.sx{text-align:center;font-weight:600;background:#fff;color:#334e68;}
   th.rc{position:sticky;left:0;z-index:2;}
-  td input{width:56px;padding:5px 4px;font-size:12.5px;text-align:right;border:1px solid #dbe2ea;border-radius:6px;}
+  #invTbl td input{width:40px;padding:3px 2px;font-size:12px;text-align:right;border:1px solid #dbe2ea;border-radius:5px;}
+  td input{width:52px;padding:4px 3px;font-size:12px;text-align:right;border:1px solid #dbe2ea;border-radius:6px;}
+  .star{color:#c05621;font-weight:800;font-size:11px;margin-left:1px;}
   td.auto{background:#f1f5fb;color:#334e68;font-weight:700;}
   td.end{background:#eaf7ee;color:#1c6b3a;font-weight:800;}
   .grp-inc{background:#f4fbf6;} .grp-dec{background:#fdf5f5;}
@@ -61,8 +63,14 @@
 <main>
   <div class="card">
     <div class="top">
-      <div class="fld"><label>농가</label><input id="farm" list="farmList" placeholder="농가명 입력/선택" style="width:150px"><datalist id="farmList"></datalist></div>
-      <div class="fld"><label>연도</label><input id="year" type="number" value="2026" style="width:88px"></div>
+      <div class="fld"><label>농가</label><input id="farm" list="farmList" placeholder="농가명 입력/선택" style="width:140px"><datalist id="farmList"></datalist></div>
+      <div class="fld"><label>저장된 농가 불러오기</label>
+        <span style="display:flex;gap:6px">
+          <select id="farmSel" style="min-width:120px"><option value="">— 선택 —</option></select>
+          <button class="btn reset" id="btnLoad" style="padding:8px 12px">불러오기</button>
+        </span>
+      </div>
+      <div class="fld"><label>연도</label><input id="year" type="number" value="2026" style="width:82px"></div>
       <div class="fld"><label>월</label><select id="month"></select></div>
       <div class="fld"><label>해당월 일수</label><input id="days" type="number" readonly style="width:70px;background:#f1f5fb"></div>
       <div class="btnrow" style="margin-left:auto">
@@ -78,13 +86,14 @@
     <div class="lb"><span class="num">1</span>사육구분별 마리수 (월초 · 증감 · 월말)</div>
     <div class="tbl-scroll"><table id="invTbl"></table></div>
     <div class="hint" id="calfHint"></div>
+    <div class="hint"><span class="star">*</span> 송아지 편입−·육성우 편입+는 <b>사육구분 간 이동</b>(송아지→육성우 등)을 뜻합니다. 실제 <b>판매·구입</b>은 판매/구입 칸에 별도로 입력하세요.</div>
   </div>
 
   <!-- 월중 사육현황 -->
   <div class="card">
     <div class="lb"><span class="num">2</span>월중 사육현황</div>
     <div class="tbl-scroll"><table id="herdTbl"></table></div>
-    <div class="hint">※ <b>초임분만</b>을 입력하면 자동으로 <b>초임우 편입−</b> / <b>경산우 편입+</b> 처리됩니다. 총분만 = 초임분만 + 경산분만.</div>
+    <div class="hint">※ <b>초임분만</b>을 입력하면 <b>초임우 편입−</b> / <b>경산우 편입+</b> 칸에 자동으로 채워집니다(직접 수정 가능). 총분만 = 초임분만 + 경산분만.</div>
   </div>
 
   <!-- 사료 -->
@@ -143,9 +152,12 @@ function daysIn(y,mo){ return new Date(y,mo,0).getDate(); }
 function prevKey(y,mo){ return mo>1 ? (y+"-"+(mo-1)) : null; } // v1: 같은 해 내 이월
 
 function refreshFarmList(){
-  const names=new Set();
-  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith("dudang_breeding_")) names.add(k.slice("dudang_breeding_".length)); }
-  $("farmList").innerHTML=[...names].filter(n=>n&&n!=="_default").map(n=>`<option value="${n}">`).join("");
+  const names=[];
+  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith("dudang_breeding_")){ const n=k.slice("dudang_breeding_".length); if(n&&n!=="_default") names.push(n); } }
+  names.sort();
+  $("farmList").innerHTML=names.map(n=>`<option value="${n}">`).join("");
+  const cur=$("farmSel")?$("farmSel").value:"";
+  if($("farmSel")){ $("farmSel").innerHTML='<option value="">— 선택 —</option>'+names.map(n=>{ const mo=Object.keys(loadFarm(n)).length; return `<option value="${n}">${n} (${mo}개월)</option>`; }).join(""); if(names.indexOf(cur)>=0) $("farmSel").value=cur; }
 }
 
 function loadMonth(){
@@ -166,17 +178,15 @@ function loadMonth(){
   $("days").value=daysIn(year,month);
   buildInv(); buildHerd(); buildFeed(); buildCoef(); syncBasisUI(); recalc();
 }
-function endOf(m,cid){ const v=m.inv[cid]; let inc=(v.birth||0)+(v.buy||0)+(v.in||0), dec=(v.out||0)+(v.sell||0)+(v.cull||0)+(v.dead||0);
-  if(cid==="heifer"){ dec=(v.sell||0)+(v.cull||0)+(v.dead||0)+(m.herd.firstcalf||0); inc=(v.birth||0)+(v.buy||0)+(v.in||0); }
-  if(cid==="cow"){ inc=(v.birth||0)+(v.buy||0)+(v.in||0)+(m.herd.firstcalf||0); dec=(v.out||0)+(v.sell||0)+(v.cull||0)+(v.dead||0); }
+function endOf(m,cid){ const v=m.inv[cid]; const inc=(v.birth||0)+(v.buy||0)+(v.in||0), dec=(v.out||0)+(v.sell||0)+(v.cull||0)+(v.dead||0);
   return (v.begin||0)+inc-dec; }
 
 function invDataCells(cid){
   let s="";
   const bAuto=M._beginAuto[cid];
   s+=`<td class='${bAuto?"auto":""}'>`+(bAuto?`<span id="beg_${cid}">${nf(M.inv[cid].begin)}</span>`:`<input type='number' min='0' data-cat='${cid}' data-f='begin' value='${M.inv[cid].begin||0}'>`)+`</td>`;
-  INC.forEach(([f])=>{ const auto=(cid==="cow"&&f==="in"); s+=`<td class='grp-inc ${auto?"auto":""}'>`+(auto?`<span id="cow_in">${nf(M.herd.firstcalf)}</span>`:`<input type='number' min='0' data-cat='${cid}' data-f='${f}' value='${M.inv[cid][f]||0}'>`)+`</td>`; });
-  DEC.forEach(([f])=>{ const auto=(cid==="heifer"&&f==="out"); s+=`<td class='grp-dec ${auto?"auto":""}'>`+(auto?`<span id="heifer_out">${nf(M.herd.firstcalf)}</span>`:`<input type='number' min='0' data-cat='${cid}' data-f='${f}' value='${M.inv[cid][f]||0}'>`)+`</td>`; });
+  INC.forEach(([f])=>{ const star=((cid==="growF"||cid==="growM")&&f==="in"); s+=`<td class='grp-inc'><input type='number' min='0' data-cat='${cid}' data-f='${f}' value='${M.inv[cid][f]||0}'>`+(star?`<span class='star'>*</span>`:"")+`</td>`; });
+  DEC.forEach(([f])=>{ const star=((cid==="calfF"||cid==="calfM")&&f==="out"); s+=`<td class='grp-dec'><input type='number' min='0' data-cat='${cid}' data-f='${f}' value='${M.inv[cid][f]||0}'>`+(star?`<span class='star'>*</span>`:"")+`</td>`; });
   s+=`<td class='end'><span id="end_${cid}">0</span></td>`;
   return s;
 }
@@ -244,20 +254,13 @@ function recalc(){
   const days=daysIn(year,month); $("days").value=days;
   const totcalf=(M.herd.firstcalf||0)+(M.herd.multicalf||0);
   $("totcalf").textContent=nf(totcalf);
-  if($("heifer_out")) $("heifer_out").textContent=nf(M.herd.firstcalf||0);
-  if($("cow_in")) $("cow_in").textContent=nf(M.herd.firstcalf||0);
   // 월말 + 합계
   const sums={begin:0,birth:0,buy:0,in:0,out:0,sell:0,cull:0,dead:0,end:0};
   let adult=0;
   CATS.forEach(c=>{
     const e=endOf(M,c.id); $("end_"+c.id).textContent=nf(e);
     sums.begin+=M.inv[c.id].begin||0;
-    ["birth","buy","in","out","sell","cull","dead"].forEach(f=>{
-      let val=M.inv[c.id][f]||0;
-      if(c.id==="heifer"&&f==="out") val=M.herd.firstcalf||0;
-      if(c.id==="cow"&&f==="in") val=M.herd.firstcalf||0;
-      sums[f]+=val;
-    });
+    ["birth","buy","in","out","sell","cull","dead"].forEach(f=>{ sums[f]+=M.inv[c.id][f]||0; });
     sums.end+=e;
     const cf=(M.coef&&M.coef[c.id]!=null)?M.coef[c.id]:DEF_COEF[c.id];
     adult+=e*cf;
@@ -294,10 +297,18 @@ function autosave(){
 function stripRuntime(m){ const c=JSON.parse(JSON.stringify(m)); delete c._beginAuto; return c; }
 
 // 입력 이벤트(위임)
+// 입력란 클릭/포커스 시 기존 값(0 포함) 전체 선택 → 바로 덮어쓰기
+document.addEventListener("focusin",e=>{ const el=e.target; if(el.tagName==="INPUT"&&(el.type==="number"||el.type==="text")){ setTimeout(()=>{ try{el.select();}catch(_){} },0); } });
 document.addEventListener("input",e=>{
   const el=e.target;
   if(el.dataset.cat){ M.inv[el.dataset.cat][el.dataset.f]=parseFloat(el.value)||0; recalc(); autosave(); }
-  else if(el.dataset.herd){ M.herd[el.dataset.herd]=parseFloat(el.value)||0; recalc(); autosave(); }
+  else if(el.dataset.herd){ M.herd[el.dataset.herd]=parseFloat(el.value)||0;
+    if(el.dataset.herd==="firstcalf"){ // 초임분만 → 초임우 편입−·경산우 편입+ 자동 채움(수정 가능)
+      M.inv.heifer.out=M.herd.firstcalf; M.inv.cow.in=M.herd.firstcalf;
+      const ho=document.querySelector("input[data-cat='heifer'][data-f='out']"); if(ho) ho.value=M.inv.heifer.out;
+      const ci=document.querySelector("input[data-cat='cow'][data-f='in']"); if(ci) ci.value=M.inv.cow.in;
+    }
+    recalc(); autosave(); }
   else if(el.dataset.feed){ const key=el.dataset.feed; if(!M.feed[key])M.feed[key]=blankFeed(); if(el.dataset.g){ if(!M.feed[key].g)M.feed[key].g={}; M.feed[key].g[el.dataset.g]=parseFloat(el.value)||0; } else { M.feed[key][el.dataset.f]=parseFloat(el.value)||0; } recalc(); autosave(); }
   else if(el.dataset.coef){ if(!M.coef)M.coef={}; M.coef[el.dataset.coef]=parseFloat(el.value)||0; recalc(); autosave(); }
 });
@@ -307,6 +318,7 @@ document.addEventListener("change",e=>{
 $("farm").addEventListener("change",loadMonth);
 $("year").addEventListener("change",loadMonth);
 $("month").addEventListener("change",loadMonth);
+$("btnLoad").addEventListener("click",()=>{ const n=$("farmSel").value; if(!n){ alert("불러올 농가를 선택하세요."); return; } $("farm").value=n; loadMonth(); });
 $("btnSave").addEventListener("click",()=>{ if(!$("farm").value.trim()){ alert("농가명을 입력하세요."); return; } autosave(); alert("저장되었습니다."); });
 $("btnClear").addEventListener("click",()=>{ if(!confirm("이 달 입력을 초기화할까요?"))return; M=mkMonth(); const pk=prevKey(year,month); const store=loadFarm(farm); M._beginAuto={}; if(pk&&store[pk]){CATS.forEach(c=>{M.inv[c.id].begin=endOf(store[pk],c.id);M._beginAuto[c.id]=true;});}else CATS.forEach(c=>M._beginAuto[c.id]=false); buildInv();buildHerd();buildFeed();buildCoef();syncBasisUI();recalc();autosave(); });
 
