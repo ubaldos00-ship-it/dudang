@@ -1,4 +1,4 @@
-<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결 -->
+<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결, 새로고침 위치유지+카운터 부분표시·재시도 -->
 <!-- 두당(頭當) 통합대시보드 · 1단계 뼈대 · 기존 기능(cattle/disease/생산비) 허브 -->
 <!doctype html>
 <html lang="ko">
@@ -178,8 +178,9 @@
   window.addEventListener('scroll',function(){ try{ sessionStorage.setItem('idxScroll', window.scrollY); }catch(e){} }, {passive:true});
   window.addEventListener('pageshow',function(e){
     var nav=(performance.getEntriesByType&&performance.getEntriesByType('navigation')[0])||{};
-    var isBack = e.persisted || nav.type==='back_forward';
-    if(isBack){ var y=0; try{ y=+(sessionStorage.getItem('idxScroll')||0); }catch(e){} window.scrollTo(0,y); }
+    // 뒤로가기(bfcache 포함)·새로고침(reload)이면 이전 위치 복원, 새로 진입(navigate)만 맨 위
+    var keep = e.persisted || nav.type==='back_forward' || nav.type==='reload';
+    if(keep){ var y=0; try{ y=+(sessionStorage.getItem('idxScroll')||0); }catch(e){} window.scrollTo(0,y); }
     else { window.scrollTo(0,0); }
   });
 </script>
@@ -203,13 +204,22 @@
       if(tdEl) tdEl.textContent=d.n.toLocaleString();
     }catch(e){}
     if(!GAS_URL){ [rtEl,totEl,pvEl].forEach(function(el){ if(el) el.textContent='–'; }); return; }
-    fetch(GAS_URL).then(function(r){return r.json();}).then(function(data){
-      if(!data||!data.ok) return;
+    // 서버 응답에 들어있는 숫자만 골라 반영(부분 성공도 표시), 완전 성공(ok) 전까지 재시도
+    function apply(data){
+      if(!data) return false;
       if(rtEl &&typeof data.realtime ==='number') rtEl.textContent =data.realtime.toLocaleString();
       if(tdEl &&typeof data.today    ==='number') tdEl.textContent =data.today.toLocaleString();
       if(totEl&&typeof data.total    ==='number') totEl.textContent=data.total.toLocaleString();
       if(pvEl &&typeof data.pageviews==='number') pvEl.textContent =data.pageviews.toLocaleString();
-    }).catch(function(){});
+      return !!data.ok;
+    }
+    function load(retry){
+      fetch(GAS_URL,{cache:'no-store'})
+        .then(function(r){return r.json();})
+        .then(function(data){ if(!apply(data) && retry>0) setTimeout(function(){load(retry-1);},3000); })
+        .catch(function(){ if(retry>0) setTimeout(function(){load(retry-1);},3000); });
+    }
+    load(3);
   })();
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>

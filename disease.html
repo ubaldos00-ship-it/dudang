@@ -1,4 +1,4 @@
-<!-- disease.html (v18) · 저장: 2026-09-17 KST · 지역명 라벨 가독성 강화(남색배경+흰글씨), GA 유지. v17=지역명·축종명·럼피노랑 -->
+<!-- disease.html (v19) · 저장: 2026-09-17 KST · 분기표시 버그수정(202602=2분기, 이전엔 1분기로 오표시). v18=지역명라벨 강화 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -135,7 +135,7 @@
   <header>
     <div class="h-top">
       <button id="backBtn" class="nav-btn hidden">← 뒤로</button>
-      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v18</span></div>
+      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v19</span></div>
       <a href="https://ubaldos00-ship-it.github.io/dudang/" class="hub-btn" aria-label="홈">🏠 홈</a>
     </div>
     <div class="h-time" id="dataTime">데이터 확인 중…</div>
@@ -216,7 +216,7 @@
     <div class="btn-row">
       <button class="btn" id="btnHistHome">전국 과거자료</button>
     </div>
-    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v18</span></div>
+    <div class="note">본 정보는 농림축산검역본부 공개데이터 기준이며 방역 판단 자료가 아닙니다. 최종 방문 여부는 소속기관 지침에 따르세요.<br><span style="color:#c9962b;font-weight:700;">화면버전 v19</span></div>
   </section>
 
   <section id="viewArea" class="hidden">
@@ -418,7 +418,7 @@ async function renderPins(items){
 /* 레이어 순환 (질병 ↔ 축종별 사육두수) */
 function showMapMsg(t){ el("mapMsg").textContent=t; el("mapMsg").classList.remove("hidden"); }
 function fmtCount(n){ if(n>=10000) return (n/10000).toFixed(n>=100000?0:1)+"만"; return String(n); }
-function fmtPeriod(p){ if(!p) return ""; const m=/^(\d{4})(\d{2})$/.exec(p); if(m){ const q=Math.ceil(parseInt(m[2],10)/3)||""; return m[1]+"년"+(q?(" "+q+"분기"):""); } return p; }
+function fmtPeriod(p){ if(!p) return ""; const m=/^(\d{4})(\d{2})$/.exec(p); if(m){ const q=parseInt(m[2],10); return m[1]+"년"+((q>=1&&q<=4)?(" "+q+"분기"):""); } return p; }
 function renderCurrentLayer(){
   if(curLayer==="disease"){ el("mapMsg").classList.add("hidden"); el("lvTitle").classList.add("hidden"); renderPins(currentView()); }
   else renderLivestock(curLayer);
