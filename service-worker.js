@@ -2,13 +2,14 @@
    오프라인: 축종/용어/도우미/생산비 등 정적 콘텐츠 캐시.
    외부 API(카카오·람다·gtag)는 개입하지 않음 → 온라인에서만 동작(질병/소이력).
    콘텐츠 갱신 시 CACHE 버전을 올리세요. */
-const CACHE = 'dudang-v8-2026.2';
+const CACHE = 'dudang-v9-2026.3';
 const SHELL = [
   './', 'index.html', 'species.html', 'terms.html', 'helper.html', 'field.html', 'chukbi.html',
-  'cattle.html', 'disease.html', 'manifest.json',
+  'cattle.html', 'disease.html', 'livestock.html', 'survey_breeding.html', 'survey_beef.html', 'manifest.json',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png',
   'data/terms.json', 'data/helper.json',
-  'data/species/hanwoo-breeding.json', 'data/species/hanwoo-fattening.json', 'data/species/dairy.json'
+  'data/species/hanwoo-breeding.json', 'data/species/hanwoo-fattening.json', 'data/species/dairy.json',
+  'data/species/beef-cattle.json', 'data/species/pig.json', 'data/species/layer.json', 'data/species/broiler.json'
 ];
 
 self.addEventListener('install', e => {
