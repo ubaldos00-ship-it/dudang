@@ -52,10 +52,11 @@
   .btn{padding:9px 14px;border:0;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;}
   .btn.save{background:var(--up);color:#fff;} .btn.reset{background:#edf2f7;color:var(--navy);} .btn.del{background:#fdeaea;color:#c0392b;} .btn.manage{background:#e6f0fb;color:#1d6fe0;}
   .cntrow td{background:#f7fafd;} .subt td{background:#fbfcfe;}
+  [hidden]{display:none!important;}
   .modal-back{position:fixed;inset:0;background:rgba(20,30,45,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
   .modal{background:#fff;border-radius:14px;max-width:480px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.3);}
   .modal-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);font-size:16px;font-weight:800;color:var(--navy);position:sticky;top:0;background:#fff;}
-  .mx{background:none;border:0;font-size:18px;cursor:pointer;color:var(--muted);}
+  .mx{background:#edf2f7;border:0;border-radius:8px;font-size:14px;font-weight:700;padding:6px 12px;cursor:pointer;color:var(--navy);}
   .modal-b{padding:14px 16px;}
   .msec{margin-bottom:16px;} .mst{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:8px;}
   .mlist{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow:auto;}
@@ -124,7 +125,7 @@
 
 <div id="modal" class="modal-back" hidden>
   <div class="modal">
-    <div class="modal-h"><span>📁 저장 · 공유 · 백업</span><button class="mx" id="mClose">✕</button></div>
+    <div class="modal-h"><span>📁 저장 · 공유 · 백업</span><button class="mx" id="mClose">닫기 ✕</button></div>
     <div class="modal-b">
       <div class="msec">
         <div class="mst">🔐 비밀번호 (내보내기·가져오기 암호화)</div>
