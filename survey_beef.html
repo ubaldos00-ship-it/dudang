@@ -1,4 +1,4 @@
-<!-- survey_beef.html · 저장: 2026-09-19 KST · 육우 월별 조사표(간이) · 3구분(이유후~12/13~24/25↑), 월중현황 없음, 사료 항목별 +/- -->
+<!-- survey_beef.html · 저장: 2026-09-19 KST · 육우 월별 조사표(간이) · 3구분(이유후~12/13~24/25↑), 월중현황 없음, 사료 항목별 +/- · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026) -->
 <!-- 두당 조사표 · 육우 · 월초·증감·월말 자동, 사료 월투입량(먹는량×마리수×월일수)+단가 이월·항목추가, 성우환산두수 선택, 숫자키패드·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계)·농가삭제 -->
 <!doctype html>
 <html lang="ko">
@@ -50,8 +50,22 @@
   .tot{font-weight:800;color:var(--navy);}
   .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
   .btn{padding:9px 14px;border:0;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;}
-  .btn.save{background:var(--up);color:#fff;} .btn.reset{background:#edf2f7;color:var(--navy);} .btn.del{background:#fdeaea;color:#c0392b;}
+  .btn.save{background:var(--up);color:#fff;} .btn.reset{background:#edf2f7;color:var(--navy);} .btn.del{background:#fdeaea;color:#c0392b;} .btn.manage{background:#e6f0fb;color:#1d6fe0;}
   .cntrow td{background:#f7fafd;} .subt td{background:#fbfcfe;}
+  .modal-back{position:fixed;inset:0;background:rgba(20,30,45,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
+  .modal{background:#fff;border-radius:14px;max-width:480px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.3);}
+  .modal-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);font-size:16px;font-weight:800;color:var(--navy);position:sticky;top:0;background:#fff;}
+  .mx{background:none;border:0;font-size:18px;cursor:pointer;color:var(--muted);}
+  .modal-b{padding:14px 16px;}
+  .msec{margin-bottom:16px;} .mst{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+  .mlist{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow:auto;}
+  .mrow{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13.5px;}
+  .mrow .nm{font-weight:700;flex:1;} .mrow .mo{color:var(--muted);font-size:12px;}
+  .mrow button{border:0;border-radius:7px;padding:5px 10px;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .mrow .op{background:#e6f0fb;color:#1d6fe0;} .mrow .rm{background:#fdeaea;color:#c0392b;}
+  .mbtns{display:flex;flex-wrap:wrap;gap:8px;}
+  .mmsg{font-size:12.5px;color:var(--up);min-height:16px;margin-top:4px;}
+  .pwrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .note{font-size:12px;color:#c05621;margin-top:6px;}
 </style>
 <link rel="manifest" href="manifest.json">
@@ -78,6 +92,7 @@
       <div class="fld"><label>해당월 일수</label><input id="days" type="number" readonly style="width:70px;background:#f1f5fb"></div>
       <div class="btnrow" style="margin-left:auto">
         <button class="btn save" id="btnSave">💾 저장</button>
+        <button class="btn manage" id="btnManage">📁 저장·공유</button>
         <button class="btn reset" id="btnClear">이 달 초기화</button>
         <button class="btn del" id="btnDelFarm">🗑 농가 삭제</button>
       </div>
@@ -107,7 +122,34 @@
   </div>
 </main>
 
+<div id="modal" class="modal-back" hidden>
+  <div class="modal">
+    <div class="modal-h"><span>📁 저장 · 공유 · 백업</span><button class="mx" id="mClose">✕</button></div>
+    <div class="modal-b">
+      <div class="msec">
+        <div class="mst">🔐 비밀번호 (내보내기·가져오기 암호화)</div>
+        <div class="pwrow"><input id="mPw" type="text" value="2026" style="width:150px"></div>
+      </div>
+      <div class="msec">
+        <div class="mst">📤 내보내기 / 가져오기 / 공유</div>
+        <div class="mbtns">
+          <button class="btn save" id="mExport">📤 내보내기(암호화)</button>
+          <button class="btn manage" id="mImport">📥 가져오기</button>
+          <button class="btn manage" id="mShare">🔗 공유하기</button>
+          <input id="mFile" type="file" accept=".json,application/json" hidden>
+        </div>
+        <div class="mmsg" id="mMsg"></div>
+      </div>
+      <div class="msec">
+        <div class="mst">📁 저장된 농가 목록</div>
+        <div class="mlist" id="mList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+const KIND="beef", KLABEL="육우";
 const CATS=[
  {id:"u12",label:"이유후~12개월"},{id:"m24",label:"13~24개월"},{id:"o25",label:"25개월 이상"}
 ];
@@ -131,8 +173,11 @@ function colorAll(){ document.querySelectorAll('#invTbl input,#feedTbl input,#co
 let farm="", year=2026, month=1, M=null;
 
 function storeKey(f){ return "dudang_beef_"+(f||"_default"); }
-function loadFarm(f){ try{ return JSON.parse(localStorage.getItem(storeKey(f))||"{}"); }catch(e){ return {}; } }
-function saveFarm(f,obj){ try{ localStorage.setItem(storeKey(f),JSON.stringify(obj)); }catch(e){} }
+const CKEY="dudang!cache$2026#key";
+function encStr(s){ try{ let o=""; for(let i=0;i<s.length;i++) o+=String.fromCharCode(s.charCodeAt(i)^CKEY.charCodeAt(i%CKEY.length)); return "ENC1:"+btoa(unescape(encodeURIComponent(o))); }catch(e){ return s; } }
+function decStr(s){ if(typeof s!=="string"||s.slice(0,5)!=="ENC1:") return s; try{ const raw=decodeURIComponent(escape(atob(s.slice(5)))); let o=""; for(let i=0;i<raw.length;i++) o+=String.fromCharCode(raw.charCodeAt(i)^CKEY.charCodeAt(i%CKEY.length)); return o; }catch(e){ return "{}"; } }
+function loadFarm(f){ try{ const raw=localStorage.getItem(storeKey(f)); if(!raw) return {}; return JSON.parse(decStr(raw)); }catch(e){ return {}; } }
+function saveFarm(f,obj){ try{ localStorage.setItem(storeKey(f),encStr(JSON.stringify(obj))); }catch(e){} }
 function mkMonth(){ const m={inv:{},feedBasis:"adult",coef:Object.assign({},DEF_COEF),feedItems:defaultFeedItems()};
   CATS.forEach(c=>m.inv[c.id]={begin:0,birth:0,buy:0,in:0,out:0,sell:0,cull:0,dead:0});
   return m; }
@@ -190,10 +235,12 @@ function buildInv(){
 }
 function feedItemRow(it,i,total,cat){
   const label = it.type + (total>1 ? " "+CIRC[Math.min(i,8)] : "");
-  let r=`<tr><td class='rc'>${label}</td><td><input type='number' inputmode='numeric' min='0' data-fid='${it.id}' data-f='price' value='${it.price||0}'></td>`;
+  let r=`<tr><td class='rc'>${label}</td>`;
   if(cat){ FEEDGRP.forEach(([k])=>r+=`<td><input type='number' inputmode='decimal' min='0' step='0.1' data-fid='${it.id}' data-g='${k}' value='${it.g[k]||0}'></td>`); }
   else { r+=`<td><input type='number' inputmode='decimal' min='0' step='0.1' data-fid='${it.id}' data-f='amt' value='${it.amt||0}'></td>`; }
-  r+=`<td class='auto'><span id='fi_${it.id}'>0</span></td><td class='auto'><span id='fc_${it.id}'>0</span></td>`;
+  r+=`<td class='auto'><span id='fi_${it.id}'>0</span></td>`;
+  r+=`<td><input type='number' inputmode='numeric' min='0' data-fid='${it.id}' data-f='price' value='${it.price||0}'></td>`;
+  r+=`<td class='auto'><span id='fc_${it.id}'>0</span></td>`;
   r+=`<td class='act'>`+(i===0?`<button type='button' class='mini add' data-add='${it.id}' title='같은 사료 줄 추가'>＋</button>`:`<button type='button' class='mini del' data-del='${it.id}' title='이 줄 삭제'>－</button>`)+`</td></tr>`;
   return r;
 }
@@ -202,27 +249,27 @@ function feedTypeBlocks(grp,typeList,cat,lead){
   typeList.forEach(t=>{
     const items=M.feedItems.filter(x=>x.grp===grp&&x.type===t);
     items.forEach((it,i)=> h+=feedItemRow(it,i,items.length,cat));
-    if(items.length>1){ h+=`<tr class='subt'><td class='rc' style='text-align:right;color:#5b6b7d' colspan='${lead}'>↳ ${t} 소계</td><td class='auto'><span id='subt_${grp}_${t}_kg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_won'>0</span></td><td></td></tr>`; }
+    if(items.length>1){ h+=`<tr class='subt'><td class='rc' style='text-align:right;color:#5b6b7d' colspan='${lead}'>↳ ${t} 소계</td><td class='auto'><span id='subt_${grp}_${t}_kg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_avg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_won'>0</span></td><td></td></tr>`; }
   });
   return h;
 }
 function buildFeed(){
   const cat=(M.feedBasis==="cat");
   const dataCols=cat?FEEDGRP.length:1;
-  const lead=2+dataCols;
-  const cols=lead+3;
-  let h="<tr><th class='rc'>사료</th><th>단가<br><span class='sub'>원/kg</span></th>";
+  const lead=1+dataCols;
+  const cols=lead+4;
+  let h="<tr><th class='rc'>사료</th>";
   if(cat){ FEEDGRP.forEach(([,l])=>h+=`<th>${l}<br><span class='sub'>kg/두·일</span></th>`); }
   else { h+="<th>먹는량<br><span class='sub'>kg/두·일</span></th>"; }
-  h+="<th>월투입<br><span class='sub'>kg</span></th><th>월금액<br><span class='sub'>원</span></th><th>추가<br>삭제</th></tr>";
-  if(cat){ h+="<tr class='cntrow'><td class='rc'>적용 마리수</td><td class='sub' style='text-align:center'>두</td>"; FEEDGRP.forEach(([k])=>h+=`<td class='auto'><span id='gcnt_${k}'>0</span></td>`); h+="<td></td><td></td><td></td></tr>"; }
+  h+="<th>월투입<br><span class='sub'>kg</span></th><th>단가<br><span class='sub'>원/kg</span></th><th>월금액<br><span class='sub'>원</span></th><th>추가<br>삭제</th></tr>";
+  if(cat){ h+="<tr class='cntrow'><td class='rc'>적용 마리수(두)</td>"; FEEDGRP.forEach(([k])=>h+=`<td class='auto'><span id='gcnt_${k}'>0</span></td>`); h+="<td></td><td></td><td></td><td></td></tr>"; }
   h+=`<tr><td class='rc' style='background:#eef3fb;color:#1a365d' colspan='${cols}'>■ 농후사료</td></tr>`;
   h+=feedTypeBlocks("c",CONC,cat,lead);
-  h+=`<tr><td class='rc tot' colspan='${lead}'>농후사료 소계</td><td class='end'><span id='grpkg_c'>0</span></td><td class='end'><span id='grpwon_c'>0</span></td><td></td></tr>`;
+  h+=`<tr><td class='rc tot' colspan='${lead}'>농후사료 소계</td><td class='end'><span id='grpkg_c'>0</span></td><td class='end'><span id='grpavg_c'>0</span></td><td class='end'><span id='grpwon_c'>0</span></td><td></td></tr>`;
   h+=`<tr><td class='rc' style='background:#eef3fb;color:#1a365d' colspan='${cols}'>■ 조사료</td></tr>`;
   h+=feedTypeBlocks("r",ROUGH,cat,lead);
-  h+=`<tr><td class='rc tot' colspan='${lead}'>조사료 소계</td><td class='end'><span id='grpkg_r'>0</span></td><td class='end'><span id='grpwon_r'>0</span></td><td></td></tr>`;
-  h+=`<tr><td class='rc tot' style='background:#e9eef6' colspan='${lead}'>합계(전체)</td><td class='end'><span id='feed_kg'>0</span></td><td class='end'><span id='feed_won'>0</span></td><td></td></tr>`;
+  h+=`<tr><td class='rc tot' colspan='${lead}'>조사료 소계</td><td class='end'><span id='grpkg_r'>0</span></td><td class='end'><span id='grpavg_r'>0</span></td><td class='end'><span id='grpwon_r'>0</span></td><td></td></tr>`;
+  h+=`<tr><td class='rc tot' style='background:#e9eef6' colspan='${lead}'>합계(전체)</td><td class='end'><span id='feed_kg'>0</span></td><td class='end'><span id='feed_avg'>0</span></td><td class='end'><span id='feed_won'>0</span></td><td></td></tr>`;
   $("feedTbl").innerHTML=h;
 }
 function buildCoef(){
@@ -264,9 +311,10 @@ function recalc(){
     tkg+=kg; twon+=won; grpKg[it.grp]+=kg; grpWon[it.grp]+=won;
     const tk=it.grp+"_"+it.type; typeKg[tk]=(typeKg[tk]||0)+kg; typeWon[tk]=(typeWon[tk]||0)+won;
   });
-  Object.keys(typeKg).forEach(tk=>{ const a=$("subt_"+tk+"_kg"), b=$("subt_"+tk+"_won"); if(a)a.textContent=nf(Math.round(typeKg[tk])); if(b)b.textContent=nf(Math.round(typeWon[tk])); });
-  ["c","r"].forEach(g=>{ const a=$("grpkg_"+g), b=$("grpwon_"+g); if(a)a.textContent=nf(Math.round(grpKg[g])); if(b)b.textContent=nf(Math.round(grpWon[g])); });
-  $("feed_kg").textContent=nf(Math.round(tkg)); $("feed_won").textContent=nf(Math.round(twon));
+  const avg=(w,k)=>k>0?Math.round(w/k):0;
+  Object.keys(typeKg).forEach(tk=>{ const a=$("subt_"+tk+"_kg"), av=$("subt_"+tk+"_avg"), b=$("subt_"+tk+"_won"); if(a)a.textContent=nf(Math.round(typeKg[tk])); if(av)av.textContent=nf(avg(typeWon[tk],typeKg[tk])); if(b)b.textContent=nf(Math.round(typeWon[tk])); });
+  ["c","r"].forEach(g=>{ const a=$("grpkg_"+g), av=$("grpavg_"+g), b=$("grpwon_"+g); if(a)a.textContent=nf(Math.round(grpKg[g])); if(av)av.textContent=nf(avg(grpWon[g],grpKg[g])); if(b)b.textContent=nf(Math.round(grpWon[g])); });
+  $("feed_kg").textContent=nf(Math.round(tkg)); if($("feed_avg"))$("feed_avg").textContent=nf(avg(twon,tkg)); $("feed_won").textContent=nf(Math.round(twon));
   colorAll();
 }
 
@@ -274,6 +322,14 @@ function autosave(){ if(!farm)return; const store=loadFarm(farm); store[year+"-"
 function stripRuntime(m){ const c=JSON.parse(JSON.stringify(m)); delete c._beginAuto; return c; }
 
 document.addEventListener("focusin",e=>{ const el=e.target; if(el.tagName==="INPUT"&&(el.type==="number"||el.type==="text")){ setTimeout(()=>{ try{el.select();}catch(_){} },0); } });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && e.target.tagName==="INPUT" && e.target.type!=="button" && e.target.type!=="file"){
+    e.preventDefault();
+    const ins=[...document.querySelectorAll("input:not([readonly]):not([type=radio]):not([type=file])")].filter(x=>x.offsetParent!==null);
+    const idx=ins.indexOf(e.target);
+    if(idx>=0 && idx<ins.length-1) ins[idx+1].focus();
+  }
+});
 document.addEventListener("input",e=>{
   const el=e.target;
   if(el.dataset.cat){ M.inv[el.dataset.cat][el.dataset.f]=parseFloat(el.value)||0; recalc(); autosave(); }
@@ -289,6 +345,35 @@ $("btnLoad").addEventListener("click",()=>{ const n=$("farmSel").value; if(!n){ 
 $("btnSave").addEventListener("click",()=>{ if(!$("farm").value.trim()){ alert("농가명을 입력하세요."); return; } autosave(); alert("저장되었습니다."); });
 $("btnDelFarm").addEventListener("click",()=>{ const f=$("farm").value.trim(); if(!f){ alert("삭제할 농가를 입력/선택하세요."); return; } if(!confirm(`'${f}' 농가의 모든 월 데이터를 삭제할까요? (되돌릴 수 없습니다)`))return; try{ localStorage.removeItem(storeKey(f)); }catch(e){} $("farm").value=""; if($("farmSel")) $("farmSel").value=""; refreshFarmList(); loadMonth(); alert("삭제되었습니다."); });
 $("btnClear").addEventListener("click",()=>{ if(!confirm("이 달 입력을 초기화할까요?"))return; M=mkMonth(); const pk=prevKey(year,month); const store=loadFarm(farm); M._beginAuto={}; if(pk&&store[pk]){CATS.forEach(c=>{M.inv[c.id].begin=endOf(store[pk],c.id);M._beginAuto[c.id]=true;});}else CATS.forEach(c=>M._beginAuto[c.id]=false); buildInv();buildFeed();buildCoef();syncBasisUI();recalc();autosave(); });
+
+// ===== 저장·공유·백업 =====
+const SPREFIX="dudang_"+KIND+"_";
+function farmNames(){ const a=[]; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith(SPREFIX)){ const n=k.slice(SPREFIX.length); if(n&&n!=="_default") a.push(n); } } a.sort(); return a; }
+async function deriveKey(pw,salt){ const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]); return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:120000,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]); }
+function b64(buf){ let s=""; const b=new Uint8Array(buf); for(let i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s); }
+function unb64(s){ return Uint8Array.from(atob(s),c=>c.charCodeAt(0)); }
+async function encPack(obj,pw){ const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12)); const key=await deriveKey(pw,salt); const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(JSON.stringify(obj))); return {app:"dudang",kind:KIND,v:1,salt:b64(salt),iv:b64(iv),ct:b64(ct)}; }
+async function decPack(pkg,pw){ const key=await deriveKey(pw,unb64(pkg.salt)); const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(pkg.iv)},key,unb64(pkg.ct)); return JSON.parse(new TextDecoder().decode(pt)); }
+function mMsg(t,ok){ const el=$("mMsg"); if(el){ el.textContent=t||""; el.style.color=(ok===false)?"#c0392b":"#2f855a"; } }
+function renderMList(){
+  const names=farmNames(), box=$("mList");
+  if(!names.length){ box.innerHTML="<div class='sub'>저장된 농가가 없습니다.</div>"; return; }
+  box.innerHTML=names.map(n=>{ const mo=Object.keys(loadFarm(n)).length; return `<div class='mrow'><span class='nm'>${n}</span><span class='mo'>${mo}개월</span><button class='op' data-open='${n}'>열기</button><button class='rm' data-rm='${n}'>삭제</button></div>`; }).join("");
+  box.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ $("farm").value=b.dataset.open; closeModal(); loadMonth(); });
+  box.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{ const n=b.dataset.rm; if(!confirm(`'${n}' 농가를 삭제할까요?`))return; try{localStorage.removeItem(storeKey(n));}catch(e){} if($("farm").value===n)$("farm").value=""; refreshFarmList(); renderMList(); });
+}
+function openModal(){ if(!$("mPw").value)$("mPw").value="2026"; renderMList(); mMsg(""); $("modal").hidden=false; }
+function closeModal(){ $("modal").hidden=true; }
+$("btnManage").addEventListener("click",openModal);
+$("mClose").addEventListener("click",closeModal);
+$("modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeModal(); });
+async function mExport(){ const f=$("farm").value.trim(); if(!f){ mMsg("농가를 먼저 선택/입력하세요.",false); return; } const pw=$("mPw").value||"2026"; try{ const pkg=await encPack({farm:f,kind:KIND,data:loadFarm(f),exportedAt:new Date().toISOString()},pw); const blob=new Blob([JSON.stringify(pkg)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`두당_${KLABEL}_${f}.dudang.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); mMsg("내보냈습니다(암호화). 비밀번호를 기억하세요."); }catch(e){ mMsg("내보내기 실패: "+e,false); } }
+async function mImportFile(file){ const pw=$("mPw").value||"2026"; try{ const pkg=JSON.parse(await file.text()); const payload=await decPack(pkg,pw); const f=(payload.farm||"가져온농가"); const store=loadFarm(f); Object.assign(store,payload.data||{}); saveFarm(f,store); $("farm").value=f; refreshFarmList(); renderMList(); loadMonth(); mMsg(`가져왔습니다: ${f} (${Object.keys(payload.data||{}).length}개월)`); }catch(e){ mMsg("가져오기 실패 — 비밀번호/파일을 확인하세요.",false); } }
+async function mShare(){ const f=$("farm").value.trim(); if(!f){ mMsg("농가를 먼저 선택/입력하세요.",false); return; } const pw=$("mPw").value||"2026"; try{ const pkg=await encPack({farm:f,kind:KIND,data:loadFarm(f)},pw); const blob=new Blob([JSON.stringify(pkg)],{type:"application/json"}); const file=new File([blob],`두당_${KLABEL}_${f}.dudang.json`,{type:"application/json"}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:"두당 조사표",text:`${KLABEL} 조사표 ${f}(암호화)`}); mMsg("공유했습니다."); } else if(navigator.share){ await navigator.share({title:"두당 조사표",text:JSON.stringify(pkg)}); mMsg("공유했습니다."); } else { await navigator.clipboard.writeText(JSON.stringify(pkg)); mMsg("암호화 데이터를 클립보드에 복사했습니다."); } }catch(e){ mMsg("공유 취소/실패.",false); } }
+$("mExport").addEventListener("click",mExport);
+$("mImport").addEventListener("click",()=>$("mFile").click());
+$("mFile").addEventListener("change",e=>{ if(e.target.files&&e.target.files[0]) mImportFile(e.target.files[0]); e.target.value=""; });
+$("mShare").addEventListener("click",mShare);
 
 (function init(){
   $("month").innerHTML=Array.from({length:12},(_,i)=>`<option value='${i+1}'>${i+1}월</option>`).join("");
