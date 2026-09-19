@@ -150,7 +150,7 @@
         <button class="btn reset" id="addBuy" style="padding:4px 10px;font-size:12px">＋ 행 추가</button>
       </div>
       <div class="tbl-scroll"><table id="buyTbl"></table></div>
-      <div class="mst" style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">판매 내역 <span class="sub">부호 610 · 판매11/도태21/편입31</span>
+      <div class="mst" style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">판매 내역 <span class="sub">부호 610 · 판매11/도태판매21/편입31</span>
         <button class="btn manage" id="genSell" style="padding:4px 10px;font-size:12px">🔄 마리수에서 자동생성</button>
         <button class="btn reset" id="addSell" style="padding:4px 10px;font-size:12px">＋ 행 추가</button>
       </div>
@@ -219,7 +219,7 @@ const CIRC=["①","②","③","④","⑤","⑥","⑦","⑧","⑨"];
 // ===== ② 대·소동물 구입 및 판매 (원장) =====
 const CAT_CODE={ calfF:{b:"311",s:"611"}, calfM:{b:"312",s:"612"}, growF:{b:"313",s:"613"}, growM:{b:"314",s:"614"}, heifer:{b:"315",s:"615"}, cow:{b:"316",s:"616"}, bull:{b:"317",s:"617"} };
 const BUY_GUBUN=[["11","구입"],["31","편입"]];
-const SELL_GUBUN=[["11","판매"],["21","도태"],["31","편입"]];
+const SELL_GUBUN=[["11","판매"],["21","도태판매"],["31","편입"]];
 const BUY_SRC=[["buy","11"],["in","31"]];              // 마리수 증가 → 구입/편입
 const SELL_SRC=[["sell","11"],["cull","21"],["out","31"]]; // 마리수 감소 → 판매/도태/편입
 function newRid(){ return "r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }

@@ -52,7 +52,8 @@
   .btn{padding:9px 14px;border:0;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;}
   .btn.save{background:var(--up);color:#fff;} .btn.reset{background:#edf2f7;color:var(--navy);} .btn.del{background:#fdeaea;color:#c0392b;} .btn.manage{background:#e6f0fb;color:#1d6fe0;}
   .cntrow td{background:#f7fafd;} .subt td{background:#fbfcfe;}
-  #buyTbl select,#sellTbl select{font-size:11.5px;padding:2px 3px;border:1px solid #dbe2ea;border-radius:5px;max-width:110px;}
+  #buyTbl select,#sellTbl select{font-size:11.5px;padding:2px 3px;border:1px solid #dbe2ea;border-radius:5px;max-width:96px;}
+  #sellTbl select[data-f="gubun"]{max-width:150px;}
   #buyTbl td,#sellTbl td{padding:3px 4px;} #secCard .mst{color:var(--navy);}
   [hidden]{display:none!important;}
   .modal-back{position:fixed;inset:0;background:rgba(20,30,45,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
@@ -140,7 +141,7 @@
         <button class="btn reset" id="addBuy" style="padding:4px 10px;font-size:12px">＋ 행 추가</button>
       </div>
       <div class="tbl-scroll"><table id="buyTbl"></table></div>
-      <div class="mst" style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">판매 내역 <span class="sub">부호 630 · 판매11/도태21/편입31</span>
+      <div class="mst" style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">판매 내역 <span class="sub">부호 630 · 거세/미거세·비육완료/비육중도태(11/12/21/22)·편입31</span>
         <button class="btn manage" id="genSell" style="padding:4px 10px;font-size:12px">🔄 마리수에서 자동생성</button>
         <button class="btn reset" id="addSell" style="padding:4px 10px;font-size:12px">＋ 행 추가</button>
       </div>
@@ -198,9 +199,9 @@ const CIRC=["①","②","③","④","⑤","⑥","⑦","⑧","⑨"];
 // ===== ② 대·소동물 구입 및 판매 (원장) =====
 const CAT_CODE={ u12:{b:"331",s:"631"}, m24:{b:"332",s:"632"}, o25:{b:"333",s:"633"} };
 const BUY_GUBUN=[["11","구입"],["31","편입"]];
-const SELL_GUBUN=[["11","판매"],["21","도태"],["31","편입"]];
+const SELL_GUBUN=[["11","거세·비육완료"],["12","거세·비육중도태"],["21","미거세·비육완료"],["22","미거세·비육중도태"],["31","편입"]];
 const BUY_SRC=[["buy","11"],["in","31"]];
-const SELL_SRC=[["sell","11"],["cull","21"],["out","31"]];
+const SELL_SRC=[["sell","11"],["cull","12"],["out","31"]];
 function newRid(){ return "r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function catOptions(sel){ return CATS.map(c=>`<option value='${c.id}'${c.id===sel?' selected':''}>${c.label}</option>`).join(""); }
 function gubunOptions(list,sel){ return list.map(([v,l])=>`<option value='${v}'${v===sel?' selected':''}>${l}(${v})</option>`).join(""); }
