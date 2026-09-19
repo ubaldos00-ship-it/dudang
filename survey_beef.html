@@ -1,4 +1,4 @@
-<!-- survey_beef.html · 저장: 2026-09-19 KST · 육우 월별 조사표(간이) · 3구분(이유후~12/13~24/25↑), 월중현황 없음, 사료 항목별 +/- · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체 -->
+<!-- survey_beef.html · 저장: 2026-09-19 KST · 육우 월별 조사표(간이) · 3구분(이유후~12/13~24/25↑), 월중현황 없음, 사료 항목별 +/- · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) -->
 <!-- 두당 조사표 · 육우 · 월초·증감·월말 자동, 사료 월투입량(먹는량×마리수×월일수)+단가 이월·항목추가, 성우환산두수 선택, 숫자키패드·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계)·농가삭제 -->
 <!doctype html>
 <html lang="ko">
@@ -139,6 +139,7 @@
           <button class="btn manage" id="mShare">🔗 공유하기</button>
           <input id="mFile" type="file" accept=".json,application/json" hidden>
         </div>
+        <div class="sub" style="margin-top:5px">🔗 공유하기: 맥·휴대폰은 카카오톡 등으로 바로 공유, 윈도우는 파일로 저장돼요(카톡·메일에 직접 첨부).</div>
         <div class="mmsg" id="mMsg"></div>
         <div id="mImportBox" hidden style="margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">
           <div class="mst">가져올 농가 선택</div>
@@ -390,7 +391,7 @@ async function mExport(){ const pw=$("mPw").value||"2026"; const farms=collectFa
 let pendingImport=null;
 async function mImportFile(file){ const pw=$("mPw").value||"2026"; try{ const pkg=JSON.parse(await file.text()); const payload=await decPack(pkg,pw); pendingImport=normalizeImport(payload); const names=Object.keys(pendingImport); if(!names.length){ mMsg("가져올 농가가 없습니다.",false); $("mImportBox").hidden=true; return; } $("mImportList").innerHTML=names.map(n=>`<label class='mrow' style='cursor:pointer'><input type='checkbox' class='impchk' value='${n}' checked style='width:auto'> <span class='nm'>${n}</span><span class='mo'>${Object.keys(pendingImport[n]||{}).length}개월</span></label>`).join(""); $("mImportBox").hidden=false; mMsg(`${names.length}개 농가 확인 — 선택 후 '가져오기 실행'을 누르세요.`); }catch(e){ mMsg("가져오기 실패 — 비밀번호/파일을 확인하세요.",false); $("mImportBox").hidden=true; pendingImport=null; } }
 function mImportApply(){ if(!pendingImport) return; const mode=(document.querySelector("input[name=impmode]:checked")||{}).value||"merge"; const checked=[...document.querySelectorAll(".impchk:checked")].map(c=>c.value); if(!checked.length){ mMsg("가져올 농가를 선택하세요.",false); return; } checked.forEach(n=>{ const inc=pendingImport[n]||{}; if(mode==="replace"){ saveFarm(n,inc); } else { const store=loadFarm(n); Object.assign(store,inc); saveFarm(n,store); } }); refreshFarmList(); renderMList(); $("farm").value=checked[0]; loadMonth(); mMsg(`가져오기 완료: ${checked.length}개 농가 (${mode==="replace"?"교체":"추가"}).`); $("mImportBox").hidden=true; pendingImport=null; }
-async function mShare(){ const pw=$("mPw").value||"2026"; const farms=collectFarms(); if(!Object.keys(farms).length){ mMsg("저장된 농가가 없습니다.",false); return; } try{ const pkg=await encPack({app:"dudang",kind:KIND,farms},pw); const blob=new Blob([JSON.stringify(pkg)],{type:"application/json"}); const file=new File([blob],`두당_${KLABEL}_전체.dudang.json`,{type:"application/json"}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:"두당 조사표",text:`${KLABEL} 조사표 전체(암호화)`}); mMsg("공유했습니다."); } else if(navigator.share){ await navigator.share({title:"두당 조사표",text:JSON.stringify(pkg)}); mMsg("공유했습니다."); } else { await navigator.clipboard.writeText(JSON.stringify(pkg)); mMsg("암호화 데이터를 클립보드에 복사했습니다."); } }catch(e){ mMsg("공유 취소/실패.",false); } }
+async function mShare(){ const pw=$("mPw").value||"2026"; const farms=collectFarms(); if(!Object.keys(farms).length){ mMsg("저장된 농가가 없습니다.",false); return; } let pkg; try{ pkg=await encPack({app:"dudang",kind:KIND,farms},pw); }catch(e){ mMsg("암호화 실패: "+e,false); return; } const txt=JSON.stringify(pkg); const fname=`두당_${KLABEL}_전체.dudang.json`; const file=new File([txt],fname,{type:"application/json"}); if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:"두당 조사표",text:`${KLABEL} 조사표 전체(암호화)`}); mMsg("공유했습니다."); return; }catch(e){ if(e&&e.name==="AbortError"){ mMsg("공유를 취소했습니다."); return; } } } /* 파일 공유 미지원(윈도우 등) → 파일 저장 후 안내 */ triggerDownload(fname, txt); mMsg("이 브라우저는 앱 바로 공유가 안 됩니다. 암호화 파일을 저장했으니 카카오톡·메일에 직접 첨부해 보내세요."); }
 $("mExport").addEventListener("click",mExport);
 $("mImport").addEventListener("click",()=>$("mFile").click());
 $("mFile").addEventListener("change",e=>{ if(e.target.files&&e.target.files[0]) mImportFile(e.target.files[0]); e.target.value=""; });
