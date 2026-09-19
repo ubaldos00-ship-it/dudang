@@ -1,4 +1,4 @@
-<!-- survey_breeding.html · 저장: 2026-09-18 KST(v3) · 농가 저장/불러오기, 마리수 입력칸 축소, 송아지 편입-·육성우 편입+ * 표시, 초임우/경산우 편입 직접입력, 사료 항목별 ＋/－, 숫자키패드(inputmode)·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계·＋원본만/－추가행만)·농가삭제 · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026) -->
+<!-- survey_breeding.html · 저장: 2026-09-18 KST(v3) · 농가 저장/불러오기, 마리수 입력칸 축소, 송아지 편입-·육성우 편입+ * 표시, 초임우/경산우 편입 직접입력, 사료 항목별 ＋/－, 숫자키패드(inputmode)·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계·＋원본만/－추가행만)·농가삭제 · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체 -->
 <!-- 두당 조사표 · 번식우 · 월초·증감·월말 자동, 초임분만→초임우/경산우 자동편입, 사료 월투입량(먹는량×마리수×월일수)+단가 이월, 성우환산두수 선택 -->
 <!doctype html>
 <html lang="ko">
@@ -144,12 +144,21 @@
       <div class="msec">
         <div class="mst">📤 내보내기 / 가져오기 / 공유</div>
         <div class="mbtns">
-          <button class="btn save" id="mExport">📤 내보내기(암호화)</button>
+          <button class="btn save" id="mExport">📤 전체 내보내기(암호화)</button>
           <button class="btn manage" id="mImport">📥 가져오기</button>
           <button class="btn manage" id="mShare">🔗 공유하기</button>
           <input id="mFile" type="file" accept=".json,application/json" hidden>
         </div>
         <div class="mmsg" id="mMsg"></div>
+        <div id="mImportBox" hidden style="margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">
+          <div class="mst">가져올 농가 선택</div>
+          <div id="mImportList" class="mlist"></div>
+          <div class="pwrow" style="margin-top:8px">
+            <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="impmode" value="merge" checked style="width:auto"> 추가(병합)</label>
+            <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="impmode" value="replace" style="width:auto"> 교체(덮어쓰기)</label>
+            <button class="btn save" id="mImportApply">가져오기 실행</button>
+          </div>
+        </div>
       </div>
       <div class="msec">
         <div class="mst">📁 저장된 농가 목록</div>
@@ -221,6 +230,8 @@ function loadMonth(){
   farm=$("farm").value.trim(); year=parseInt($("year").value,10)||2026; month=parseInt($("month").value,10)||1;
   const store=loadFarm(farm); const key=year+"-"+month;
   M = store[key] ? store[key] : mkMonth();
+  if(!M.inv)M.inv={}; CATS.forEach(c=>{ if(!M.inv[c.id]) M.inv[c.id]={begin:0,birth:0,buy:0,in:0,out:0,sell:0,cull:0,dead:0}; });
+  if(!M.herd)M.herd={}; HERD.forEach(([k])=>{ if(M.herd[k]==null) M.herd[k]=0; });
   // 월초 이월: 전월 월말이 있으면 자동
   const pk=prevKey(year,month);
   M._beginAuto={};
@@ -444,13 +455,24 @@ function closeModal(){ $("modal").hidden=true; }
 $("btnManage").addEventListener("click",openModal);
 $("mClose").addEventListener("click",closeModal);
 $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeModal(); });
-async function mExport(){ const f=$("farm").value.trim(); if(!f){ mMsg("농가를 먼저 선택/입력하세요.",false); return; } const pw=$("mPw").value||"2026"; try{ const pkg=await encPack({farm:f,kind:KIND,data:loadFarm(f),exportedAt:new Date().toISOString()},pw); const blob=new Blob([JSON.stringify(pkg)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`두당_${KLABEL}_${f}.dudang.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); mMsg("내보냈습니다(암호화). 비밀번호를 기억하세요."); }catch(e){ mMsg("내보내기 실패: "+e,false); } }
-async function mImportFile(file){ const pw=$("mPw").value||"2026"; try{ const pkg=JSON.parse(await file.text()); const payload=await decPack(pkg,pw); const f=(payload.farm||"가져온농가"); const store=loadFarm(f); Object.assign(store,payload.data||{}); saveFarm(f,store); $("farm").value=f; refreshFarmList(); renderMList(); loadMonth(); mMsg(`가져왔습니다: ${f} (${Object.keys(payload.data||{}).length}개월)`); }catch(e){ mMsg("가져오기 실패 — 비밀번호/파일을 확인하세요.",false); } }
-async function mShare(){ const f=$("farm").value.trim(); if(!f){ mMsg("농가를 먼저 선택/입력하세요.",false); return; } const pw=$("mPw").value||"2026"; try{ const pkg=await encPack({farm:f,kind:KIND,data:loadFarm(f)},pw); const blob=new Blob([JSON.stringify(pkg)],{type:"application/json"}); const file=new File([blob],`두당_${KLABEL}_${f}.dudang.json`,{type:"application/json"}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:"두당 조사표",text:`${KLABEL} 조사표 ${f}(암호화)`}); mMsg("공유했습니다."); } else if(navigator.share){ await navigator.share({title:"두당 조사표",text:JSON.stringify(pkg)}); mMsg("공유했습니다."); } else { await navigator.clipboard.writeText(JSON.stringify(pkg)); mMsg("암호화 데이터를 클립보드에 복사했습니다."); } }catch(e){ mMsg("공유 취소/실패.",false); } }
+function normalizeImport(p){ if(p&&p.farms&&typeof p.farms==="object") return p.farms; if(p&&p.farm) return {[p.farm]:p.data||{}}; return {}; }
+function collectFarms(){ const o={}; farmNames().forEach(n=>o[n]=loadFarm(n)); return o; }
+function triggerDownload(name, text){
+  const blob=new Blob([text],{type:"application/octet-stream"}); const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener"; a.style.display="none";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ try{ a.remove(); URL.revokeObjectURL(url); }catch(e){} },4000);
+}
+async function mExport(){ const pw=$("mPw").value||"2026"; const farms=collectFarms(); const cnt=Object.keys(farms).length; if(!cnt){ mMsg("저장된 농가가 없습니다.",false); return; } try{ const pkg=await encPack({app:"dudang",kind:KIND,farms,exportedAt:new Date().toISOString()},pw); triggerDownload(`두당_${KLABEL}_전체_${new Date().toISOString().slice(0,10)}.dudang.json`, JSON.stringify(pkg)); mMsg(`전체 ${cnt}개 농가를 내보냈습니다(암호화). 다운로드 폴더를 확인하세요.`); }catch(e){ mMsg("내보내기 실패: "+e,false); } }
+let pendingImport=null;
+async function mImportFile(file){ const pw=$("mPw").value||"2026"; try{ const pkg=JSON.parse(await file.text()); const payload=await decPack(pkg,pw); pendingImport=normalizeImport(payload); const names=Object.keys(pendingImport); if(!names.length){ mMsg("가져올 농가가 없습니다.",false); $("mImportBox").hidden=true; return; } $("mImportList").innerHTML=names.map(n=>`<label class='mrow' style='cursor:pointer'><input type='checkbox' class='impchk' value='${n}' checked style='width:auto'> <span class='nm'>${n}</span><span class='mo'>${Object.keys(pendingImport[n]||{}).length}개월</span></label>`).join(""); $("mImportBox").hidden=false; mMsg(`${names.length}개 농가 확인 — 선택 후 '가져오기 실행'을 누르세요.`); }catch(e){ mMsg("가져오기 실패 — 비밀번호/파일을 확인하세요.",false); $("mImportBox").hidden=true; pendingImport=null; } }
+function mImportApply(){ if(!pendingImport) return; const mode=(document.querySelector("input[name=impmode]:checked")||{}).value||"merge"; const checked=[...document.querySelectorAll(".impchk:checked")].map(c=>c.value); if(!checked.length){ mMsg("가져올 농가를 선택하세요.",false); return; } checked.forEach(n=>{ const inc=pendingImport[n]||{}; if(mode==="replace"){ saveFarm(n,inc); } else { const store=loadFarm(n); Object.assign(store,inc); saveFarm(n,store); } }); refreshFarmList(); renderMList(); $("farm").value=checked[0]; loadMonth(); mMsg(`가져오기 완료: ${checked.length}개 농가 (${mode==="replace"?"교체":"추가"}).`); $("mImportBox").hidden=true; pendingImport=null; }
+async function mShare(){ const pw=$("mPw").value||"2026"; const farms=collectFarms(); if(!Object.keys(farms).length){ mMsg("저장된 농가가 없습니다.",false); return; } try{ const pkg=await encPack({app:"dudang",kind:KIND,farms},pw); const blob=new Blob([JSON.stringify(pkg)],{type:"application/json"}); const file=new File([blob],`두당_${KLABEL}_전체.dudang.json`,{type:"application/json"}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:"두당 조사표",text:`${KLABEL} 조사표 전체(암호화)`}); mMsg("공유했습니다."); } else if(navigator.share){ await navigator.share({title:"두당 조사표",text:JSON.stringify(pkg)}); mMsg("공유했습니다."); } else { await navigator.clipboard.writeText(JSON.stringify(pkg)); mMsg("암호화 데이터를 클립보드에 복사했습니다."); } }catch(e){ mMsg("공유 취소/실패.",false); } }
 $("mExport").addEventListener("click",mExport);
 $("mImport").addEventListener("click",()=>$("mFile").click());
 $("mFile").addEventListener("change",e=>{ if(e.target.files&&e.target.files[0]) mImportFile(e.target.files[0]); e.target.value=""; });
 $("mShare").addEventListener("click",mShare);
+$("mImportApply").addEventListener("click",mImportApply);
 
 (function init(){
   $("month").innerHTML=Array.from({length:12},(_,i)=>`<option value='${i+1}'>${i+1}월</option>`).join("");
