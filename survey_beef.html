@@ -1,4 +1,4 @@
-<!-- survey_beef.html · 저장: 2026-09-19 KST · 육우 월별 조사표(간이) · 3구분(이유후~12/13~24/25↑), 월중현황 없음, 사료 항목별 +/- · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 330/630·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) -->
+<!-- survey_beef.html · 저장: 2026-09-19 KST · 육우 월별 조사표(간이) · 3구분(이유후~12/13~24/25↑), 월중현황 없음, 사료 항목별 +/- · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 330/630·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) · v(0919d): 구입·판매 단일 통합원장(연결성), 일자=일만, 카드재배치(번식우 ③원장/④사료비, 육우 ②원장/③사료비), 육우 사료기본 사육구분별 -->
 <!-- 두당 조사표 · 육우 · 월초·증감·월말 자동, 사료 월투입량(먹는량×마리수×월일수)+단가 이월·항목추가, 성우환산두수 선택, 숫자키패드·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계)·농가삭제 -->
 <!doctype html>
 <html lang="ko">
@@ -52,9 +52,10 @@
   .btn{padding:9px 14px;border:0;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;}
   .btn.save{background:var(--up);color:#fff;} .btn.reset{background:#edf2f7;color:var(--navy);} .btn.del{background:#fdeaea;color:#c0392b;} .btn.manage{background:#e6f0fb;color:#1d6fe0;}
   .cntrow td{background:#f7fafd;} .subt td{background:#fbfcfe;}
-  #buyTbl select,#sellTbl select{font-size:11.5px;padding:2px 3px;border:1px solid #dbe2ea;border-radius:5px;max-width:96px;}
-  #sellTbl select[data-f="gubun"]{max-width:150px;}
-  #buyTbl td,#sellTbl td{padding:3px 4px;} #secCard .mst{color:var(--navy);}
+  #ledgerTbl td,#ledgerTbl th{padding:3px 4px;}
+  #ledgerTbl select{font-size:11.5px;padding:2px 3px;border:1px solid #dbe2ea;border-radius:5px;max-width:150px;}
+  #ledgerTbl td input{width:46px;}
+  #ledgerTbl .bcol{background:#f4fbf6;} #ledgerTbl .scol{background:#fdf6f4;} #secCard .mst{color:var(--navy);}
   [hidden]{display:none!important;}
   .modal-back{position:fixed;inset:0;background:rgba(20,30,45,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
   .modal{background:#fff;border-radius:14px;max-width:480px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.3);}
@@ -111,9 +112,28 @@
     <div class="hint"><span class="star">*</span> 이유후~12개월 <b>편입+</b>는 이유(젖뗌)·전환 등에 따른 유입을 뜻합니다. 실제 <b>구입</b>은 구입 칸에 입력하세요.</div>
   </div>
 
-  <!-- 사료 -->
+  <!-- ② 대·소동물 구입 및 판매 (보안 섹션) -->
+  <div class="card" id="secCard">
+    <div class="lb"><span class="num">2</span>대·소동물 구입 및 판매
+      <button class="btn manage" id="secLockBtn" style="float:right;padding:4px 10px;font-size:12px">🔒 잠그기</button>
+    </div>
+    <div id="secLockView" hidden>
+      <div class="pwrow"><input id="secPw" type="password" placeholder="비밀번호" style="width:150px"><button class="btn save" id="secUnlockBtn">열기</button></div>
+      <div class="sub" style="margin-top:6px">🔒 보안 섹션입니다. 비밀번호를 입력하세요. (개발단계 기본 비밀번호: 2026)</div>
+    </div>
+    <div id="secBody">
+      <div class="mst" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">구입 및 편입 ↔ 판매 통합내역 <span class="sub">구입부호 330 · 판매부호 630</span>
+        <button class="btn manage" id="genLedger" style="padding:4px 10px;font-size:12px">🔄 마리수에서 자동생성</button>
+        <button class="btn reset" id="addLedger" style="padding:4px 10px;font-size:12px">＋ 행 추가</button>
+      </div>
+      <div class="hint">한 행에 <b>구입/편입</b>과 <b>판매</b>를 함께 기록합니다(판매 시 구입 당시 수량·체중·축령·금액도 입력 → 연결). 수량·부호·구분은 자동, 나머지는 입력. (추후 소이력 조회로 자동 채움 예정)</div>
+      <div class="tbl-scroll"><table id="ledgerTbl"></table></div>
+    </div>
+  </div>
+
+  <!-- ③ 사료비 투입내역 -->
   <div class="card">
-    <div class="lb"><span class="num">2</span>사료 급여 (먹는량 × 마리수 × 월일수)</div>
+    <div class="lb"><span class="num">3</span>사료비 투입내역 (먹는량 × 마리수 × 월일수)</div>
     <div class="radio-row" style="margin-bottom:10px">
       <span class="sub">사료 입력 방식:</span>
       <label><input type="radio" name="basis" value="adult" checked> 성우환산두수 기준 <b id="adultCnt">0</b>두</label>
@@ -125,29 +145,6 @@
     <div class="note">※ 성우환산 계수 기본값은 예시입니다. 소속기관 기준(성축환산율)에 맞게 수정해 사용하세요.</div>
   </div>
 
-  <!-- ② 대·소동물 구입 및 판매 (보안 섹션) -->
-  <div class="card" id="secCard">
-    <div class="lb"><span class="num">2</span>대·소동물 구입 및 판매
-      <button class="btn manage" id="secLockBtn" style="float:right;padding:4px 10px;font-size:12px">🔒 잠그기</button>
-    </div>
-    <div id="secLockView" hidden>
-      <div class="pwrow"><input id="secPw" type="password" placeholder="비밀번호" style="width:150px"><button class="btn save" id="secUnlockBtn">열기</button></div>
-      <div class="sub" style="margin-top:6px">🔒 보안 섹션입니다. 비밀번호를 입력하세요. (개발단계 기본 비밀번호: 2026)</div>
-    </div>
-    <div id="secBody">
-      <div class="hint">①의 마리수 <b>증감</b>에서 <b>🔄 자동생성</b>하거나, <b>＋행 추가</b>로 직접 입력하세요. 수량·부호·구분은 자동, 나머지(일자·체중·금액 등)는 입력합니다.</div>
-      <div class="mst" style="margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">구입 및 편입 내역 <span class="sub">부호 330 · 구입11/편입31</span>
-        <button class="btn manage" id="genBuy" style="padding:4px 10px;font-size:12px">🔄 마리수에서 자동생성</button>
-        <button class="btn reset" id="addBuy" style="padding:4px 10px;font-size:12px">＋ 행 추가</button>
-      </div>
-      <div class="tbl-scroll"><table id="buyTbl"></table></div>
-      <div class="mst" style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">판매 내역 <span class="sub">부호 630 · 거세/미거세·비육완료/비육중도태(11/12/21/22)·편입31</span>
-        <button class="btn manage" id="genSell" style="padding:4px 10px;font-size:12px">🔄 마리수에서 자동생성</button>
-        <button class="btn reset" id="addSell" style="padding:4px 10px;font-size:12px">＋ 행 추가</button>
-      </div>
-      <div class="tbl-scroll"><table id="sellTbl"></table></div>
-    </div>
-  </div>
 </main>
 
 <div id="modal" class="modal-back" hidden>
@@ -205,53 +202,59 @@ const SELL_SRC=[["sell","11"],["cull","12"],["out","31"]];
 function newRid(){ return "r"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function catOptions(sel){ return CATS.map(c=>`<option value='${c.id}'${c.id===sel?' selected':''}>${c.label}</option>`).join(""); }
 function gubunOptions(list,sel){ return list.map(([v,l])=>`<option value='${v}'${v===sel?' selected':''}>${l}(${v})</option>`).join(""); }
-function buildBuy(){
-  const rows=M.buyRows||[];
-  let h="<tr><th>번호</th><th>일자</th><th>품명</th><th>부호</th><th>구분</th><th>수량</th><th>체중</th><th>축령</th><th>금액(A)</th><th>구입시<br>비용(B)</th><th>실구입/평가<br><span class='sub'>(A+B)</span></th><th>삭제</th></tr>";
+function lnum(id,f,v){ return `<input type='number' inputmode='numeric' min='0' data-lrow='${id}' data-f='${f}' value='${v||0}'>`; }
+function buildLedger(){
+  const rows=M.ledgerRows||[];
+  let h="<tr><th rowspan='2'>번호</th><th rowspan='2'>일자</th><th rowspan='2'>품명</th>"+
+    "<th colspan='8' style='background:#eaf7ee;color:#1c6b3a'>구입 및 편입 (부호 330)</th>"+
+    "<th colspan='11' style='background:#fdeeee;color:#a12b2b'>판매 (부호 630)</th>"+
+    "<th rowspan='2'>삭제</th></tr>";
+  h+="<tr><th>부호</th><th>구분</th><th>수량</th><th>체중</th><th>축령</th><th>금액(A)</th><th>구입시<br>비용(B)</th><th>실구입<br>(A+B)</th>"+
+     "<th>부호</th><th>구분</th><th>수량</th><th>체중</th><th>축령</th><th>금액(A)</th><th>판매시<br>비용(B)</th><th>실판매<br>(A−B)</th><th>구입당시<br>일자</th><th>두당평균<br>사육일수</th><th>일당<br>증체(g)</th></tr>";
   h+=rows.map((r,i)=>`<tr>
     <td>${i+1}</td>
-    <td><input type='text' inputmode='numeric' data-brow='${r.id}' data-f='date' value='${r.date||""}' placeholder='월.일' style='width:52px'></td>
-    <td><select data-brow='${r.id}' data-f='cat'>${catOptions(r.cat)}</select></td>
-    <td class='auto'><span id='bcode_${r.id}'>${(CAT_CODE[r.cat]||{}).b||""}</span></td>
-    <td><select data-brow='${r.id}' data-f='gubun'>${gubunOptions(BUY_GUBUN,r.gubun)}</select></td>
-    <td><input type='number' inputmode='numeric' min='0' data-brow='${r.id}' data-f='qty' value='${r.qty||0}'></td>
-    <td><input type='number' inputmode='decimal' min='0' data-brow='${r.id}' data-f='wt' value='${r.wt||0}'></td>
-    <td><input type='number' inputmode='numeric' min='0' data-brow='${r.id}' data-f='age' value='${r.age||0}'></td>
-    <td><input type='number' inputmode='numeric' min='0' data-brow='${r.id}' data-f='A' value='${r.A||0}'></td>
-    <td><input type='number' inputmode='numeric' min='0' data-brow='${r.id}' data-f='B' value='${r.B||0}'></td>
+    <td><input type='number' inputmode='numeric' min='1' max='31' data-lrow='${r.id}' data-f='date' value='${r.date||""}' placeholder='일' style='width:40px'></td>
+    <td><select data-lrow='${r.id}' data-f='cat'>${catOptions(r.cat)}</select></td>
+    <td class='auto bcol'><span id='bcode_${r.id}'>${(CAT_CODE[r.cat]||{}).b||""}</span></td>
+    <td class='bcol'><select data-lrow='${r.id}' data-f='bGubun'>${gubunOptions(BUY_GUBUN,r.bGubun)}</select></td>
+    <td class='bcol'>${lnum(r.id,'bQty',r.bQty)}</td>
+    <td class='bcol'><input type='number' inputmode='decimal' min='0' data-lrow='${r.id}' data-f='bWt' value='${r.bWt||0}'></td>
+    <td class='bcol'>${lnum(r.id,'bAge',r.bAge)}</td>
+    <td class='bcol'>${lnum(r.id,'bA',r.bA)}</td>
+    <td class='bcol'>${lnum(r.id,'bB',r.bB)}</td>
     <td class='end'><span id='bab_${r.id}'>0</span></td>
-    <td class='act'><button type='button' class='mini del' data-delbuy='${r.id}'>－</button></td></tr>`).join("");
-  if(!rows.length) h+="<tr><td colspan='12' class='sub' style='text-align:center;padding:10px'>내역 없음 — 자동생성 또는 ＋행 추가</td></tr>";
-  $("buyTbl").innerHTML=h;
-}
-function buildSell(){
-  const rows=M.sellRows||[];
-  let h="<tr><th>번호</th><th>일자</th><th>품명</th><th>부호</th><th>구분</th><th>수량</th><th>체중</th><th>축령</th><th>금액(A)</th><th>판매시<br>비용(B)</th><th>실판매<br><span class='sub'>(A−B)</span></th><th>구입당시<br>일자</th><th>두당평균<br>사육일수</th><th>두당평균<br>일당증체(g)</th><th>삭제</th></tr>";
-  h+=rows.map((r,i)=>`<tr>
-    <td>${i+1}</td>
-    <td><input type='text' inputmode='numeric' data-srow='${r.id}' data-f='date' value='${r.date||""}' placeholder='월.일' style='width:52px'></td>
-    <td><select data-srow='${r.id}' data-f='cat'>${catOptions(r.cat)}</select></td>
-    <td class='auto'><span id='scode_${r.id}'>${(CAT_CODE[r.cat]||{}).s||""}</span></td>
-    <td><select data-srow='${r.id}' data-f='gubun'>${gubunOptions(SELL_GUBUN,r.gubun)}</select></td>
-    <td><input type='number' inputmode='numeric' min='0' data-srow='${r.id}' data-f='qty' value='${r.qty||0}'></td>
-    <td><input type='number' inputmode='decimal' min='0' data-srow='${r.id}' data-f='wt' value='${r.wt||0}'></td>
-    <td><input type='number' inputmode='numeric' min='0' data-srow='${r.id}' data-f='age' value='${r.age||0}'></td>
-    <td><input type='number' inputmode='numeric' min='0' data-srow='${r.id}' data-f='A' value='${r.A||0}'></td>
-    <td><input type='number' inputmode='numeric' min='0' data-srow='${r.id}' data-f='B' value='${r.B||0}'></td>
+    <td class='auto scol'><span id='scode_${r.id}'>${(CAT_CODE[r.cat]||{}).s||""}</span></td>
+    <td class='scol'><select data-lrow='${r.id}' data-f='sGubun'>${gubunOptions(SELL_GUBUN,r.sGubun)}</select></td>
+    <td class='scol'>${lnum(r.id,'sQty',r.sQty)}</td>
+    <td class='scol'><input type='number' inputmode='decimal' min='0' data-lrow='${r.id}' data-f='sWt' value='${r.sWt||0}'></td>
+    <td class='scol'>${lnum(r.id,'sAge',r.sAge)}</td>
+    <td class='scol'>${lnum(r.id,'sA',r.sA)}</td>
+    <td class='scol'>${lnum(r.id,'sB',r.sB)}</td>
     <td class='end'><span id='sab_${r.id}'>0</span></td>
-    <td><input type='text' inputmode='numeric' data-srow='${r.id}' data-f='buyDate' value='${r.buyDate||""}' placeholder='YYMMDD' style='width:62px'></td>
-    <td><input type='number' inputmode='numeric' min='0' data-srow='${r.id}' data-f='days' value='${r.days||0}'></td>
-    <td><input type='number' inputmode='numeric' min='0' data-srow='${r.id}' data-f='gain' value='${r.gain||0}'></td>
-    <td class='act'><button type='button' class='mini del' data-delsell='${r.id}'>－</button></td></tr>`).join("");
-  if(!rows.length) h+="<tr><td colspan='15' class='sub' style='text-align:center;padding:10px'>내역 없음 — 자동생성 또는 ＋행 추가</td></tr>";
-  $("sellTbl").innerHTML=h;
+    <td class='scol'><input type='number' inputmode='numeric' min='0' data-lrow='${r.id}' data-f='buyDate' value='${r.buyDate||""}' placeholder='YYMMDD' style='width:60px'></td>
+    <td class='scol'>${lnum(r.id,'days',r.days)}</td>
+    <td class='scol'>${lnum(r.id,'gain',r.gain)}</td>
+    <td class='act'><button type='button' class='mini del' data-dellrow='${r.id}'>－</button></td></tr>`).join("");
+  if(!rows.length) h+="<tr><td colspan='23' class='sub' style='text-align:center;padding:10px'>내역 없음 — 🔄 자동생성 또는 ＋행 추가</td></tr>";
+  $("ledgerTbl").innerHTML=h;
 }
 function recalcLedger(){
-  (M.buyRows||[]).forEach(r=>{ const el=$("bab_"+r.id); if(el) el.textContent=nf(Math.round((+r.A||0)+(+r.B||0))); const c=$("bcode_"+r.id); if(c)c.textContent=(CAT_CODE[r.cat]||{}).b||""; });
-  (M.sellRows||[]).forEach(r=>{ const el=$("sab_"+r.id); if(el) el.textContent=nf(Math.round((+r.A||0)-(+r.B||0))); const c=$("scode_"+r.id); if(c)c.textContent=(CAT_CODE[r.cat]||{}).s||""; });
+  (M.ledgerRows||[]).forEach(r=>{
+    const ab=$("bab_"+r.id); if(ab) ab.textContent=nf(Math.round((+r.bA||0)+(+r.bB||0)));
+    const sm=$("sab_"+r.id); if(sm) sm.textContent=nf(Math.round((+r.sA||0)-(+r.sB||0)));
+    const bc=$("bcode_"+r.id); if(bc) bc.textContent=(CAT_CODE[r.cat]||{}).b||"";
+    const sc=$("scode_"+r.id); if(sc) sc.textContent=(CAT_CODE[r.cat]||{}).s||"";
+  });
 }
-function genBuyFromInv(){ if(!M.buyRows)M.buyRows=[]; let n=0; CATS.forEach(c=>{ BUY_SRC.forEach(([col,gub])=>{ const q=+(M.inv[c.id][col]||0); if(q>0 && !M.buyRows.some(r=>r.cat===c.id&&r.gubun===gub)){ M.buyRows.push({id:newRid(),cat:c.id,gubun:gub,qty:q,date:"",wt:0,age:0,A:0,B:0}); n++; } }); }); buildBuy(); recalcLedger(); autosave(); }
-function genSellFromInv(){ if(!M.sellRows)M.sellRows=[]; let n=0; CATS.forEach(c=>{ SELL_SRC.forEach(([col,gub])=>{ const q=+(M.inv[c.id][col]||0); if(q>0 && !M.sellRows.some(r=>r.cat===c.id&&r.gubun===gub)){ M.sellRows.push({id:newRid(),cat:c.id,gubun:gub,qty:q,date:"",wt:0,age:0,A:0,B:0,buyDate:"",days:0,gain:0}); n++; } }); }); buildSell(); recalcLedger(); autosave(); }
+function blankLedger(cat){ return {id:newRid(),cat:cat||CATS[0].id,date:"",bGubun:"11",bQty:0,bWt:0,bAge:0,bA:0,bB:0,sGubun:SELL_GUBUN[0][0],sQty:0,sWt:0,sAge:0,sA:0,sB:0,buyDate:"",days:0,gain:0}; }
+function genLedgerFromInv(){
+  if(!M.ledgerRows)M.ledgerRows=[];
+  CATS.forEach(c=>{
+    BUY_SRC.forEach(([col,gub])=>{ const q=+(M.inv[c.id][col]||0); if(q>0 && !M.ledgerRows.some(r=>r.cat===c.id&&r.bGubun===gub&&(+r.bQty)>0)){ const row=blankLedger(c.id); row.bGubun=gub; row.bQty=q; M.ledgerRows.push(row); } });
+    SELL_SRC.forEach(([col,gub])=>{ const q=+(M.inv[c.id][col]||0); if(q>0 && !M.ledgerRows.some(r=>r.cat===c.id&&r.sGubun===gub&&(+r.sQty)>0)){ const row=blankLedger(c.id); row.sGubun=gub; row.sQty=q; M.ledgerRows.push(row); } });
+  });
+  buildLedger(); recalcLedger(); autosave();
+}
 let secUnlocked=true; const SEC_PW="2026";
 function applySec(){ $("secBody").hidden=!secUnlocked; $("secLockView").hidden=secUnlocked; $("secLockBtn").hidden=!secUnlocked; }
 const INC=[["birth","분만"],["buy","구입"],["in","편입+"]];
@@ -274,7 +277,7 @@ function encStr(s){ try{ let o=""; for(let i=0;i<s.length;i++) o+=String.fromCha
 function decStr(s){ if(typeof s!=="string"||s.slice(0,5)!=="ENC1:") return s; try{ const raw=decodeURIComponent(escape(atob(s.slice(5)))); let o=""; for(let i=0;i<raw.length;i++) o+=String.fromCharCode(raw.charCodeAt(i)^CKEY.charCodeAt(i%CKEY.length)); return o; }catch(e){ return "{}"; } }
 function loadFarm(f){ try{ const raw=localStorage.getItem(storeKey(f)); if(!raw) return {}; return JSON.parse(decStr(raw)); }catch(e){ return {}; } }
 function saveFarm(f,obj){ try{ localStorage.setItem(storeKey(f),encStr(JSON.stringify(obj))); }catch(e){} }
-function mkMonth(){ const m={inv:{},feedBasis:"adult",coef:Object.assign({},DEF_COEF),feedItems:defaultFeedItems(),buyRows:[],sellRows:[]};
+function mkMonth(){ const m={inv:{},feedBasis:"cat",coef:Object.assign({},DEF_COEF),feedItems:defaultFeedItems(),ledgerRows:[]};
   CATS.forEach(c=>m.inv[c.id]={begin:0,birth:0,buy:0,in:0,out:0,sell:0,cull:0,dead:0});
   return m; }
 function daysIn(y,mo){ return new Date(y,mo,0).getDate(); }
@@ -306,9 +309,10 @@ function loadMonth(){
   }
   if(!M.coef) M.coef=Object.assign({},DEF_COEF);
   $("days").value=daysIn(year,month);
-  if(!M.buyRows)M.buyRows=[]; if(!M.sellRows)M.sellRows=[];
+  if(!M.ledgerRows)M.ledgerRows=[];
+  if((M.buyRows||M.sellRows)){ (M.buyRows||[]).forEach(r=>{const x=blankLedger(r.cat);x.date=r.date||'';x.bGubun=r.gubun||'11';x.bQty=r.qty||0;x.bWt=r.wt||0;x.bAge=r.age||0;x.bA=r.A||0;x.bB=r.B||0;M.ledgerRows.push(x);}); (M.sellRows||[]).forEach(r=>{const x=blankLedger(r.cat);x.date=r.date||'';x.sGubun=r.gubun||'11';x.sQty=r.qty||0;x.sWt=r.wt||0;x.sAge=r.age||0;x.sA=r.A||0;x.sB=r.B||0;x.buyDate=r.buyDate||'';x.days=r.days||0;x.gain=r.gain||0;M.ledgerRows.push(x);}); delete M.buyRows; delete M.sellRows; }
   buildInv(); buildFeed(); buildCoef(); syncBasisUI(); recalc();
-  buildBuy(); buildSell(); recalcLedger();
+  buildLedger(); recalcLedger();
 }
 
 function invDataCells(cid){
@@ -434,22 +438,19 @@ document.addEventListener("input",e=>{
   if(el.dataset.cat){ M.inv[el.dataset.cat][el.dataset.f]=parseFloat(el.value)||0; recalc(); autosave(); }
   else if(el.dataset.fid){ const it=M.feedItems.find(x=>x.id===el.dataset.fid); if(it){ if(el.dataset.g){ if(!it.g)it.g=gzero(); it.g[el.dataset.g]=parseFloat(el.value)||0; } else { it[el.dataset.f]=parseFloat(el.value)||0; } recalc(); autosave(); } }
   else if(el.dataset.coef){ if(!M.coef)M.coef={}; M.coef[el.dataset.coef]=parseFloat(el.value)||0; recalc(); autosave(); }
-  else if(el.dataset.brow){ ledgerSet("buyRows",el); }
-  else if(el.dataset.srow){ ledgerSet("sellRows",el); }
+  else if(el.dataset.lrow){ ledgerSet(el); }
 });
-function ledgerSet(which, el){
-  const id=el.dataset.brow||el.dataset.srow; const r=(M[which]||[]).find(x=>x.id===id); if(!r) return;
-  const f=el.dataset.f; const numFields=["qty","wt","age","A","B","days","gain"];
-  r[f]= numFields.indexOf(f)>=0 ? (parseFloat(el.value)||0) : el.value;
-  if(f==="cat"){ which==="buyRows"?buildBuy():buildSell(); }
+function ledgerSet(el){
+  const r=(M.ledgerRows||[]).find(x=>x.id===el.dataset.lrow); if(!r) return;
+  const f=el.dataset.f; const numF=["bQty","bWt","bAge","bA","bB","sQty","sWt","sAge","sA","sB","days","gain"];
+  r[f]= numF.indexOf(f)>=0 ? (parseFloat(el.value)||0) : el.value;
+  if(f==="cat") buildLedger();
   recalcLedger(); autosave();
 }
-document.addEventListener("change",e=>{ if(e.target.name==="basis"){ M.feedBasis=e.target.value; buildFeed(); recalc(); autosave(); } else if(e.target.dataset.brow){ ledgerSet("buyRows",e.target); } else if(e.target.dataset.srow){ ledgerSet("sellRows",e.target); } });
-document.addEventListener("click",e=>{ const a=e.target.closest("[data-add]"), d=e.target.closest("[data-del]"); const db=e.target.closest("[data-delbuy]"), ds=e.target.closest("[data-delsell]"); if(a){ addFeedItem(a.dataset.add); } else if(d){ delFeedItem(d.dataset.del); } else if(db){ M.buyRows=(M.buyRows||[]).filter(r=>r.id!==db.dataset.delbuy); buildBuy(); recalcLedger(); autosave(); } else if(ds){ M.sellRows=(M.sellRows||[]).filter(r=>r.id!==ds.dataset.delsell); buildSell(); recalcLedger(); autosave(); } });
-$("genBuy").addEventListener("click",genBuyFromInv);
-$("genSell").addEventListener("click",genSellFromInv);
-$("addBuy").addEventListener("click",()=>{ if(!M.buyRows)M.buyRows=[]; M.buyRows.push({id:newRid(),cat:CATS[0].id,gubun:"11",qty:0,date:"",wt:0,age:0,A:0,B:0}); buildBuy(); recalcLedger(); autosave(); });
-$("addSell").addEventListener("click",()=>{ if(!M.sellRows)M.sellRows=[]; M.sellRows.push({id:newRid(),cat:CATS[0].id,gubun:"11",qty:0,date:"",wt:0,age:0,A:0,B:0,buyDate:"",days:0,gain:0}); buildSell(); recalcLedger(); autosave(); });
+document.addEventListener("change",e=>{ if(e.target.name==="basis"){ M.feedBasis=e.target.value; buildFeed(); recalc(); autosave(); } else if(e.target.dataset.lrow){ ledgerSet(e.target); } });
+document.addEventListener("click",e=>{ const a=e.target.closest("[data-add]"), d=e.target.closest("[data-del]"); const db=e.target.closest("[data-dellrow]"); if(a){ addFeedItem(a.dataset.add); } else if(d){ delFeedItem(d.dataset.del); } else if(db){ M.ledgerRows=(M.ledgerRows||[]).filter(r=>r.id!==db.dataset.dellrow); buildLedger(); recalcLedger(); autosave(); } });
+$("genLedger").addEventListener("click",genLedgerFromInv);
+$("addLedger").addEventListener("click",()=>{ if(!M.ledgerRows)M.ledgerRows=[]; M.ledgerRows.push(blankLedger()); buildLedger(); recalcLedger(); autosave(); });
 $("secLockBtn").addEventListener("click",()=>{ secUnlocked=false; applySec(); });
 $("secUnlockBtn").addEventListener("click",()=>{ if($("secPw").value===SEC_PW){ secUnlocked=true; $("secPw").value=""; applySec(); } else { alert("비밀번호가 틀립니다."); } });
 $("farm").addEventListener("change",loadMonth);
