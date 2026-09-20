@@ -1,4 +1,4 @@
-<!-- survey_beef.html · 저장: 2026-09-19 KST · 육우 월별 조사표(간이) · 3구분(이유후~12/13~24/25↑), 월중현황 없음, 사료 항목별 +/- · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 330/630·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) · v(0919d): 구입·판매 단일 통합원장(연결성), 일자=일만, 카드재배치(번식우 ③원장/④사료비, 육우 ②원장/③사료비), 육우 사료기본 사육구분별 -->
+<!-- survey_beef.html · 저장: 2026-09-19 KST · 육우 월별 조사표(간이) · 3구분(이유후~12/13~24/25↑), 월중현황 없음, 사료 항목별 +/- · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 330/630·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) · v(0919d): 구입·판매 단일 통합원장(연결성), 일자=일만, 카드재배치(번식우 ③원장/④사료비, 육우 ②원장/③사료비), 육우 사료기본 사육구분별, embed 모드(축비 조사표 임베드용) · v(0921): 상단정렬(연도·월크게·일수·불러오기·농가)·백업공유, 기본=전월, 편입 자동연쇄, 사료 양방향(월투입↔먹는량·월금액↔단가), embed 헤더숨김, 백업·공유=전축종 통합(농가선택·기본전체) -->
 <!-- 두당 조사표 · 육우 · 월초·증감·월말 자동, 사료 월투입량(먹는량×마리수×월일수)+단가 이월·항목추가, 성우환산두수 선택, 숫자키패드·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계)·농가삭제 -->
 <!doctype html>
 <html lang="ko">
@@ -36,6 +36,7 @@
   td input{width:52px;padding:4px 3px;font-size:12px;text-align:right;border:1px solid #dbe2ea;border-radius:6px;}
   .star{color:#c05621;font-weight:800;font-size:11px;margin-left:1px;}
   input.filled{color:#1d6fe0;font-weight:700;}
+  td.auto input.calcin{background:#eef5ee;font-weight:700;color:#1c6b3a;border-color:#cfe3d2;width:56px;}
   td.act{white-space:nowrap;}
   .mini{width:24px;height:24px;border:0;border-radius:6px;font-size:16px;font-weight:800;cursor:pointer;margin:0 1px;line-height:1;padding:0;}
   .mini.add{background:#e6f0fb;color:#1d6fe0;} .mini.del{background:#fdeaea;color:#c0392b;}
@@ -57,6 +58,7 @@
   #ledgerTbl td input{width:46px;}
   #ledgerTbl .bcol{background:#f4fbf6;} #ledgerTbl .scol{background:#fdf6f4;} #secCard .mst{color:var(--navy);}
   [hidden]{display:none!important;}
+  body.embed header{display:none!important;} body.embed main{padding-top:6px;}
   .modal-back{position:fixed;inset:0;background:rgba(20,30,45,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
   .modal{background:#fff;border-radius:14px;max-width:480px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.3);}
   .modal-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);font-size:16px;font-weight:800;color:var(--navy);position:sticky;top:0;background:#fff;}
@@ -85,19 +87,19 @@
 <main>
   <div class="card">
     <div class="top">
-      <div class="fld"><label>농가</label><input id="farm" list="farmList" placeholder="농가명 입력/선택" style="width:140px"><datalist id="farmList"></datalist></div>
+      <div class="fld"><label>연도</label><input id="year" type="number" inputmode="numeric" value="2026" style="width:82px"></div>
+      <div class="fld"><label>월</label><select id="month" style="width:112px;font-size:15px;font-weight:700"></select></div>
+      <div class="fld"><label>해당월 일수</label><input id="days" type="number" readonly style="width:70px;background:#f1f5fb"></div>
       <div class="fld"><label>저장된 농가 불러오기</label>
         <span style="display:flex;gap:6px">
           <select id="farmSel" style="min-width:120px"><option value="">— 선택 —</option></select>
           <button class="btn reset" id="btnLoad" style="padding:8px 12px">불러오기</button>
         </span>
       </div>
-      <div class="fld"><label>연도</label><input id="year" type="number" inputmode="numeric" value="2026" style="width:82px"></div>
-      <div class="fld"><label>월</label><select id="month" style="width:82px"></select></div>
-      <div class="fld"><label>해당월 일수</label><input id="days" type="number" readonly style="width:70px;background:#f1f5fb"></div>
+      <div class="fld"><label>농가</label><input id="farm" list="farmList" placeholder="농가명 입력/선택" style="width:140px"><datalist id="farmList"></datalist></div>
       <div class="btnrow" style="margin-left:auto">
         <button class="btn save" id="btnSave">💾 저장</button>
-        <button class="btn manage" id="btnManage">📁 저장·공유</button>
+        <button class="btn manage" id="btnManage">📁 백업·공유</button>
         <button class="btn reset" id="btnClear">이 달 초기화</button>
         <button class="btn del" id="btnDelFarm">🗑 농가 삭제</button>
       </div>
@@ -149,7 +151,7 @@
 
 <div id="modal" class="modal-back" hidden>
   <div class="modal">
-    <div class="modal-h"><span>📁 저장 · 공유 · 백업</span><button class="mx" id="mClose">닫기 ✕</button></div>
+    <div class="modal-h"><span>📁 백업 · 공유</span><button class="mx" id="mClose">닫기 ✕</button></div>
     <div class="modal-b">
       <div class="msec">
         <div class="mst">🔐 비밀번호 (내보내기·가져오기 암호화)</div>
@@ -157,6 +159,8 @@
       </div>
       <div class="msec">
         <div class="mst">📤 내보내기 / 가져오기 / 공유</div>
+        <div class="sub" style="margin-bottom:6px">내보낼·공유할 농가 선택 (전 축종 · 기본 전체선택)</div>
+        <div class="mlist" id="mExportList" style="margin-bottom:8px"></div>
         <div class="mbtns">
           <button class="btn save" id="mExport">📤 전체 내보내기(암호화)</button>
           <button class="btn manage" id="mImport">📥 가져오기</button>
@@ -266,6 +270,12 @@ const DEF_COEF={u12:0.5,m24:0.8,o25:1.0};
 const $=id=>document.getElementById(id);
 const nf=v=>(v||v===0)?Number(v).toLocaleString():"";
 const round1=v=>Math.round(v*10)/10;
+function setInvVal(cid,f,v){ const inp=document.querySelector(`input[data-cat='${cid}'][data-f='${f}']`); if(inp) inp.value=v; }
+const EDGE_NEXT={u12:"m24",m24:"o25"};  // 편입감소 → 다음 월령 편입증가
+function applyEdge(cid){ const out=+(M.inv[cid].out||0); if(EDGE_NEXT[cid]){ M.inv[EDGE_NEXT[cid]].in=out; setInvVal(EDGE_NEXT[cid],"in",out); } }
+function adultCount(){ let a=0; CATS.forEach(c=>{ const cf=(M.coef&&M.coef[c.id]!=null)?M.coef[c.id]:DEF_COEF[c.id]; a+=endOf(M,c.id)*cf; }); return round1(a); }
+function feedGC(){ const o={}; CATS.forEach(c=>o[c.id]=endOf(M,c.id)); return o; }
+function itemKg(it){ const days=daysIn(year,month); if(M.feedBasis==="cat"){ const gc=feedGC(); let pd=0; FEEDGRP.forEach(([k])=>pd+=((it.g||{})[k]||0)*(gc[k]||0)); return pd*days; } return (it.amt||0)*adultCount()*days; }
 function colorInput(el){ if(!el||el.tagName!=='INPUT')return; const v=el.value; el.classList.toggle('filled', v!==''&&parseFloat(v)!==0); }
 function colorAll(){ document.querySelectorAll('#invTbl input,#feedTbl input,#coefTbl input,#herdTbl input').forEach(colorInput); }
 
@@ -341,9 +351,9 @@ function feedItemRow(it,i,total,cat){
   let r=`<tr><td class='rc'>${label}</td>`;
   if(cat){ FEEDGRP.forEach(([k])=>r+=`<td><input type='number' inputmode='decimal' min='0' step='0.1' data-fid='${it.id}' data-g='${k}' value='${it.g[k]||0}'></td>`); }
   else { r+=`<td><input type='number' inputmode='decimal' min='0' step='0.1' data-fid='${it.id}' data-f='amt' value='${it.amt||0}'></td>`; }
-  r+=`<td class='auto'><span id='fi_${it.id}'>0</span></td>`;
+  r+=`<td class='auto'><input type='number' inputmode='numeric' min='0' id='fi_${it.id}' data-fid='${it.id}' data-f='kgIn' value='0' class='calcin'></td>`;
   r+=`<td><input type='number' inputmode='numeric' min='0' data-fid='${it.id}' data-f='price' value='${it.price||0}'></td>`;
-  r+=`<td class='auto'><span id='fc_${it.id}'>0</span></td>`;
+  r+=`<td class='auto'><input type='number' inputmode='numeric' min='0' id='fc_${it.id}' data-fid='${it.id}' data-f='wonIn' value='0' class='calcin'></td>`;
   r+=`<td class='act'>`+(i===0?`<button type='button' class='mini add' data-add='${it.id}' title='같은 사료 줄 추가'>＋</button>`:`<button type='button' class='mini del' data-del='${it.id}' title='이 줄 삭제'>－</button>`)+`</td></tr>`;
   return r;
 }
@@ -410,7 +420,8 @@ function recalc(){
     else { kg=(it.amt||0)*adult*days; }
     const won=kg*(it.price||0);
     const ei=$("fi_"+it.id), ec=$("fc_"+it.id);
-    if(ei) ei.textContent=nf(Math.round(kg)); if(ec) ec.textContent=nf(Math.round(won));
+    if(ei && document.activeElement!==ei) ei.value=Math.round(kg);
+    if(ec && document.activeElement!==ec) ec.value=Math.round(won);
     tkg+=kg; twon+=won; grpKg[it.grp]+=kg; grpWon[it.grp]+=won;
     const tk=it.grp+"_"+it.type; typeKg[tk]=(typeKg[tk]||0)+kg; typeWon[tk]=(typeWon[tk]||0)+won;
   });
@@ -435,8 +446,13 @@ document.addEventListener("keydown",e=>{
 });
 document.addEventListener("input",e=>{
   const el=e.target;
-  if(el.dataset.cat){ M.inv[el.dataset.cat][el.dataset.f]=parseFloat(el.value)||0; recalc(); autosave(); }
-  else if(el.dataset.fid){ const it=M.feedItems.find(x=>x.id===el.dataset.fid); if(it){ if(el.dataset.g){ if(!it.g)it.g=gzero(); it.g[el.dataset.g]=parseFloat(el.value)||0; } else { it[el.dataset.f]=parseFloat(el.value)||0; } recalc(); autosave(); } }
+  if(el.dataset.cat){ const cid=el.dataset.cat, f=el.dataset.f; M.inv[cid][f]=parseFloat(el.value)||0; if(f==="out") applyEdge(cid); recalc(); autosave(); }
+  else if(el.dataset.fid){ const it=M.feedItems.find(x=>x.id===el.dataset.fid); if(it){ const f=el.dataset.f;
+      if(el.dataset.g){ if(!it.g)it.g=gzero(); it.g[el.dataset.g]=parseFloat(el.value)||0; }
+      else if(f==="kgIn"){ if(M.feedBasis!=="cat"){ const days=daysIn(year,month), cnt=adultCount(), kg=parseFloat(el.value)||0; it.amt=(cnt>0&&days>0)?Math.round((kg/(cnt*days))*10)/10:0; const ai=document.querySelector(`input[data-fid='${it.id}'][data-f='amt']`); if(ai&&document.activeElement!==ai) ai.value=it.amt; } }
+      else if(f==="wonIn"){ const kg=itemKg(it), won=parseFloat(el.value)||0; it.price=kg>0?Math.round(won/kg):0; const pi=document.querySelector(`input[data-fid='${it.id}'][data-f='price']`); if(pi&&document.activeElement!==pi) pi.value=it.price; }
+      else { it[f]=parseFloat(el.value)||0; }
+      recalc(); autosave(); } }
   else if(el.dataset.coef){ if(!M.coef)M.coef={}; M.coef[el.dataset.coef]=parseFloat(el.value)||0; recalc(); autosave(); }
   else if(el.dataset.lrow){ ledgerSet(el); }
 });
@@ -477,12 +493,19 @@ function renderMList(){
   box.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ $("farm").value=b.dataset.open; closeModal(); loadMonth(); });
   box.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{ const n=b.dataset.rm; if(!confirm(`'${n}' 농가를 삭제할까요?`))return; try{localStorage.removeItem(storeKey(n));}catch(e){} if($("farm").value===n)$("farm").value=""; refreshFarmList(); renderMList(); });
 }
-function openModal(){ if(!$("mPw").value)$("mPw").value="2026"; renderMList(); mMsg(""); $("modal").hidden=false; }
+function openModal(){ if(!$("mPw").value)$("mPw").value="2026"; renderMList(); renderExportList(); mMsg(""); $("modal").hidden=false; }
 function closeModal(){ $("modal").hidden=true; }
 $("btnManage").addEventListener("click",openModal);
 $("mClose").addEventListener("click",closeModal);
 $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeModal(); });
-function normalizeImport(p){ if(p&&p.farms&&typeof p.farms==="object") return p.farms; if(p&&p.farm) return {[p.farm]:p.data||{}}; return {}; }
+const KINDS=[["breeding","번식우"],["beeffat","비육우"],["beef","육우"],["dairy","젖소"],["pig","비육돈"],["layer","산란계"],["broiler","육계"]];
+function kindStoreKey(k,f){ return "dudang_"+k+"_"+(f||"_default"); }
+function loadKindFarm(k,f){ try{ const raw=localStorage.getItem(kindStoreKey(k,f)); if(!raw)return {}; return JSON.parse(decStr(raw)); }catch(e){ return {}; } }
+function saveKindFarm(k,f,obj){ try{ localStorage.setItem(kindStoreKey(k,f), encStr(JSON.stringify(obj))); }catch(e){} }
+function kindLabel(k){ const x=KINDS.find(a=>a[0]===k); return x?x[1]:k; }
+function allKindFarms(){ const out=[]; KINDS.forEach(([k,lbl])=>{ const pre="dudang_"+k+"_"; for(let i=0;i<localStorage.length;i++){ const key=localStorage.key(i); if(key&&key.startsWith(pre)){ const f=key.slice(pre.length); if(f&&f!=="_default") out.push({k,label:lbl,farm:f,months:Object.keys(loadKindFarm(k,f)).length}); } } }); return out; }
+function renderExportList(){ const box=$("mExportList"); if(!box)return; const all=allKindFarms(); if(!all.length){ box.innerHTML="<div class='sub'>저장된 농가가 없습니다.</div>"; return; } box.innerHTML=all.map(it=>`<label class='mrow' style='cursor:pointer'><input type='checkbox' class='xchk' data-k='${it.k}' data-f='${it.farm}' checked style='width:auto'> <span class='nm'>${it.label} · ${it.farm}</span><span class='mo'>${it.months}개월</span></label>`).join(""); }
+function normalizeImport(p){ const out=[]; if(p&&p.kinds){ Object.keys(p.kinds).forEach(k=>Object.keys(p.kinds[k]||{}).forEach(f=>out.push({k,farm:f,data:p.kinds[k][f]||{}}))); } else if(p&&p.farms){ Object.keys(p.farms).forEach(f=>out.push({k:(p.kind||KIND),farm:f,data:p.farms[f]||{}})); } else if(p&&p.farm){ out.push({k:(p.kind||KIND),farm:p.farm,data:p.data||{}}); } return out; }
 function collectFarms(){ const o={}; farmNames().forEach(n=>o[n]=loadFarm(n)); return o; }
 function triggerDownload(name, text){
   const blob=new Blob([text],{type:"application/octet-stream"}); const url=URL.createObjectURL(blob);
@@ -490,20 +513,21 @@ function triggerDownload(name, text){
   document.body.appendChild(a); a.click();
   setTimeout(()=>{ try{ a.remove(); URL.revokeObjectURL(url); }catch(e){} },4000);
 }
-async function mExport(){ const pw=$("mPw").value||"2026"; const farms=collectFarms(); const cnt=Object.keys(farms).length; if(!cnt){ mMsg("저장된 농가가 없습니다.",false); return; } try{ const pkg=await encPack({app:"dudang",kind:KIND,farms,exportedAt:new Date().toISOString()},pw); triggerDownload(`두당_${KLABEL}_전체_${new Date().toISOString().slice(0,10)}.dudang.json`, JSON.stringify(pkg)); mMsg(`전체 ${cnt}개 농가를 내보냈습니다(암호화). 다운로드 폴더를 확인하세요.`); }catch(e){ mMsg("내보내기 실패: "+e,false); } }
+async function mExport(){ const pw=$("mPw").value||"2026"; const sel=[...document.querySelectorAll(".xchk:checked")].map(c=>({k:c.dataset.k,f:c.dataset.f})); if(!sel.length){ mMsg("내보낼 농가를 선택하세요.",false); return; } const kinds={}; sel.forEach(({k,f})=>{ if(!kinds[k])kinds[k]={}; kinds[k][f]=loadKindFarm(k,f); }); try{ const pkg=await encPack({app:"dudang",ver:2,kinds,exportedAt:new Date().toISOString()},pw); triggerDownload(`두당_축비조사표_${new Date().toISOString().slice(0,10)}.dudang.json`, JSON.stringify(pkg)); mMsg(`${sel.length}개 농가를 내보냈습니다(암호화). 다운로드 폴더를 확인하세요.`); }catch(e){ mMsg("내보내기 실패: "+e,false); } }
 let pendingImport=null;
-async function mImportFile(file){ const pw=$("mPw").value||"2026"; try{ const pkg=JSON.parse(await file.text()); const payload=await decPack(pkg,pw); pendingImport=normalizeImport(payload); const names=Object.keys(pendingImport); if(!names.length){ mMsg("가져올 농가가 없습니다.",false); $("mImportBox").hidden=true; return; } $("mImportList").innerHTML=names.map(n=>`<label class='mrow' style='cursor:pointer'><input type='checkbox' class='impchk' value='${n}' checked style='width:auto'> <span class='nm'>${n}</span><span class='mo'>${Object.keys(pendingImport[n]||{}).length}개월</span></label>`).join(""); $("mImportBox").hidden=false; mMsg(`${names.length}개 농가 확인 — 선택 후 '가져오기 실행'을 누르세요.`); }catch(e){ mMsg("가져오기 실패 — 비밀번호/파일을 확인하세요.",false); $("mImportBox").hidden=true; pendingImport=null; } }
-function mImportApply(){ if(!pendingImport) return; const mode=(document.querySelector("input[name=impmode]:checked")||{}).value||"merge"; const checked=[...document.querySelectorAll(".impchk:checked")].map(c=>c.value); if(!checked.length){ mMsg("가져올 농가를 선택하세요.",false); return; } checked.forEach(n=>{ const inc=pendingImport[n]||{}; if(mode==="replace"){ saveFarm(n,inc); } else { const store=loadFarm(n); Object.assign(store,inc); saveFarm(n,store); } }); refreshFarmList(); renderMList(); $("farm").value=checked[0]; loadMonth(); mMsg(`가져오기 완료: ${checked.length}개 농가 (${mode==="replace"?"교체":"추가"}).`); $("mImportBox").hidden=true; pendingImport=null; }
-async function mShare(){ const pw=$("mPw").value||"2026"; const farms=collectFarms(); if(!Object.keys(farms).length){ mMsg("저장된 농가가 없습니다.",false); return; } let pkg; try{ pkg=await encPack({app:"dudang",kind:KIND,farms},pw); }catch(e){ mMsg("암호화 실패: "+e,false); return; } const txt=JSON.stringify(pkg); const fname=`두당_${KLABEL}_전체.dudang.json`; const file=new File([txt],fname,{type:"application/json"}); if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:"두당 조사표",text:`${KLABEL} 조사표 전체(암호화)`}); mMsg("공유했습니다."); return; }catch(e){ if(e&&e.name==="AbortError"){ mMsg("공유를 취소했습니다."); return; } } } /* 파일 공유 미지원(윈도우 등) → 파일 저장 후 안내 */ triggerDownload(fname, txt); mMsg("이 브라우저는 앱 바로 공유가 안 됩니다. 암호화 파일을 저장했으니 카카오톡·메일에 직접 첨부해 보내세요."); }
+async function mImportFile(file){ const pw=$("mPw").value||"2026"; try{ const pkg=JSON.parse(await file.text()); const payload=await decPack(pkg,pw); pendingImport=normalizeImport(payload); if(!pendingImport.length){ mMsg("가져올 농가가 없습니다.",false); $("mImportBox").hidden=true; return; } $("mImportList").innerHTML=pendingImport.map((it,i)=>`<label class='mrow' style='cursor:pointer'><input type='checkbox' class='impchk' value='${i}' checked style='width:auto'> <span class='nm'>${kindLabel(it.k)} · ${it.farm}</span><span class='mo'>${Object.keys(it.data||{}).length}개월</span></label>`).join(""); $("mImportBox").hidden=false; mMsg(`${pendingImport.length}개 농가 확인 — 선택 후 '가져오기 실행'을 누르세요.`); }catch(e){ mMsg("가져오기 실패 — 비밀번호/파일을 확인하세요.",false); $("mImportBox").hidden=true; pendingImport=null; } }
+function mImportApply(){ if(!pendingImport||!pendingImport.length) return; const mode=(document.querySelector("input[name=impmode]:checked")||{}).value||"merge"; const idxs=[...document.querySelectorAll(".impchk:checked")].map(c=>+c.value); if(!idxs.length){ mMsg("가져올 농가를 선택하세요.",false); return; } let curLoaded=null; idxs.forEach(i=>{ const it=pendingImport[i]; if(!it)return; if(mode==="replace"){ saveKindFarm(it.k,it.farm,it.data); } else { const st=loadKindFarm(it.k,it.farm); Object.assign(st,it.data); saveKindFarm(it.k,it.farm,st); } if(it.k===KIND) curLoaded=it.farm; }); refreshFarmList(); renderMList(); renderExportList(); if(curLoaded){ $("farm").value=curLoaded; loadMonth(); } mMsg(`가져오기 완료: ${idxs.length}개 농가 (${mode==="replace"?"교체":"추가"}).`); $("mImportBox").hidden=true; pendingImport=null; }
+async function mShare(){ const pw=$("mPw").value||"2026"; const sel=[...document.querySelectorAll(".xchk:checked")].map(c=>({k:c.dataset.k,f:c.dataset.f})); if(!sel.length){ mMsg("공유할 농가를 선택하세요.",false); return; } const kinds={}; sel.forEach(({k,f})=>{ if(!kinds[k])kinds[k]={}; kinds[k][f]=loadKindFarm(k,f); }); let pkg; try{ pkg=await encPack({app:"dudang",ver:2,kinds},pw); }catch(e){ mMsg("암호화 실패: "+e,false); return; } const txt=JSON.stringify(pkg); const fname="두당_축비조사표.dudang.json"; const file=new File([txt],fname,{type:"application/json"}); if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:"두당 축비 조사표",text:"축비 조사표(암호화)"}); mMsg("공유했습니다."); return; }catch(e){ if(e&&e.name==="AbortError"){ mMsg("공유를 취소했습니다."); return; } } } triggerDownload(fname, txt); mMsg("이 브라우저는 앱 바로 공유가 안 됩니다. 암호화 파일을 저장했으니 카카오톡·메일에 직접 첨부해 보내세요."); }
 $("mExport").addEventListener("click",mExport);
 $("mImport").addEventListener("click",()=>$("mFile").click());
 $("mFile").addEventListener("change",e=>{ if(e.target.files&&e.target.files[0]) mImportFile(e.target.files[0]); e.target.value=""; });
 $("mShare").addEventListener("click",mShare);
 $("mImportApply").addEventListener("click",mImportApply);
 
+if(new URLSearchParams(location.search).get('embed')==='1'){ document.body.classList.add('embed'); }
 (function init(){
   $("month").innerHTML=Array.from({length:12},(_,i)=>`<option value='${i+1}'>${i+1}월</option>`).join("");
-  const now=new Date(); $("year").value=now.getFullYear(); $("month").value=now.getMonth()+1;
+  const now=new Date(); let _pm=now.getMonth(), _py=now.getFullYear(); if(_pm===0){ _pm=12; _py-=1; } $("year").value=_py; $("month").value=_pm; /* 기본=전월(한 달 후 정리) */
   refreshFarmList(); loadMonth(); applySec();
 })();
 </script>
