@@ -1,4 +1,4 @@
-<!-- 소이력관리_v11.html (배포명 cattle.html) · 저장: 2026-08-28 06:23 KST -->
+<!-- 소이력관리_v12.html (배포명 cattle.html) · 저장: 2026-09-21 04:04 KST · v12[v25]: 축비 조사표 연동(?pick=survey 진입 시 하단 '조사표로 보내기' 바→현재 목록 요약[수량·평균 도체중·축령·구입일·사육일수]을 dudang_trace_res로 저장 후 조사표 복귀) -->
 <!-- v10 → 방문 카운트(Abacus 전역, 실패시 이 기기 폴백) · Google Analytics(gtag) 추가 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -745,6 +745,47 @@ async function initVisit(){
   }
 }
 initVisit();
+
+/* ===== 조사표(survey.html) 연동: 소이력 자료 → 축비 조사표로 보내기 ===== */
+(function(){
+  var params=new URLSearchParams(location.search);
+  if(params.get("pick")!=="survey") return;
+  var req=null; try{ req=JSON.parse(localStorage.getItem("dudang_trace_req")||"null"); }catch(e){}
+  var bar=document.createElement("div");
+  bar.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#1a365d;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 -3px 12px rgba(0,0,0,.25);font-size:14px;";
+  bar.innerHTML='<b>📋 조사표 연동</b><span id="pickCnt" style="opacity:.9">목록 0두</span>'+
+    '<span style="flex:1;min-width:8px"></span>'+
+    '<button id="pickSend" type="button" style="background:#38a169;color:#fff;border:0;border-radius:9px;padding:10px 16px;font-weight:800;font-size:14px;cursor:pointer">✅ 조사표로 보내기</button>'+
+    '<button id="pickCancel" type="button" style="background:#4a5568;color:#fff;border:0;border-radius:9px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer">취소</button>';
+  document.body.appendChild(bar);
+  var wrapEl=document.querySelector(".wrap"); if(wrapEl) wrapEl.style.paddingBottom="120px";
+  function upd(){ var c=(typeof FILTERED!=="undefined"&&FILTERED)?FILTERED.length:0; var el=document.getElementById("pickCnt"); if(el) el.textContent="현재 목록 "+c+"두 전송"+((req&&req.farm)?(" → "+req.farm):""); }
+  if(typeof applyFilter==="function"){ var _o=applyFilter; applyFilter=function(){ _o.apply(this,arguments); upd(); }; }
+  var fs=document.getElementById("fSearch"); if(fs) fs.addEventListener("input",upd);
+  setTimeout(upd,600); setTimeout(upd,1600);
+  function ymdDiff(a,b){ var da=a?new Date(a):null,db=null; if(b&&String(b).length>=8){ b=String(b); db=new Date(+b.slice(0,4),+b.slice(4,6)-1,+b.slice(6,8)); } if(!da||!db||isNaN(da)||isNaN(db))return null; return Math.round((db-da)/86400000); }
+  function num(a){ return a.filter(function(v){return v!=null&&!isNaN(v);}); }
+  function avg(a){ var n=num(a); return n.length?n.reduce(function(x,y){return x+y;},0)/n.length:0; }
+  document.getElementById("pickSend").onclick=function(){
+    var recs=(typeof FILTERED!=="undefined"&&FILTERED&&FILTERED.length)?FILTERED:(typeof ALL_RECS!=="undefined"?ALL_RECS:[]);
+    if(!recs.length){ alert("보낼 소이력 자료가 없습니다. 먼저 조회·저장한 뒤 다시 시도하세요."); return; }
+    var rows=recs.map(function(r){ return { traceNo:r.traceNo, buyDate:r.buyDate||"",
+      weight:(r.weight!=null?r.weight:null),
+      live:(r.liveWeightExact!=null?r.liveWeightExact:r.liveWeight),
+      shipMonth:(r.shipMonthExact!=null?r.shipMonthExact:r.shipMonth),
+      raiseDays:ymdDiff(r.buyDate,r.butcheryYmd) }; });
+    var res={ count:recs.length,
+      avgWeight:Math.round(avg(rows.map(function(x){return x.weight;}))*10)/10,
+      avgLive:Math.round(avg(rows.map(function(x){return x.live;}))*10)/10,
+      avgShipMonth:Math.round(avg(rows.map(function(x){return x.shipMonth;}))),
+      avgRaiseDays:Math.round(avg(rows.map(function(x){return x.raiseDays;}))),
+      firstBuyDate:(rows.find(function(x){return x.buyDate;})||{}).buyDate||"",
+      rows:rows, ts:Date.now() };
+    try{ localStorage.setItem("dudang_trace_res",JSON.stringify(res)); }catch(e){}
+    location.href=(req&&req.back)?req.back:"survey.html";
+  };
+  document.getElementById("pickCancel").onclick=function(){ try{ localStorage.removeItem("dudang_trace_req"); }catch(e){} location.href=(req&&req.back)?req.back:"survey.html"; };
+})();
 
 /* 시작 */
 openDB().then(refreshList).catch(e=>setStatus("❌ IndexedDB 오류: "+escHtml(e.message||e),"bad"));
