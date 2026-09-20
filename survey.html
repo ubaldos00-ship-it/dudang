@@ -1,0 +1,98 @@
+<!-- survey.html · 저장: 2026-09-21 KST · 축비 조사표 통합 진입 — 6축종 버튼(번식우/비육우/육우/비육돈/산란계/육계) → 해당 조사표 임베드 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>축비 조사표 · 두당 頭當</title>
+<!-- Google tag (gtag.js) · 두당 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-PYTDP9E5YL');</script>
+<style>
+  :root{--navy:#1a365d;--navy2:#2c5282;--blue:#2b6cb0;--bg:#f4f6f9;--card:#fff;--line:#e2e8f0;--text:#1a202c;--muted:#718096;}
+  *{box-sizing:border-box;} html,body{margin:0;}
+  body{font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:var(--text);background:var(--bg);}
+  a{color:inherit;text-decoration:none;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 16px;position:sticky;top:0;z-index:10;}
+  .hrow{max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .back{color:#fff;font-size:22px;font-weight:700;padding:2px 6px;} header h1{font-size:18px;margin:0;flex:1;}
+  .home{color:#bcd4ef;font-size:14px;font-weight:600;white-space:nowrap;}
+  .picker{max-width:1120px;margin:0 auto;padding:12px 14px 4px;}
+  .lbl{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chips button{border:1px solid #cbd5e0;background:#fff;border-radius:22px;padding:10px 18px;font-size:15px;font-weight:700;cursor:pointer;color:var(--navy);}
+  .chips button.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .chips button.soon{color:#a0aec0;}
+  .chips button .badge{display:inline-block;font-size:10px;color:#fff;background:#a0aec0;border-radius:8px;padding:0 6px;margin-left:5px;vertical-align:middle;}
+  .wrap{max-width:1120px;margin:0 auto;padding:6px 8px 20px;}
+  iframe{width:100%;border:0;border-radius:12px;background:#fff;display:block;min-height:70vh;}
+  .soonbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:36px 18px;text-align:center;color:var(--muted);margin:10px;}
+  .soonbox .big{font-size:34px;margin-bottom:8px;}
+  .soonbox b{color:var(--navy);}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+<header><div class="hrow">
+  <a class="back" href="index.html" aria-label="뒤로">←</a>
+  <h1>📋 축비 조사표</h1>
+  <a class="home" href="index.html">🏠 두당홈</a>
+</div></header>
+
+<div class="picker">
+  <div class="lbl">축종을 선택하세요</div>
+  <div class="chips" id="chips"></div>
+</div>
+<div class="wrap" id="wrap"></div>
+
+<script>
+const SP=[
+  {id:"breeding", label:"번식우", file:"survey_breeding.html"},
+  {id:"beeffat",  label:"비육우", file:""},
+  {id:"beef",     label:"육우",   file:"survey_beef.html"},
+  {id:"dairy",    label:"젖소",   file:""},
+  {id:"pig",      label:"비육돈", file:""},
+  {id:"layer",    label:"산란계", file:""},
+  {id:"broiler",  label:"육계",   file:""}
+];
+const $=id=>document.getElementById(id);
+let cur=(new URLSearchParams(location.search).get("s"))||"";
+try{ if(!cur) cur=localStorage.getItem("dudang_survey_last")||"breeding"; }catch(e){ cur=cur||"breeding"; }
+if(!SP.some(s=>s.id===cur)) cur="breeding";
+
+let _ro=null;
+function renderChips(){
+  $("chips").innerHTML=SP.map(s=>`<button data-s="${s.id}" class="${s.id===cur?'on':''}${s.file?'':' soon'}">${s.label}${s.file?'':"<span class='badge'>준비중</span>"}</button>`).join("");
+  $("chips").querySelectorAll("button").forEach(b=>b.onclick=()=>{ cur=b.dataset.s; try{localStorage.setItem("dudang_survey_last",cur);}catch(e){} renderChips(); renderView(); });
+}
+function fitIframe(fr){
+  try{
+    const set=()=>{ try{ const h=fr.contentDocument.documentElement.scrollHeight; if(h>200) fr.style.height=(h+20)+"px"; }catch(e){} };
+    set(); setTimeout(set,300); setTimeout(set,900);
+    if(_ro){ try{_ro.disconnect();}catch(e){} _ro=null; }
+    try{ _ro=new ResizeObserver(set); _ro.observe(fr.contentDocument.documentElement); }catch(e){ setInterval(set,1000); }
+  }catch(e){}
+}
+function renderView(){
+  const s=SP.find(x=>x.id===cur);
+  if(s && s.file){
+    $("wrap").innerHTML=`<iframe id="frm" src="${s.file}?embed=1" title="${s.label} 조사표" scrolling="no"></iframe>`;
+    const fr=$("frm"); fr.addEventListener("load",()=>fitIframe(fr));
+  } else {
+    $("wrap").innerHTML=`<div class="soonbox"><div class="big">🚧</div><b>${s?s.label:''} 조사표</b>는 준비 중입니다.<br>부호(구입·판매 코드)를 알려주시면 <b>같은 틀로 바로</b> 만들어 드립니다.<br><br><span style="font-size:13px">현재 <b>번식우·육우</b>는 완성되어 있습니다.</span></div>`;
+  }
+}
+renderChips(); renderView();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
+<!-- 네이버 애널리틱스(Wcslog) · 두당 -->
+<script type="text/javascript" src="//wcs.pstatic.net/wcslog.js"></script>
+<script type="text/javascript">
+if(!wcs_add) var wcs_add = {};
+wcs_add["wa"] = "1b150b27ece7010";
+if(window.wcs) { wcs_do(); }
+</script>
+</body>
+</html>
