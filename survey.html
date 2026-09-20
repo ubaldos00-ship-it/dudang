@@ -1,4 +1,4 @@
-<!-- survey_breeding.html · 저장: 2026-09-18 KST(v3) · 농가 저장/불러오기, 마리수 입력칸 축소, 송아지 편입-·육성우 편입+ * 표시, 초임우/경산우 편입 직접입력, 사료 항목별 ＋/－, 숫자키패드(inputmode)·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계·＋원본만/－추가행만)·농가삭제 · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 310/610·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) · v(0919d): 구입·판매 단일 통합원장(연결성), 일자=일만, 카드재배치(번식우 ③원장/④사료비, 육우 ②원장/③사료비), 육우 사료기본 사육구분별, embed 모드(축비 조사표 임베드용) · v(0921): 상단정렬(연도·월크게·일수·불러오기·농가)·백업공유, 기본=전월, 편입 자동연쇄, 사료 양방향(월투입↔먹는량·월금액↔단가), embed 헤더숨김, 백업·공유=전축종 통합(농가선택·기본전체) · v(0921b)[v25]: 단일파일 통합(축종칩→SPCFG 구성기반, iframe 제거·번식우/육우 완성·5축종 준비중), 마리수표 고정열(사육구분·암수·월초)·사료표 사료명 고정, 소이력제 연동(③원장 조회버튼→cattle.html?pick=survey→수량·도체중·축령[육우는 구입일·사육일수]·판매행 자동반영), 농가목록 축종별 프리픽스 수정 -->
+<!-- survey_breeding.html · 저장: 2026-09-18 KST(v3) · 농가 저장/불러오기, 마리수 입력칸 축소, 송아지 편입-·육성우 편입+ * 표시, 초임우/경산우 편입 직접입력, 사료 항목별 ＋/－, 숫자키패드(inputmode)·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계·＋원본만/－추가행만)·농가삭제 · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 310/610·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) · v(0919d): 구입·판매 단일 통합원장(연결성), 일자=일만, 카드재배치(번식우 ③원장/④사료비, 육우 ②원장/③사료비), 육우 사료기본 사육구분별, embed 모드(축비 조사표 임베드용) · v(0921): 상단정렬(연도·월크게·일수·불러오기·농가)·백업공유, 기본=전월, 편입 자동연쇄, 사료 양방향(월투입↔먹는량·월금액↔단가), embed 헤더숨김, 백업·공유=전축종 통합(농가선택·기본전체) · v(0921b)[v25]: 단일파일 통합(축종칩→SPCFG 구성기반, iframe 제거·번식우/육우 완성·5축종 준비중), 마리수표 고정열(사육구분·암수·월초)·사료표 사료명 고정, 소이력제 연동(③원장 조회버튼→cattle.html?pick=survey→수량·도체중·축령[육우는 구입일·사육일수]·판매행 자동반영), 농가목록 축종별 프리픽스 수정 · v(0921c)[v26]: 고정열 오프셋 실측정렬(암수·월초가 사육구분에 딱 붙음, 육우 포함), 사료 항목소계 라벨 왼쪽(사료명 아래)로 이동·육우 소계 표시확인, 헤더 고정+스크롤 시 자동 숨김/표시·헤더에 축종·농가·해당월 표기 -->
 <!-- 두당 조사표 · 번식우 · 월초·증감·월말 자동, 초임분만→초임우/경산우 자동편입, 사료 월투입량(먹는량×마리수×월일수)+단가 이월, 성우환산두수 선택 -->
 <!doctype html>
 <html lang="ko">
@@ -14,9 +14,12 @@
   *{box-sizing:border-box;} html,body{margin:0;}
   body{font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:var(--text);background:var(--bg);line-height:1.5;}
   a{color:inherit;text-decoration:none;}
-  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 16px;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:11px 16px;position:sticky;top:0;z-index:30;transition:transform .25s ease;will-change:transform;}
+  header.hide{transform:translateY(-100%);}
   .hrow{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;}
-  .back{color:#fff;font-size:22px;font-weight:700;padding:2px 6px;} header h1{font-size:18px;margin:0;flex:1;}
+  .back{color:#fff;font-size:22px;font-weight:700;padding:2px 6px;} header h1{font-size:18px;margin:0;line-height:1.2;}
+  .htxt{flex:1;min-width:0;}
+  .hsub{font-size:12px;color:#cfe0f2;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
   .home{color:#bcd4ef;font-size:14px;font-weight:600;white-space:nowrap;}
   main{max-width:1100px;margin:0 auto;padding:14px;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:12px;}
@@ -34,11 +37,11 @@
   td.sx{text-align:center;font-weight:600;background:#fff;color:#334e68;}
   th.rc{position:sticky;left:0;z-index:2;}
   /* 대·소동물 마리수 표: 사육구분·암수·월초까지 좌측 고정 */
-  #invTbl col.c1{width:86px;} #invTbl col.c2{width:26px;} #invTbl col.c3{width:54px;}
+  #invTbl col.c1{width:70px;} #invTbl col.c2{width:24px;} #invTbl col.c3{width:52px;}
   #invTbl th.rc{z-index:4;}
-  #invTbl td.sx{position:sticky;left:86px;z-index:2;}
-  #invTbl th.mz{position:sticky;left:112px;z-index:4;background:#eef3fb;}
-  #invTbl td.mz{position:sticky;left:112px;z-index:2;background:#fff;box-shadow:2px 0 3px -1px rgba(0,0,0,.12);}
+  #invTbl td.sx{position:sticky;left:70px;z-index:2;}
+  #invTbl th.mz{position:sticky;left:94px;z-index:4;background:#eef3fb;}
+  #invTbl td.mz{position:sticky;left:94px;z-index:2;background:#fff;box-shadow:2px 0 3px -1px rgba(0,0,0,.12);}
   #invTbl td.mz.auto{background:#f1f5fb;}
   #invTbl td.rc,#invTbl td.sx{box-shadow:none;}
   /* 사료비 표: 사료명(첫 열) 좌측 고정 */
@@ -96,9 +99,12 @@
 <meta name="theme-color" content="#1a365d">
 </head>
 <body>
-<header><div class="hrow">
+<header id="appHeader"><div class="hrow">
   <a class="back" href="#" onclick="if(history.length>1){history.back();}else{location.href='index.html';}return false;" aria-label="뒤로">←</a>
-  <h1>📋 축비 조사표</h1>
+  <div class="htxt">
+    <h1>📋 축비 조사표</h1>
+    <div class="hsub" id="hSub"></div>
+  </div>
   <a class="home" href="index.html">🏠 두당홈</a>
 </div></header>
 <div class="picker"><div class="lbl">축종 선택</div><div class="chips" id="chips"></div></div>
@@ -386,6 +392,7 @@ function loadMonth(){
   if((M.buyRows||M.sellRows)){ (M.buyRows||[]).forEach(r=>{const x=blankLedger(r.cat);x.date=r.date||'';x.bGubun=r.gubun||'11';x.bQty=r.qty||0;x.bWt=r.wt||0;x.bAge=r.age||0;x.bA=r.A||0;x.bB=r.B||0;M.ledgerRows.push(x);}); (M.sellRows||[]).forEach(r=>{const x=blankLedger(r.cat);x.date=r.date||'';x.sGubun=r.gubun||'11';x.sQty=r.qty||0;x.sWt=r.wt||0;x.sAge=r.age||0;x.sA=r.A||0;x.sB=r.B||0;x.buyDate=r.buyDate||'';x.days=r.days||0;x.gain=r.gain||0;M.ledgerRows.push(x);}); delete M.buyRows; delete M.sellRows; }
   buildInv(); if(CFG.hasHerd) buildHerd(); buildFeed(); buildCoef(); syncBasisUI(); recalc();
   buildLedger(); recalcLedger();
+  updateHeaderInfo();
 }
 function endOf(m,cid){ const v=m.inv[cid]; const inc=(v.birth||0)+(v.buy||0)+(v.in||0), dec=(v.out||0)+(v.sell||0)+(v.cull||0)+(v.dead||0);
   return (v.begin||0)+inc-dec; }
@@ -422,7 +429,19 @@ function buildInv(){
   DEC.forEach(([f])=>h+=`<td class='auto'><span id='sum_${f}'>0</span></td>`);
   h+="<td class='end'><span id='sum_end'>0</span></td></tr>";
   $("invTbl").innerHTML=h;
+  requestAnimationFrame(applyInvSticky);
 }
+// 고정열(사육구분·암수·월초)이 실제 렌더 폭에 맞춰 딱 붙도록 left 오프셋을 측정해 적용
+function applyInvSticky(){
+  const tbl=$("invTbl"); if(!tbl||!tbl.rows.length) return;
+  const rc=tbl.querySelector("tr th.rc"); if(!rc) return;
+  const blockW=Math.round(rc.getBoundingClientRect().width);   // 사육구분(+암수) 블록 실폭
+  const sx=tbl.querySelector("td.sx");
+  const sxW=sx?Math.round(sx.getBoundingClientRect().width):0;
+  tbl.querySelectorAll("td.sx").forEach(el=>el.style.left=(blockW-sxW)+"px");
+  tbl.querySelectorAll("th.mz,td.mz").forEach(el=>el.style.left=blockW+"px");
+}
+window.addEventListener("resize",()=>{ if($("invTbl")&&$("invTbl").rows.length) applyInvSticky(); });
 function buildHerd(){
   let h="<tr>"; HERD.forEach(([,l])=>h+=`<th>${l}</th>`); h+="<th>총분만(두)</th></tr><tr>";
   HERD.forEach(([k])=>h+=`<td><input type='number' inputmode='numeric' min='0' data-herd='${k}' value='${M.herd[k]||0}'></td>`);
@@ -445,7 +464,7 @@ function feedTypeBlocks(grp,typeList,cat,lead){
   typeList.forEach(t=>{
     const items=M.feedItems.filter(x=>x.grp===grp&&x.type===t);
     items.forEach((it,i)=> h+=feedItemRow(it,i,items.length,cat));
-    if(items.length>1){ h+=`<tr class='subt'><td class='rc' style='text-align:right;color:#5b6b7d' colspan='${lead}'>↳ ${t} 소계</td><td class='auto'><span id='subt_${grp}_${t}_kg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_avg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_won'>0</span></td><td></td></tr>`; }
+    if(items.length>1){ h+=`<tr class='subt'><td class='rc' style='text-align:left;color:#5b6b7d' colspan='${lead}'>↳ ${t} 소계</td><td class='auto'><span id='subt_${grp}_${t}_kg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_avg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_won'>0</span></td><td></td></tr>`; }
   });
   return h;
 }
@@ -686,7 +705,7 @@ function setSpecies(id){
   const sp=SPECIES_LIST.find(s=>s.id===id)||SPECIES_LIST[0];
   SPID=sp.id; try{localStorage.setItem("dudang_survey_last",SPID);}catch(e){}
   renderChips();
-  if(!sp.ready || !SPCFG[id]){ $("formMain").hidden=true; $("soonBox").hidden=false; $("soonBox").innerHTML=`<div class='big'>🚧</div><b>${sp.label} 조사표</b>는 준비 중입니다.<br>부호(구입·판매 코드)와 사육구분을 알려주시면 <b>같은 틀로 바로</b> 만들어 드립니다.`; return; }
+  if(!sp.ready || !SPCFG[id]){ $("formMain").hidden=true; $("soonBox").hidden=false; $("soonBox").innerHTML=`<div class='big'>🚧</div><b>${sp.label} 조사표</b>는 준비 중입니다.<br>부호(구입·판매 코드)와 사육구분을 알려주시면 <b>같은 틀로 바로</b> 만들어 드립니다.`; updateHeaderInfo(); return; }
   $("soonBox").hidden=true; $("formMain").hidden=false;
   setSpeciesData(id);
   $("herdCard").hidden=!CFG.hasHerd;
@@ -694,8 +713,25 @@ function setSpecies(id){
   $("numFeed").textContent=CFG.hasHerd?"4":"3";
   if($("starHint")) $("starHint").innerHTML=CFG.starHint||"";
   if($("ledgerCodes")) $("ledgerCodes").textContent=`구입부호 ${CFG.spBuy} · 판매부호 ${CFG.spSell}`;
-  refreshFarmList(); loadMonth();
+  refreshFarmList(); loadMonth(); updateHeaderInfo();
 }
+// 헤더에 축종·농가·해당월 표기
+function updateHeaderInfo(){
+  const sp=SPECIES_LIST.find(s=>s.id===SPID)||{};
+  const f=($("farm")&&$("farm").value.trim())||"농가 미입력";
+  const y=($("year")&&$("year").value)||"", mo=($("month")&&$("month").value)||"";
+  const el=$("hSub"); if(el) el.textContent=`${sp.emoji||""} ${sp.label||""} · ${f} · ${y}년 ${mo}월`;
+}
+// 스크롤: 내리면 헤더 숨김, 올리면 표시
+let _lastScrollY=0;
+window.addEventListener("scroll",()=>{
+  const y=window.scrollY||document.documentElement.scrollTop||0;
+  const hd=$("appHeader"); if(!hd) return;
+  if(y>_lastScrollY && y>64) hd.classList.add("hide");
+  else hd.classList.remove("hide");
+  _lastScrollY=y;
+},{passive:true});
+$("farm").addEventListener("input",updateHeaderInfo);
 (function init(){
   $("month").innerHTML=Array.from({length:12},(_,i)=>`<option value='${i+1}'>${i+1}월</option>`).join("");
   const now=new Date(); let _pm=now.getMonth(), _py=now.getFullYear(); if(_pm===0){ _pm=12; _py-=1; } $("year").value=_py; $("month").value=_pm; /* 기본=전월(한 달 후 정리) */

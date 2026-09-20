@@ -1,4 +1,4 @@
-<!-- 소이력관리_v12.html (배포명 cattle.html) · 저장: 2026-09-21 04:04 KST · v12[v25]: 축비 조사표 연동(?pick=survey 진입 시 하단 '조사표로 보내기' 바→현재 목록 요약[수량·평균 도체중·축령·구입일·사육일수]을 dudang_trace_res로 저장 후 조사표 복귀) -->
+<!-- 소이력관리_v12.html (배포명 cattle.html) · 저장: 2026-09-21 07:26 KST · v12[v25]: 축비 조사표 연동(?pick=survey 진입 시 하단 '조사표로 보내기' 바→현재 목록 요약[수량·평균 도체중·축령·구입일·사육일수]을 dudang_trace_res로 저장 후 조사표 복귀) · v12b[v26]: 뒤로가기=히스토리 뒤로(홈 아님)+우측 홈버튼 추가 -->
 <!-- v10 → 방문 카운트(Abacus 전역, 실패시 이 기기 폴백) · Google Analytics(gtag) 추가 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -108,7 +108,8 @@
 <div class="wrap">
   <div class="topbar">
     <button id="btnBack" class="btn ghost">◀ 뒤로</button>
-    <div class="title" id="appTitle" style="cursor:pointer" title="제목을 5번 누르면 설정이 열립니다">🐂 소 이력제 조회 자동계산 <span class="ver">v11</span></div>
+    <div class="title" id="appTitle" style="cursor:pointer;flex:1" title="제목을 5번 누르면 설정이 열립니다">🐂 소 이력제 조회 자동계산 <span class="ver">v12</span></div>
+    <button id="btnHome" class="btn ghost">🏠 홈</button>
   </div>
 
   <!-- 설정 (제목 5번 탭 시 표시) -->
@@ -281,8 +282,9 @@ function rememberMgr(name){
 }
 loadMgrs();
 
-/* 뒤로가기 → 항상 텐아르 홈으로 이동(히스토리 뒤로가기가 안 되는 경우 방지) */
-$("btnBack").onclick = ()=>{ location.href=HOME_URL; };
+/* 뒤로가기 → 히스토리 뒤로(없으면 홈). 홈 버튼은 항상 두당 홈으로 */
+$("btnBack").onclick = ()=>{ if(history.length>1){ history.back(); } else { location.href=HOME_URL; } };
+$("btnHome").onclick = ()=>{ location.href=HOME_URL; };
 
 /* 제목 5번 탭 → 설정 표시/숨김 */
 let _titleTaps=0, _titleLast=0;
