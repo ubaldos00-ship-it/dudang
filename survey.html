@@ -1,4 +1,4 @@
-<!-- survey_breeding.html · 저장: 2026-09-18 KST(v3) · 농가 저장/불러오기, 마리수 입력칸 축소, 송아지 편입-·육성우 편입+ * 표시, 초임우/경산우 편입 직접입력, 사료 항목별 ＋/－, 숫자키패드(inputmode)·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계·＋원본만/－추가행만)·농가삭제 · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 310/610·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) · v(0919d): 구입·판매 단일 통합원장(연결성), 일자=일만, 카드재배치(번식우 ③원장/④사료비, 육우 ②원장/③사료비), 육우 사료기본 사육구분별, embed 모드(축비 조사표 임베드용) · v(0921): 상단정렬(연도·월크게·일수·불러오기·농가)·백업공유, 기본=전월, 편입 자동연쇄, 사료 양방향(월투입↔먹는량·월금액↔단가), embed 헤더숨김, 백업·공유=전축종 통합(농가선택·기본전체) · v(0921b)[v25]: 단일파일 통합(축종칩→SPCFG 구성기반, iframe 제거·번식우/육우 완성·5축종 준비중), 마리수표 고정열(사육구분·암수·월초)·사료표 사료명 고정, 소이력제 연동(③원장 조회버튼→cattle.html?pick=survey→수량·도체중·축령[육우는 구입일·사육일수]·판매행 자동반영), 농가목록 축종별 프리픽스 수정 · v(0921c)[v26]: 고정열 오프셋 실측정렬(암수·월초가 사육구분에 딱 붙음, 육우 포함), 사료 항목소계 라벨 왼쪽(사료명 아래)로 이동·육우 소계 표시확인, 헤더 고정+스크롤 시 자동 숨김/표시·헤더에 축종·농가·해당월 표기 -->
+<!-- survey_breeding.html · 저장: 2026-09-18 KST(v3) · 농가 저장/불러오기, 마리수 입력칸 축소, 송아지 편입-·육성우 편입+ * 표시, 초임우/경산우 편입 직접입력, 사료 항목별 ＋/－, 숫자키패드(inputmode)·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계·＋원본만/－추가행만)·농가삭제 · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 310/610·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) · v(0919d): 구입·판매 단일 통합원장(연결성), 일자=일만, 카드재배치(번식우 ③원장/④사료비, 육우 ②원장/③사료비), 육우 사료기본 사육구분별, embed 모드(축비 조사표 임베드용) · v(0921): 상단정렬(연도·월크게·일수·불러오기·농가)·백업공유, 기본=전월, 편입 자동연쇄, 사료 양방향(월투입↔먹는량·월금액↔단가), embed 헤더숨김, 백업·공유=전축종 통합(농가선택·기본전체) · v(0921b)[v25]: 단일파일 통합(축종칩→SPCFG 구성기반, iframe 제거·번식우/육우 완성·5축종 준비중), 마리수표 고정열(사육구분·암수·월초)·사료표 사료명 고정, 소이력제 연동(③원장 조회버튼→cattle.html?pick=survey→수량·도체중·축령[육우는 구입일·사육일수]·판매행 자동반영), 농가목록 축종별 프리픽스 수정 · v(0921c)[v26]: 고정열 오프셋 실측정렬(암수·월초가 사육구분에 딱 붙음, 육우 포함), 사료 항목소계 라벨 왼쪽(사료명 아래)로 이동·육우 소계 표시확인, 헤더 고정+스크롤 시 자동 숨김/표시·헤더에 축종·농가·해당월 표기 · v(0922)[v27]: 상단 버튼 배치(농가 옆 저장, PC=4버튼 한 줄·모바일=저장만 옆+나머지 다음 줄), ③원장 품명 부호 1칸 통합(구입/판매 선택·비육형은 구입+판매·미선택쪽 흐리게)·구분은 구입/판매 별도 유지, 자동생성은 편입 별표(사육구분 이동)만 생성, ③원장 초기화 버튼 추가 -->
 <!-- 두당 조사표 · 번식우 · 월초·증감·월말 자동, 초임분만→초임우/경산우 자동편입, 사료 월투입량(먹는량×마리수×월일수)+단가 이월, 성우환산두수 선택 -->
 <!doctype html>
 <html lang="ko">
@@ -25,7 +25,8 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:12px;}
   .card .lb{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:9px;}
   .card .lb .num{display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;background:var(--blue);color:#fff;border-radius:50%;font-size:12px;margin-right:6px;}
-  .top{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
+  .top{display:flex;flex-direction:column;gap:10px;}
+  .toprow{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
   .fld{display:flex;flex-direction:column;gap:3px;} .fld label{font-size:12px;color:var(--muted);}
   input,select{padding:8px 10px;font-size:14px;border:1px solid #cbd5e0;border-radius:8px;background:#fff;}
   input[type=number]{width:74px;text-align:right;}
@@ -65,6 +66,9 @@
   .radio-row label{display:flex;align-items:center;gap:5px;cursor:pointer;}
   .tot{font-weight:800;color:var(--navy);}
   .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+  .farmrow{display:flex;gap:8px;align-items:center;}
+  .farmrow input{flex:1;min-width:120px;max-width:200px;}
+  .farmfld{min-width:220px;}
   .btn{padding:9px 14px;border:0;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;}
   .btn.save{background:var(--up);color:#fff;} .btn.reset{background:#edf2f7;color:var(--navy);} .btn.del{background:#fdeaea;color:#c0392b;} .btn.manage{background:#e6f0fb;color:#1d6fe0;}
   .cntrow td{background:#f7fafd;} .subt td{background:#fbfcfe;}
@@ -72,6 +76,8 @@
   #ledgerTbl select{font-size:11.5px;padding:2px 3px;border:1px solid #dbe2ea;border-radius:5px;max-width:120px;}
   #ledgerTbl td input{width:46px;}
   #ledgerTbl .bcol{background:#f4fbf6;} #ledgerTbl .scol{background:#fdf6f4;} #secCard .mst{color:var(--navy);}
+  /* 부호 선택에 따라 사용 안 하는 쪽 흐리게(입력은 가능) */
+  #ledgerTbl tr.cs-buy .scol{opacity:.35;} #ledgerTbl tr.cs-sell .bcol{opacity:.35;}
   [hidden]{display:none!important;}
   body.embed header{display:none!important;} body.embed main{padding-top:6px;}
   .modal-back{position:fixed;inset:0;background:rgba(20,30,45,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
@@ -111,21 +117,29 @@
 <main id="formMain">
   <div class="card">
     <div class="top">
-      <div class="fld"><label>연도</label><input id="year" type="number" inputmode="numeric" value="2026" style="width:82px"></div>
-      <div class="fld"><label>월</label><select id="month" style="width:112px;font-size:15px;font-weight:700"></select></div>
-      <div class="fld"><label>해당월 일수</label><input id="days" type="number" readonly style="width:70px;background:#f1f5fb"></div>
-      <div class="fld"><label>저장된 농가 불러오기</label>
-        <span style="display:flex;gap:6px">
-          <select id="farmSel" style="min-width:120px"><option value="">— 선택 —</option></select>
-          <button class="btn reset" id="btnLoad" style="padding:8px 12px">불러오기</button>
-        </span>
+      <div class="toprow">
+        <div class="fld"><label>연도</label><input id="year" type="number" inputmode="numeric" value="2026" style="width:82px"></div>
+        <div class="fld"><label>월</label><select id="month" style="width:112px;font-size:15px;font-weight:700"></select></div>
+        <div class="fld"><label>해당월 일수</label><input id="days" type="number" readonly style="width:70px;background:#f1f5fb"></div>
+        <div class="fld"><label>저장된 농가 불러오기</label>
+          <span style="display:flex;gap:6px">
+            <select id="farmSel" style="min-width:120px"><option value="">— 선택 —</option></select>
+            <button class="btn reset" id="btnLoad" style="padding:8px 12px">불러오기</button>
+          </span>
+        </div>
       </div>
-      <div class="fld"><label>농가</label><input id="farm" list="farmList" placeholder="농가명 입력/선택" style="width:140px"><datalist id="farmList"></datalist></div>
-      <div class="btnrow" style="margin-left:auto">
-        <button class="btn save" id="btnSave">💾 저장</button>
-        <button class="btn manage" id="btnManage">📁 백업·공유</button>
-        <button class="btn reset" id="btnClear">이 달 초기화</button>
-        <button class="btn del" id="btnDelFarm">🗑 농가 삭제</button>
+      <div class="toprow">
+        <div class="fld farmfld"><label>농가</label>
+          <div class="farmrow">
+            <input id="farm" list="farmList" placeholder="농가명 입력/선택"><datalist id="farmList"></datalist>
+            <button class="btn save" id="btnSave">💾 저장</button>
+          </div>
+        </div>
+        <div class="btnrow">
+          <button class="btn manage" id="btnManage">📁 백업·공유</button>
+          <button class="btn reset" id="btnClear">이 달 초기화</button>
+          <button class="btn del" id="btnDelFarm">🗑 농가 삭제</button>
+        </div>
       </div>
     </div>
     <div class="hint">월초 마리수는 <b>전월 월말</b>이 있으면 자동으로 이어집니다(회색칸). 첫 달은 직접 입력하세요.</div>
@@ -160,9 +174,10 @@
       <div class="mst" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">구입 및 편입 ↔ 판매 통합내역 <span class="sub" id="ledgerCodes">구입부호 310 · 판매부호 610</span>
         <button class="btn manage" id="genLedger" style="padding:4px 10px;font-size:12px">🔄 마리수에서 자동생성</button>
         <button class="btn reset" id="addLedger" style="padding:4px 10px;font-size:12px">＋ 행 추가</button>
+        <button class="btn del" id="clearLedger" style="padding:4px 10px;font-size:12px">🧹 초기화</button>
         <button class="btn save" id="traceLookup" style="padding:4px 10px;font-size:12px;background:#2b6cb0">🐄 소이력제 자료 조회</button>
       </div>
-      <div class="hint">한 행에 <b>구입/편입</b>과 <b>판매</b>를 함께 기록합니다(판매 시 구입 당시 수량·체중·축령·금액도 입력 → 연결). 수량·부호·구분은 자동, 나머지는 입력. <b>🐄 소이력제 자료 조회</b>로 수량·체중·축령(육우는 구입일·사육일수도) 자동 반영.</div>
+      <div class="hint"><b>부호</b>를 한 곳에서 <b>구입/판매</b>로 선택합니다(구입·판매는 건건이 행 추가). 선택한 쪽만 진하게 표시됩니다. <b>육우·비육우</b>는 비육완료 시 <b>구입+판매</b>를 골라 한 행에 구입 당시 수량·체중·축령·금액까지 함께 기록하세요. <b>🐄 소이력제 자료 조회</b>로 수량·체중·축령(육우는 구입일·사육일수도) 자동 반영.</div>
       <div class="tbl-scroll"><table id="ledgerTbl"></table></div>
     </div>
   </div>
@@ -265,55 +280,61 @@ function newRid(){ return "r"+Date.now().toString(36)+Math.random().toString(36)
 function catOptions(sel){ return CATS.map(c=>`<option value='${c.id}'${c.id===sel?' selected':''}>${c.label}</option>`).join(""); }
 function gubunOptions(list,sel){ return list.map(([v,l])=>`<option value='${v}'${v===sel?' selected':''}>${l}(${v})</option>`).join(""); }
 function lnum(id,f,v){ return `<input type='number' inputmode='numeric' min='0' data-lrow='${id}' data-f='${f}' value='${v||0}'>`; }
+// 품명 부호: 한 칸에서 구입부호/판매부호(비육형은 구입+판매) 선택
+function codeOptions(r){
+  const cc=CAT_CODE[r.cat]||{}; const cs=r.codeSel||"buy";
+  let opts=`<option value='buy'${cs==='buy'?' selected':''}>구입 ${cc.b||''}</option>`+
+           `<option value='sell'${cs==='sell'?' selected':''}>판매 ${cc.s||''}</option>`;
+  if(!CFG.hasHerd) opts+=`<option value='both'${cs==='both'?' selected':''}>구입+판매 ${cc.b||''}/${cc.s||''}</option>`;
+  return opts;
+}
 function buildLedger(){
   const rows=M.ledgerRows||[];
-  let h="<tr><th rowspan='2'>번호</th><th rowspan='2'>일자</th><th rowspan='2'>품명</th>"+
-    `<th colspan='8' style='background:#eaf7ee;color:#1c6b3a'>구입 및 편입 (부호 ${SPBUY})</th>`+
-    `<th colspan='11' style='background:#fdeeee;color:#a12b2b'>판매 (부호 ${SPSELL})</th>`+
+  rows.forEach(r=>{ if(!r.codeSel){ const hb=(+r.bQty>0), hs=(+r.sQty>0); r.codeSel=(hb&&hs)?"both":(hs&&!hb)?"sell":"buy"; } });
+  let h="<tr><th rowspan='2'>번호</th><th rowspan='2'>일자</th><th rowspan='2'>품명</th><th rowspan='2'>부호</th>"+
+    `<th colspan='7' style='background:#eaf7ee;color:#1c6b3a'>구입 및 편입 (부호 ${SPBUY})</th>`+
+    `<th colspan='10' style='background:#fdeeee;color:#a12b2b'>판매 (부호 ${SPSELL})</th>`+
     "<th rowspan='2'>삭제</th></tr>";
-  h+="<tr><th>부호</th><th>구분</th><th>수량</th><th>체중</th><th>축령</th><th>금액(A)</th><th>구입시<br>비용(B)</th><th>실구입<br>(A+B)</th>"+
-     "<th>부호</th><th>구분</th><th>수량</th><th>체중</th><th>축령</th><th>금액(A)</th><th>판매시<br>비용(B)</th><th>실판매<br>(A−B)</th><th>구입당시<br>일자</th><th>두당평균<br>사육일수</th><th>일당<br>증체(g)</th></tr>";
-  h+=rows.map((r,i)=>`<tr>
+  h+="<tr><th>구분</th><th>수량</th><th>체중</th><th>축령</th><th>금액(A)</th><th>구입시<br>비용(B)</th><th>실구입<br>(A+B)</th>"+
+     "<th>구분</th><th>수량</th><th>체중</th><th>축령</th><th>금액(A)</th><th>판매시<br>비용(B)</th><th>실판매<br>(A−B)</th><th>구입당시<br>일자</th><th>두당평균<br>사육일수</th><th>일당<br>증체(g)</th></tr>";
+  h+=rows.map((r,i)=>`<tr class='cs-${r.codeSel||"buy"}'>
     <td>${i+1}</td>
     <td><input type='number' inputmode='numeric' min='1' max='31' data-lrow='${r.id}' data-f='date' value='${r.date||""}' placeholder='일' style='width:40px'></td>
     <td><select data-lrow='${r.id}' data-f='cat'>${catOptions(r.cat)}</select></td>
-    <td class='auto bcol'><span id='bcode_${r.id}'>${(CAT_CODE[r.cat]||{}).b||""}</span></td>
+    <td class='auto'><select data-lrow='${r.id}' data-f='codeSel'>${codeOptions(r)}</select></td>
     <td class='bcol'><select data-lrow='${r.id}' data-f='bGubun'>${gubunOptions(BUY_GUBUN,r.bGubun)}</select></td>
     <td class='bcol'>${lnum(r.id,'bQty',r.bQty)}</td>
     <td class='bcol'><input type='number' inputmode='decimal' min='0' data-lrow='${r.id}' data-f='bWt' value='${r.bWt||0}'></td>
     <td class='bcol'>${lnum(r.id,'bAge',r.bAge)}</td>
     <td class='bcol'>${lnum(r.id,'bA',r.bA)}</td>
     <td class='bcol'>${lnum(r.id,'bB',r.bB)}</td>
-    <td class='end'><span id='bab_${r.id}'>0</span></td>
-    <td class='auto scol'><span id='scode_${r.id}'>${(CAT_CODE[r.cat]||{}).s||""}</span></td>
+    <td class='end bcol'><span id='bab_${r.id}'>0</span></td>
     <td class='scol'><select data-lrow='${r.id}' data-f='sGubun'>${gubunOptions(SELL_GUBUN,r.sGubun)}</select></td>
     <td class='scol'>${lnum(r.id,'sQty',r.sQty)}</td>
     <td class='scol'><input type='number' inputmode='decimal' min='0' data-lrow='${r.id}' data-f='sWt' value='${r.sWt||0}'></td>
     <td class='scol'>${lnum(r.id,'sAge',r.sAge)}</td>
     <td class='scol'>${lnum(r.id,'sA',r.sA)}</td>
     <td class='scol'>${lnum(r.id,'sB',r.sB)}</td>
-    <td class='end'><span id='sab_${r.id}'>0</span></td>
+    <td class='end scol'><span id='sab_${r.id}'>0</span></td>
     <td class='scol'><input type='number' inputmode='numeric' min='0' data-lrow='${r.id}' data-f='buyDate' value='${r.buyDate||""}' placeholder='YYMMDD' style='width:60px'></td>
     <td class='scol'>${lnum(r.id,'days',r.days)}</td>
     <td class='scol'>${lnum(r.id,'gain',r.gain)}</td>
     <td class='act'><button type='button' class='mini del' data-dellrow='${r.id}'>－</button></td></tr>`).join("");
-  if(!rows.length) h+="<tr><td colspan='23' class='sub' style='text-align:center;padding:10px'>내역 없음 — 🔄 자동생성 또는 ＋행 추가</td></tr>";
+  if(!rows.length) h+="<tr><td colspan='22' class='sub' style='text-align:center;padding:10px'>내역 없음 — 🔄 자동생성 또는 ＋행 추가</td></tr>";
   $("ledgerTbl").innerHTML=h;
 }
 function recalcLedger(){
   (M.ledgerRows||[]).forEach(r=>{
     const ab=$("bab_"+r.id); if(ab) ab.textContent=nf(Math.round((+r.bA||0)+(+r.bB||0)));
     const sm=$("sab_"+r.id); if(sm) sm.textContent=nf(Math.round((+r.sA||0)-(+r.sB||0)));
-    const bc=$("bcode_"+r.id); if(bc) bc.textContent=(CAT_CODE[r.cat]||{}).b||"";
-    const sc=$("scode_"+r.id); if(sc) sc.textContent=(CAT_CODE[r.cat]||{}).s||"";
   });
 }
-function blankLedger(cat){ return {id:newRid(),cat:cat||CATS[0].id,date:"",bGubun:"11",bQty:0,bWt:0,bAge:0,bA:0,bB:0,sGubun:SELL_GUBUN[0][0],sQty:0,sWt:0,sAge:0,sA:0,sB:0,buyDate:"",days:0,gain:0}; }
+function blankLedger(cat){ return {id:newRid(),cat:cat||CATS[0].id,codeSel:"buy",date:"",bGubun:"11",bQty:0,bWt:0,bAge:0,bA:0,bB:0,sGubun:SELL_GUBUN[0][0],sQty:0,sWt:0,sAge:0,sA:0,sB:0,buyDate:"",days:0,gain:0}; }
 function genLedgerFromInv(){
   if(!M.ledgerRows)M.ledgerRows=[];
   CATS.forEach(c=>{
-    BUY_SRC.forEach(([col,gub])=>{ const q=+(M.inv[c.id][col]||0); if(q>0 && !M.ledgerRows.some(r=>r.cat===c.id&&r.bGubun===gub&&(+r.bQty)>0)){ const row=blankLedger(c.id); row.bGubun=gub; row.bQty=q; M.ledgerRows.push(row); } });
-    SELL_SRC.forEach(([col,gub])=>{ const q=+(M.inv[c.id][col]||0); if(q>0 && !M.ledgerRows.some(r=>r.cat===c.id&&r.sGubun===gub&&(+r.sQty)>0)){ const row=blankLedger(c.id); row.sGubun=gub; row.sQty=q; M.ledgerRows.push(row); } });
+    BUY_SRC.forEach(([col,gub])=>{ if(col==="in" && STAR_IN.indexOf(c.id)<0) return; /* 편입+는 별표(사육구분 이동)만 자동생성 */ const q=+(M.inv[c.id][col]||0); if(q>0 && !M.ledgerRows.some(r=>r.cat===c.id&&r.bGubun===gub&&(+r.bQty)>0)){ const row=blankLedger(c.id); row.codeSel="buy"; row.bGubun=gub; row.bQty=q; M.ledgerRows.push(row); } });
+    SELL_SRC.forEach(([col,gub])=>{ if(col==="out" && STAR_OUT.indexOf(c.id)<0) return; /* 편입−는 별표만 자동생성 */ const q=+(M.inv[c.id][col]||0); if(q>0 && !M.ledgerRows.some(r=>r.cat===c.id&&r.sGubun===gub&&(+r.sQty)>0)){ const row=blankLedger(c.id); row.codeSel="sell"; row.sGubun=gub; row.sQty=q; M.ledgerRows.push(row); } });
   });
   buildLedger(); recalcLedger(); autosave();
 }
@@ -582,7 +603,7 @@ function ledgerSet(el){
   const r=(M.ledgerRows||[]).find(x=>x.id===el.dataset.lrow); if(!r) return;
   const f=el.dataset.f; const numF=["bQty","bWt","bAge","bA","bB","sQty","sWt","sAge","sA","sB","days","gain"];
   r[f]= numF.indexOf(f)>=0 ? (parseFloat(el.value)||0) : el.value;
-  if(f==="cat") buildLedger();
+  if(f==="cat"||f==="codeSel") buildLedger();
   recalcLedger(); autosave();
 }
 document.addEventListener("change",e=>{
@@ -597,6 +618,7 @@ document.addEventListener("click",e=>{
 });
 $("genLedger").addEventListener("click",genLedgerFromInv);
 $("addLedger").addEventListener("click",()=>{ if(!M.ledgerRows)M.ledgerRows=[]; M.ledgerRows.push(blankLedger()); buildLedger(); recalcLedger(); autosave(); });
+$("clearLedger").addEventListener("click",()=>{ if(!(M.ledgerRows&&M.ledgerRows.length)){ alert("지울 내역이 없습니다."); return; } if(!confirm("③ 대·소동물 구입 및 판매 내역을 모두 지울까요? (되돌릴 수 없습니다)"))return; M.ledgerRows=[]; buildLedger(); recalcLedger(); autosave(); });
 // ===== 소이력제(cattle.html) 연동 =====
 $("traceLookup").addEventListener("click",()=>{
   if(!$("farm").value.trim()){ alert("농가명을 먼저 입력/선택하세요."); return; }
@@ -611,6 +633,7 @@ function applyTraceResult(res){
   // 소이력 데이터 → 판매(도축) 행 생성. 사용자가 금액·구입시비용 등 나머지 입력.
   if(!M.ledgerRows)M.ledgerRows=[];
   const row=blankLedger(CATS[0].id);
+  row.codeSel=CFG.hasHerd?"sell":"both";   // 번식형=판매, 비육형=구입+판매(연결)
   row.sGubun=SELL_GUBUN[0][0];            // 기본 판매/비육완료
   row.sQty=res.count||0;                   // 수량
   row.sWt=res.avgWeight||0;                // 체중(도체중량)
