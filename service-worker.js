@@ -2,7 +2,7 @@
    오프라인: 축종/용어/도우미/생산비 등 정적 콘텐츠 캐시.
    외부 API(카카오·람다·gtag)는 개입하지 않음 → 온라인에서만 동작(질병/소이력).
    콘텐츠 갱신 시 CACHE 버전을 올리세요. */
-const CACHE = 'dudang-v15-2026.9';
+const CACHE = 'dudang-v16-2026.10';
 const SHELL = [
   './', 'index.html', 'species.html', 'terms.html', 'helper.html', 'field.html', 'chukbi.html',
   'cattle.html', 'disease.html', 'livestock.html', 'survey.html', 'survey_breeding.html', 'survey_beef.html', 'manifest.json',
