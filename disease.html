@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>가축질병 현장정보</title>
+<title>가축질병 및 마리수 현장정보</title>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
 <script>
@@ -25,7 +25,7 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0; padding:0;}
   body{background:var(--bg); color:var(--t1); font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; font-size:16px; line-height:1.5; overflow-x:hidden;}
-  .wrap{max-width:560px; margin:0 auto; padding:0 14px 40px;}
+  .wrap{max-width:1160px; margin:0 auto; padding:0 14px 40px;}
   header{position:sticky; top:0; z-index:10; background:var(--bg); padding:12px 0 8px; border-bottom:1px solid var(--line);}
   .h-top{display:flex; align-items:center; gap:8px;}
   .nav-btn{background:none; border:none; color:var(--accent); font-size:14px; font-weight:700; padding:4px 0; flex:0 0 auto;}
@@ -134,8 +134,8 @@
 
   <header>
     <div class="h-top">
-      <button id="backBtn" class="nav-btn hidden">← 뒤로</button>
-      <div class="h-title" id="hTitle">🐾 가축질병 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v20</span></div>
+      <button id="backBtn" class="nav-btn">← 뒤로</button>
+      <div class="h-title" id="hTitle">🐾 가축질병 및 마리수 현장정보 <span style="font-size:11px;color:#c9962b;font-weight:800;">v20</span></div>
       <a href="https://ubaldos00-ship-it.github.io/dudang/" class="hub-btn" aria-label="홈">🏠 홈</a>
     </div>
     <div class="h-time" id="dataTime">데이터 확인 중…</div>
@@ -292,15 +292,17 @@ function restoreState(){
     if(curQ) el("q").value=curQ;
   }catch(e){}
 }
+let curView="viewHome";
 function show(view){
   ["viewHome","viewArea","viewHist"].forEach(v=>el(v).classList.add("hidden"));
   el(view).classList.remove("hidden");
-  el("backBtn").classList.toggle("hidden", view==="viewHome");
+  curView=view;
   window.scrollTo(0,0);
   if(view==="viewHome" && _map){ setTimeout(()=>{ try{_map.relayout();}catch(e){} },30); }
 }
 function goHome(){ show("viewHome"); }
-el("backBtn").addEventListener("click", goHome);
+// 뒤로: 하위 화면(지역·이력)에서는 홈 화면으로, 홈 화면에서는 이전 페이지로
+el("backBtn").addEventListener("click", ()=>{ if(curView!=="viewHome"){ goHome(); } else { if(history.length>1) history.back(); else location.href="index.html"; } });
 
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function fmtOcc(s){ if(!s||s.length<8) return s||""; return s.slice(2,4)+"."+s.slice(4,6)+"."+s.slice(6,8); }

@@ -1,4 +1,4 @@
-<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결, 새로고침 위치유지+카운터 부분표시·재시도, 가축마리수(17시도 색칩·청단축·초기화), 축비 조사표 통합(survey.html·7축종 버튼→임베드), 전 페이지 구글+네이버 애널리틱스 -->
+<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결, 새로고침 위치유지+카운터 부분표시·재시도, 가축마리수(17시도 색칩·청단축·초기화), 축비 조사표 통합(survey.html·7축종 버튼→임베드), 전 페이지 구글+네이버 애널리틱스 · v27(2026-09-22): 홈 메뉴 '홈'=맨위로 스크롤, PC에서만 헤더+메뉴 고정+스크롤 시 자동 숨김/표시(모바일 미적용), 전 페이지 헤더 표준화(왼쪽 뒤로가기·오른쪽 홈: 조사도우미·현장도우미·조사용어·생산비분석·질병현장), 생산비분석 헤더 페이지폭 정렬, 가축질병 페이지 PC폭 확대(홈과 동일)·제목 '가축질병 및 마리수 현장정보'로 변경 -->
 <!-- 두당(頭當) 통합대시보드 · 1단계 뼈대 · 기존 기능(cattle/disease/생산비) 허브 -->
 <!doctype html>
 <html lang="ko">
@@ -31,6 +31,11 @@
   .brand small{font-size:13px;font-weight:400;color:#bcd4ef;margin-left:8px;letter-spacing:0;}
   .slogan{color:#cfe0f2;font-size:14px;margin-top:2px;}
   nav.top{background:#22497a;}
+  /* PC에서만 헤더+메뉴 고정 + 스크롤 시 자동 숨김/표시 (모바일은 메뉴가 없어 미적용) */
+  @media(min-width:761px){
+    #topbar{position:sticky;top:0;z-index:40;transition:transform .25s ease;will-change:transform;}
+    #topbar.hide{transform:translateY(-100%);}
+  }
   nav.top .inner{max-width:1160px;margin:0 auto;display:flex;flex-wrap:wrap;}
   nav.top a{color:#dbe8f7;padding:11px 15px;font-size:14px;border-bottom:3px solid transparent;}
   nav.top a:hover{color:#fff;border-bottom-color:#63b3ed;background:rgba(255,255,255,.05);}
@@ -90,6 +95,7 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
+<div id="topbar">
 <header>
   <div class="head-row">
     <div>
@@ -99,7 +105,7 @@
   </div>
 </header>
 <nav class="top"><div class="inner">
-  <a href="#home">홈</a>
+  <a href="#home" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">홈</a>
   <a href="helper.html">조사도우미</a>
   <a href="field.html">현장도우미</a>
   <a href="species.html">축종 배우기</a>
@@ -109,6 +115,7 @@
   <a href="livestock.html">가축마리수</a>
   <a href="terms.html">조사용어</a>
 </div></nav>
+</div>
 
 <main id="home">
   <!-- 통합검색 -->
@@ -186,6 +193,18 @@
     if(keep){ var y=0; try{ y=+(sessionStorage.getItem('idxScroll')||0); }catch(e){} window.scrollTo(0,y); }
     else { window.scrollTo(0,0); }
   });
+  // PC에서만: 아래로 스크롤하면 상단 헤더+메뉴 숨김, 위로 올리면 표시 (모바일은 메뉴가 없어 미적용)
+  (function(){
+    var lastY=0, tb=document.getElementById('topbar');
+    window.addEventListener('scroll',function(){
+      if(!tb) return;
+      if(window.innerWidth<761){ tb.classList.remove('hide'); return; }
+      var y=window.scrollY||document.documentElement.scrollTop||0;
+      if(y>lastY && y>90) tb.classList.add('hide');
+      else tb.classList.remove('hide');
+      lastY=y;
+    },{passive:true});
+  })();
 </script>
 <script>
   /* ===== 방문자 카운터 (GA4 Apps Script 서버값) =====
