@@ -22,8 +22,9 @@
   a{color:inherit;text-decoration:none;}
   header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:14px 16px;}
   .hrow{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;}
-  .home{color:#bcd4ef;font-size:14px;font-weight:600;}
-  header h1{font-size:19px;margin:0;}
+  .home{color:#bcd4ef;font-size:14px;font-weight:600;white-space:nowrap;}
+  .back{color:#fff;font-size:22px;font-weight:700;padding:2px 6px;}
+  header h1{font-size:19px;margin:0;flex:1;min-width:0;}
   main{max-width:900px;margin:0 auto;padding:16px;}
   .bc{font-size:13px;color:var(--muted);margin-bottom:12px;}
   .bc a{color:var(--blue);font-weight:600;} .bc b{color:var(--navy);}
@@ -55,8 +56,9 @@
 </head>
 <body>
 <header><div class="hrow">
-  <a class="home" href="index.html">← 두당 홈</a>
+  <a class="back" href="#" onclick="if(history.length>1){history.back();}else{location.href='index.html';}return false;" aria-label="뒤로">←</a>
   <h1>🧭 조사도우미</h1>
+  <a class="home" href="index.html">🏠 홈</a>
 </div></header>
 <main id="main"><div class="msg">불러오는 중…</div></main>
 <script>
@@ -124,5 +126,6 @@ if(!wcs_add) var wcs_add = {};
 wcs_add["wa"] = "1b150b27ece7010";
 if(window.wcs) { wcs_do(); }
 </script>
+<script>(function(){var ly=0,h=document.querySelector('header');if(!h)return;h.style.position='sticky';h.style.top='0';h.style.zIndex='40';h.style.transition='transform .25s ease';h.style.willChange='transform';window.addEventListener('scroll',function(){var y=window.scrollY||document.documentElement.scrollTop||0;if(y>ly&&y>60)h.style.transform='translateY(-100%)';else h.style.transform='translateY(0)';ly=y;},{passive:true});})();</script>
 </body>
 </html>

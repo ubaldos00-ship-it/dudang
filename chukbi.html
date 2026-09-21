@@ -19,8 +19,11 @@
   :root{--blue:#2b6cb0;--red:#c53030;--line:#e2e8f0;--head:#eef3fb;--muted:#718096;}
   *{box-sizing:border-box;}
   body{margin:0;font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:#1a202c;background:#f7fafc;}
-  header{background:#1a365d;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;}
-  header h1{font-size:18px;margin:0;cursor:pointer;user-select:none;}
+  header{background:#1a365d;color:#fff;padding:10px 16px;}
+  header .hrow{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  header .back{color:#fff;font-size:22px;font-weight:700;padding:2px 6px;}
+  header .home{color:#a0c4e8;font-size:14px;font-weight:600;white-space:nowrap;}
+  header h1{font-size:18px;margin:0;cursor:pointer;user-select:none;flex:1;min-width:0;}
   header .ver{font-size:12px;color:#a0c4e8;}
   .tabs{display:flex;flex-wrap:wrap;gap:2px;background:#2c5282;padding:0 8px;}
   .tabs button{background:transparent;color:#cfe0f2;border:0;padding:9px 14px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;}
@@ -53,12 +56,13 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
-<header>
-  <a href="index.html" style="color:#a0c4e8;text-decoration:none;font-size:14px;font-weight:600">← 두당 홈</a>
-  <h1 id="title" style="margin-left:4px">축산물생산비 집계·검토</h1>
+<header><div class="hrow">
+  <a class="back" href="#" onclick="if(history.length>1){history.back();}else{location.href='index.html';}return false;" aria-label="뒤로">←</a>
+  <h1 id="title">축산물생산비 집계·검토</h1>
   <span class="ver">웹 · 한우 번식우</span>
-  <span id="admin" class="ver" style="margin-left:auto"></span>
-</header>
+  <span id="admin" class="ver"></span>
+  <a class="home" href="index.html">🏠 홈</a>
+</div></header>
 <div class="tabs" id="tabs"></div>
 <main>
   <!-- 가져오기 -->
@@ -670,5 +674,6 @@ if(!wcs_add) var wcs_add = {};
 wcs_add["wa"] = "1b150b27ece7010";
 if(window.wcs) { wcs_do(); }
 </script>
+<script>(function(){var ly=0,h=document.querySelector('header');if(!h)return;h.style.position='sticky';h.style.top='0';h.style.zIndex='40';h.style.transition='transform .25s ease';h.style.willChange='transform';window.addEventListener('scroll',function(){var y=window.scrollY||document.documentElement.scrollTop||0;if(y>ly&&y>60)h.style.transform='translateY(-100%)';else h.style.transform='translateY(0)';ly=y;},{passive:true});})();</script>
 </body>
 </html>

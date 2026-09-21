@@ -31,11 +31,9 @@
   .brand small{font-size:13px;font-weight:400;color:#bcd4ef;margin-left:8px;letter-spacing:0;}
   .slogan{color:#cfe0f2;font-size:14px;margin-top:2px;}
   nav.top{background:#22497a;}
-  /* PC에서만 헤더+메뉴 고정 + 스크롤 시 자동 숨김/표시 (모바일은 메뉴가 없어 미적용) */
-  @media(min-width:761px){
-    #topbar{position:sticky;top:0;z-index:40;transition:transform .25s ease;will-change:transform;}
-    #topbar.hide{transform:translateY(-100%);}
-  }
+  /* 헤더+메뉴 고정 + 스크롤 시 자동 숨김/표시 (모바일·PC 공통) */
+  #topbar{position:sticky;top:0;z-index:40;transition:transform .25s ease;will-change:transform;}
+  #topbar.hide{transform:translateY(-100%);}
   nav.top .inner{max-width:1160px;margin:0 auto;display:flex;flex-wrap:wrap;}
   nav.top a{color:#dbe8f7;padding:11px 15px;font-size:14px;border-bottom:3px solid transparent;}
   nav.top a:hover{color:#fff;border-bottom-color:#63b3ed;background:rgba(255,255,255,.05);}
@@ -193,12 +191,11 @@
     if(keep){ var y=0; try{ y=+(sessionStorage.getItem('idxScroll')||0); }catch(e){} window.scrollTo(0,y); }
     else { window.scrollTo(0,0); }
   });
-  // PC에서만: 아래로 스크롤하면 상단 헤더+메뉴 숨김, 위로 올리면 표시 (모바일은 메뉴가 없어 미적용)
+  // 아래로 스크롤하면 상단 헤더+메뉴 숨김, 위로 올리면 표시 (모바일·PC 공통)
   (function(){
     var lastY=0, tb=document.getElementById('topbar');
     window.addEventListener('scroll',function(){
       if(!tb) return;
-      if(window.innerWidth<761){ tb.classList.remove('hide'); return; }
       var y=window.scrollY||document.documentElement.scrollTop||0;
       if(y>lastY && y>90) tb.classList.add('hide');
       else tb.classList.remove('hide');
