@@ -1,4 +1,4 @@
-<!-- survey_breeding.html · 저장: 2026-09-18 KST(v3) · 농가 저장/불러오기, 마리수 입력칸 축소, 송아지 편입-·육성우 편입+ * 표시, 초임우/경산우 편입 직접입력, 사료 항목별 ＋/－, 숫자키패드(inputmode)·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계·＋원본만/－추가행만)·농가삭제 · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 310/610·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) · v(0919d): 구입·판매 단일 통합원장(연결성), 일자=일만, 카드재배치(번식우 ③원장/④사료비, 육우 ②원장/③사료비), 육우 사료기본 사육구분별, embed 모드(축비 조사표 임베드용) · v(0921): 상단정렬(연도·월크게·일수·불러오기·농가)·백업공유, 기본=전월, 편입 자동연쇄, 사료 양방향(월투입↔먹는량·월금액↔단가), embed 헤더숨김, 백업·공유=전축종 통합(농가선택·기본전체) · v(0921b)[v25]: 단일파일 통합(축종칩→SPCFG 구성기반, iframe 제거·번식우/육우 완성·5축종 준비중), 마리수표 고정열(사육구분·암수·월초)·사료표 사료명 고정, 소이력제 연동(③원장 조회버튼→cattle.html?pick=survey→수량·도체중·축령[육우는 구입일·사육일수]·판매행 자동반영), 농가목록 축종별 프리픽스 수정 · v(0921c)[v26]: 고정열 오프셋 실측정렬(암수·월초가 사육구분에 딱 붙음, 육우 포함), 사료 항목소계 라벨 왼쪽(사료명 아래)로 이동·육우 소계 표시확인, 헤더 고정+스크롤 시 자동 숨김/표시·헤더에 축종·농가·해당월 표기 · v(0922)[v27]: 상단 버튼 배치(농가 옆 저장, PC=4버튼 한 줄·모바일=저장만 옆+나머지 다음 줄), ③원장 품명 부호 1칸 통합(구입/판매 선택·비육형은 구입+판매·미선택쪽 흐리게)·구분은 구입/판매 별도 유지, 자동생성은 편입 별표(사육구분 이동)만 생성, ③원장 초기화 버튼 추가 · v(0922b)[v28]: 젖소 조사표 추가(송아지·육성우·초임우·경산우[4산미만→4산이상]·번식용수, 월중현황=자연종부/인공수정/초임분만/경산분만/착유우/건유우, 사료 사육구분별 기본), 비육우 추가(육우와 동일·부호만 320/620), 월중현황·초임분만 대상 축종별 설정(firstCalfTarget), ※젖소·비육우 부호는 임시값(340/640·320/620)—실제 코드 확인 필요 · v(0922c)[v29]: 비육돈 조사표 추가(포유자돈→이유자돈→육성돈→비육돈→후보모돈→모돈·번식용수퇘지, 편입감소→다음단계 편입증가 자동, 별표=이유자돈·후보모돈·수퇘지 편입+), 월중현황=자연종부/인공수정/모돈분만, 사료 사육구분별 기본, ★역산기능(월말확인+판매·분만·폐사로 편입 증감 자동계산·확인란 ok/불일치)—엑셀식, 부호 임시값 350/650, 전 페이지 헤더 고정+스크롤 자동 숨김/표시(모바일·PC 공통) · v(0922d)[v30]: 역산 버튼=제목 옆 '자동편입'으로 이동, 입력 포커스 시 확대 방지(viewport maximum-scale·user-scalable=no), 비육돈 소이력 버튼 숨김, 사료 라디오=성우환산/사육구분별/구분별 섭취량(‘사료 입력 방식:’ 삭제·명칭 단축), 구분별 섭취량표 신규(연령별 1일섭취량×마리수×일수→섭취량·급여량·단가·금액, 비육돈 기본값 0.17/0.8/2/3/2.8/3.2/3.3/3.2·초임·경산 수동·사료첨가제 직접입력) · v(0922e)[v31]: 구분별 섭취량표 그룹화(자돈·비육·모돈·수퇘지 묶음, 비육·모돈만 소계행)·입력칸 강조(연한 파랑 배경+테두리) · v(0922f)[v32]: 비육돈 사료 기본=구분별 섭취량, 1일섭취량·단가 다음달 이월(수정가능·마리수는 매월 새로) · v(0923)[v33]: 비육돈 원장 기본값(이유자돈7kg·28일, 비육돈판매165일·판매비31050/두[자조금1200+29850], 후보모돈120kg·50만/두, 모돈도태 축령6·160kg, 종돈도태 축령20·250kg·75만, 모두 수정가능·두당×수량 자동), 일자 기본=말일, 구입당시일자/사육일수/일당증체 열 숨김, 판매요약표(금액있는 품명 두당 체중·금액), 월중현황 초임돈 입력·경산돈/모돈계/인공수정료(9000/회) 자동, 사료 초임·경산 마리수=월중현황 연동(경산=모돈−초임), 마리수표 산자수·폐사율 표시 -->
+<!-- survey_breeding.html · 저장: 2026-09-18 KST(v3) · 농가 저장/불러오기, 마리수 입력칸 축소, 송아지 편입-·육성우 편입+ * 표시, 초임우/경산우 편입 직접입력, 사료 항목별 ＋/－, 숫자키패드(inputmode)·입력값 파랑, 네이버 애널리틱스, 사료표 개편(적용마리수·항목소계·농후/조사료 소계·＋원본만/－추가행만)·농가삭제 · v(0919b): 엔터→다음칸, 사료표 월투입·단가·월금액 나란히+평균단가, 캐시 암호화, 내보내기/가져오기/공유 팝업(AES·기본비번2026), 전체농가 내보내기·다운로드 안정화·가져오기 농가선택+추가/교체, 공유 폴백(윈도우=파일저장) · v(0919c): ①제목 대·소동물 마리수·월선택칸 통일, ②대소동물 구입/판매 원장(부호 310/610·구입11/편입31/판매11/도태21, 마리수 자동생성+수동추가, A+B/A-B, 보안게이트 개발중공개) · v(0919d): 구입·판매 단일 통합원장(연결성), 일자=일만, 카드재배치(번식우 ③원장/④사료비, 육우 ②원장/③사료비), 육우 사료기본 사육구분별, embed 모드(축비 조사표 임베드용) · v(0921): 상단정렬(연도·월크게·일수·불러오기·농가)·백업공유, 기본=전월, 편입 자동연쇄, 사료 양방향(월투입↔먹는량·월금액↔단가), embed 헤더숨김, 백업·공유=전축종 통합(농가선택·기본전체) · v(0921b)[v25]: 단일파일 통합(축종칩→SPCFG 구성기반, iframe 제거·번식우/육우 완성·5축종 준비중), 마리수표 고정열(사육구분·암수·월초)·사료표 사료명 고정, 소이력제 연동(③원장 조회버튼→cattle.html?pick=survey→수량·도체중·축령[육우는 구입일·사육일수]·판매행 자동반영), 농가목록 축종별 프리픽스 수정 · v(0921c)[v26]: 고정열 오프셋 실측정렬(암수·월초가 사육구분에 딱 붙음, 육우 포함), 사료 항목소계 라벨 왼쪽(사료명 아래)로 이동·육우 소계 표시확인, 헤더 고정+스크롤 시 자동 숨김/표시·헤더에 축종·농가·해당월 표기 · v(0922)[v27]: 상단 버튼 배치(농가 옆 저장, PC=4버튼 한 줄·모바일=저장만 옆+나머지 다음 줄), ③원장 품명 부호 1칸 통합(구입/판매 선택·비육형은 구입+판매·미선택쪽 흐리게)·구분은 구입/판매 별도 유지, 자동생성은 편입 별표(사육구분 이동)만 생성, ③원장 초기화 버튼 추가 · v(0922b)[v28]: 젖소 조사표 추가(송아지·육성우·초임우·경산우[4산미만→4산이상]·번식용수, 월중현황=자연종부/인공수정/초임분만/경산분만/착유우/건유우, 사료 사육구분별 기본), 비육우 추가(육우와 동일·부호만 320/620), 월중현황·초임분만 대상 축종별 설정(firstCalfTarget), ※젖소·비육우 부호는 임시값(340/640·320/620)—실제 코드 확인 필요 · v(0922c)[v29]: 비육돈 조사표 추가(포유자돈→이유자돈→육성돈→비육돈→후보모돈→모돈·번식용수퇘지, 편입감소→다음단계 편입증가 자동, 별표=이유자돈·후보모돈·수퇘지 편입+), 월중현황=자연종부/인공수정/모돈분만, 사료 사육구분별 기본, ★역산기능(월말확인+판매·분만·폐사로 편입 증감 자동계산·확인란 ok/불일치)—엑셀식, 부호 임시값 350/650, 전 페이지 헤더 고정+스크롤 자동 숨김/표시(모바일·PC 공통) · v(0922d)[v30]: 역산 버튼=제목 옆 '자동편입'으로 이동, 입력 포커스 시 확대 방지(viewport maximum-scale·user-scalable=no), 비육돈 소이력 버튼 숨김, 사료 라디오=성우환산/사육구분별/구분별 섭취량(‘사료 입력 방식:’ 삭제·명칭 단축), 구분별 섭취량표 신규(연령별 1일섭취량×마리수×일수→섭취량·급여량·단가·금액, 비육돈 기본값 0.17/0.8/2/3/2.8/3.2/3.3/3.2·초임·경산 수동·사료첨가제 직접입력) · v(0922e)[v31]: 구분별 섭취량표 그룹화(자돈·비육·모돈·수퇘지 묶음, 비육·모돈만 소계행)·입력칸 강조(연한 파랑 배경+테두리) · v(0922f)[v32]: 비육돈 사료 기본=구분별 섭취량, 1일섭취량·단가 다음달 이월(수정가능·마리수는 매월 새로) · v(0923)[v33]: 비육돈 원장 기본값(이유자돈7kg·28일, 비육돈판매165일·판매비31050/두[자조금1200+29850], 후보모돈120kg·50만/두, 모돈도태 축령6·160kg, 종돈도태 축령20·250kg·75만, 모두 수정가능·두당×수량 자동), 일자 기본=말일, 구입당시일자/사육일수/일당증체 열 숨김, 판매요약표(금액있는 품명 두당 체중·금액), 월중현황 초임돈 입력·경산돈/모돈계/인공수정료(9000/회) 자동, 사료 초임·경산 마리수=월중현황 연동(경산=모돈−초임), 마리수표 산자수·폐사율 표시 · v(0923b)[v34]: 월중현황 재구성(모돈분만 삭제·초임돈/경산돈 입력·모돈합계=초임+경산·순서 자연종부/인공수정/초임돈/경산돈), 비육돈 기본값 팝업(⚙️: 인공수정료·이유자돈·비육돈판매·후보모돈·모돈도태·종돈도태 체중/축령/금액/자조금/판매비 수정·되돌리기·월이월·저장자료 유지), 계산값 오른쪽정렬(천단위) -->
 <!-- 두당 조사표 · 번식우 · 월초·증감·월말 자동, 초임분만→초임우/경산우 자동편입, 사료 월투입량(먹는량×마리수×월일수)+단가 이월, 성우환산두수 선택 -->
 <!doctype html>
 <html lang="ko">
@@ -99,6 +99,13 @@
   .mrow button{border:0;border-radius:7px;padding:5px 10px;font-size:12.5px;font-weight:700;cursor:pointer;}
   .mrow .op{background:#e6f0fb;color:#1d6fe0;} .mrow .rm{background:#fdeaea;color:#c0392b;}
   .mbtns{display:flex;flex-wrap:wrap;gap:8px;}
+  .pdgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;}
+  .pdgrid label{display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:3px;font-weight:600;}
+  .pdgrid input{width:100%;text-align:right;}
+  /* 계산값(자동)은 오른쪽 정렬·천단위 콤마로 읽기 쉽게 */
+  td.auto,td.end{text-align:right;}
+  td.rc.auto,td.pgrp,td.psub{text-align:left;}
+  #invTbl td.mz.auto,#invTbl td.chk{text-align:right;}
   .mmsg{font-size:12.5px;color:var(--up);min-height:16px;margin-top:4px;}
   .pwrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .note{font-size:12px;color:#c05621;margin-top:6px;}
@@ -166,7 +173,9 @@
 
   <!-- 월중 사육현황 -->
   <div class="card" id="herdCard">
-    <div class="lb"><span class="num" id="numHerd">2</span>월중 사육현황</div>
+    <div class="lb"><span class="num" id="numHerd">2</span>월중 사육현황
+      <button class="btn manage" id="pigDefBtn1" hidden style="margin-left:8px;padding:4px 10px;font-size:12px;vertical-align:middle">⚙️ 인공수정료·기본값</button>
+    </div>
     <div class="tbl-scroll"><table id="herdTbl"></table></div>
     <div class="hint" id="herdNote">※ <b>초임분만</b>을 입력하면 <b>초임우 편입−</b> / <b>경산우 편입+</b> 칸에 자동으로 채워집니다(직접 수정 가능). 총분만 = 초임분만 + 경산분만.</div>
   </div>
@@ -183,6 +192,7 @@
     <div id="secBody">
       <div class="mst" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">구입 및 편입 ↔ 판매 통합내역 <span class="sub" id="ledgerCodes">구입부호 310 · 판매부호 610</span>
         <button class="btn manage" id="genLedger" style="padding:4px 10px;font-size:12px">🔄 마리수에서 자동생성</button>
+        <button class="btn manage" id="pigDefBtn2" hidden style="padding:4px 10px;font-size:12px">⚙️ 기본값 변경</button>
         <button class="btn reset" id="addLedger" style="padding:4px 10px;font-size:12px">＋ 행 추가</button>
         <button class="btn del" id="clearLedger" style="padding:4px 10px;font-size:12px">🧹 초기화</button>
         <button class="btn save" id="traceLookup" style="padding:4px 10px;font-size:12px;background:#2b6cb0">🐄 소이력제 자료 조회</button>
@@ -247,6 +257,33 @@
   </div>
 </div>
 
+<div id="pigDefModal" class="modal-back" hidden>
+  <div class="modal">
+    <div class="modal-h"><span>⚙️ 비육돈 기본값 설정</span><button class="mx" id="pdClose">닫기 ✕</button></div>
+    <div class="modal-b">
+      <div class="sub" style="margin-bottom:10px">기본값을 바꾸면 <b>이후 새로 만드는 행·자동생성</b>에 적용됩니다. 이미 입력된 자료는 그대로 유지됩니다. 값은 <b>다음 달로 이월</b>됩니다.</div>
+      <div class="msec"><div class="mst">🧪 인공수정</div>
+        <div class="pdgrid"><label>인공수정료(원/회)<input id="pd_aiFee" type="number" inputmode="numeric"></label></div></div>
+      <div class="msec"><div class="mst">🐷 이유자돈</div>
+        <div class="pdgrid"><label>체중(kg)<input id="pd_weanWt" type="number" inputmode="decimal"></label><label>축령(일)<input id="pd_weanAge" type="number" inputmode="numeric"></label></div></div>
+      <div class="msec"><div class="mst">🥓 비육돈 판매</div>
+        <div class="pdgrid"><label>축령(일)<input id="pd_fatAge" type="number" inputmode="numeric"></label><label>자조금(원/두)<input id="pd_jajogeum" type="number" inputmode="numeric"></label><label>판매비(원/두)<input id="pd_salebi" type="number" inputmode="numeric"></label></div></div>
+      <div class="msec"><div class="mst">🐖 후보모돈</div>
+        <div class="pdgrid"><label>체중(kg)<input id="pd_giltWt" type="number" inputmode="decimal"></label><label>금액(원/두)<input id="pd_giltAmt" type="number" inputmode="numeric"></label></div></div>
+      <div class="msec"><div class="mst">🐷 모돈 도태</div>
+        <div class="pdgrid"><label>축령<input id="pd_sowAge" type="number" inputmode="numeric"></label><label>체중(kg)<input id="pd_sowWt" type="number" inputmode="decimal"></label><label>금액(원/두)<input id="pd_sowAmt" type="number" inputmode="numeric"></label></div>
+        <div class="sub">※ 판매시비용은 위 자조금+판매비로 자동 적용됩니다.</div></div>
+      <div class="msec"><div class="mst">🐗 종돈(수퇘지) 도태</div>
+        <div class="pdgrid"><label>축령<input id="pd_boarAge" type="number" inputmode="numeric"></label><label>체중(kg)<input id="pd_boarWt" type="number" inputmode="decimal"></label><label>금액(원/두)<input id="pd_boarAmt" type="number" inputmode="numeric"></label></div></div>
+      <div class="mbtns" style="margin-top:4px">
+        <button class="btn save" id="pdApply">✅ 적용</button>
+        <button class="btn reset" id="pdReset">↩ 기본값으로 되돌리기</button>
+      </div>
+      <div class="mmsg" id="pdMsg"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const SPECIES_LIST=[
  {id:"breeding",label:"번식우",emoji:"🐮",ready:true},{id:"beeffat",label:"비육우",emoji:"🐂",ready:true},
@@ -298,8 +335,8 @@ const SPCFG={
   edgeNext:{calfF:"growF",calfM:"growM",growF:"heifer",growM:"bull",cow1:"cow2"}, starOut:["calfF","calfM"], starIn:["growF","growM"],
   starHint:"<span class='star'>*</span> 송아지 편입−·육성우 편입+는 <b>사육구분 간 이동</b>을 뜻합니다. 경산우는 <b>4산 미만 → 4산 이상</b>으로 편입(연산 증가) 이어집니다. 실제 <b>판매·구입</b>은 판매/구입 칸에 입력하세요. <span class='warn'>(부호는 임시값 340/640 — 실제 코드 확인 필요)</span>" },
  pig:{ label:"비육돈", spBuy:"350", spSell:"650", feedDefault:"perhead", hasHerd:true, reverseMode:true, noTrace:true, noBuyBack:true,
-  herd:[["natural","자연종부(회)"],["ai","인공수정(회)"],["sowfarrow","모돈분만(두)"],["firstsow","초임돈(두)"]],
-  herdCalc:[["oldsow","경산돈(두)"],["sowtot","모돈 합계(두)"],["aicost","인공수정료(원)"]],
+  herd:[["natural","자연종부(회)"],["ai","인공수정(회)"],["firstsow","초임돈(두)"],["oldsow","경산돈(두)"]],
+  herdCalc:[["sowtot","모돈 합계(두)"],["aicost","인공수정료(원)"]],
   cats:[{id:"suck",label:"포유자돈"},{id:"wean",label:"이유자돈"},{id:"grow",label:"육성돈"},{id:"fat",label:"비육돈"},{id:"gilt",label:"후보모돈"},{id:"sow",label:"모돈"},{id:"boar",label:"번식용 수퇘지"}],
   groups:[{name:"포유자돈",rows:[["suck",null]]},{name:"이유자돈",rows:[["wean",null]]},{name:"육성돈",rows:[["grow",null]]},{name:"비육돈",rows:[["fat",null]]},{name:"후보모돈",rows:[["gilt",null]]},{name:"모돈",rows:[["sow",null]]},{name:"번식용 수퇘지",rows:[["boar",null]]}],
   feedGrp:[["suck","포유자돈"],["wean","이유자돈"],["grow","육성돈"],["fat","비육돈"],["gilt","후보모돈"],["sow","모돈"],["boar","수퇘지"]],
@@ -371,16 +408,19 @@ function buildLedger(){
   if(!rows.length) h+=`<tr><td colspan='${noBB?19:22}' class='sub' style='text-align:center;padding:10px'>내역 없음 — 🔄 자동생성 또는 ＋행 추가</td></tr>`;
   $("ledgerTbl").innerHTML=h;
 }
-// 축종별 대·소동물 구입/판매 기본값(비육돈). 체중·축령은 두당 고정, 금액/비용은 두당×수량
+// 비육돈 기본값(수정 가능·월 이월). 체중·축령은 두당, 금액/비용은 두당×수량
+const PIG_DEF_DEFAULT={ aiFee:9000, weanWt:7, weanAge:28, fatAge:165, jajogeum:1200, salebi:29850, giltWt:120, giltAmt:500000, sowAge:6, sowWt:160, sowAmt:0, boarAge:20, boarWt:250, boarAmt:750000 };
+function pigDefaults(){ const d=Object.assign({},PIG_DEF_DEFAULT); if(M&&M.pigDefaults) Object.keys(M.pigDefaults).forEach(k=>{ if(M.pigDefaults[k]!=null&&M.pigDefaults[k]!=="") d[k]=+M.pigDefaults[k]; }); return d; }
+// 축종별 대·소동물 구입/판매 기본값(비육돈)
 function ledgerDefaultsFor(r){
   if(KIND!=="pig") return null;
-  const c=r.cat, res={buy:{},sell:{}};
-  const SELLCOST=31050; // 판매시비용 = 자조금 1200 + 판매시비용 29850 (두당)
-  if(c==="wean"){ res.buy={wt:7,age:28}; res.sell={wt:7,age:28}; }         // 이유자돈 7kg·28일
-  else if(c==="gilt"){ res.buy={wt:120,aPer:500000}; res.sell={wt:120,aPer:500000}; } // 후보모돈 120kg·50만/두
-  if(c==="fat" && r.sGubun==="11"){ res.sell={age:165,bPer:SELLCOST}; }    // 비육돈 판매 165일·판매비
-  if(c==="sow" && r.sGubun==="21"){ res.sell={age:6,wt:160,bPer:SELLCOST}; } // 모돈 도태 축령6·160kg·판매비
-  if(c==="boar" && r.sGubun==="21"){ res.sell={age:20,wt:250,aPer:750000,bPer:SELLCOST}; } // 종돈 도태 축령20·250kg·75만·판매비
+  const D=pigDefaults(), c=r.cat, res={buy:{},sell:{}};
+  const cost=(+D.jajogeum||0)+(+D.salebi||0); // 판매시비용 = 자조금 + 판매비 (두당)
+  if(c==="wean"){ res.buy={wt:D.weanWt,age:D.weanAge}; res.sell={wt:D.weanWt,age:D.weanAge}; }
+  else if(c==="gilt"){ res.buy={wt:D.giltWt,aPer:D.giltAmt}; res.sell={wt:D.giltWt,aPer:D.giltAmt}; }
+  if(c==="fat" && r.sGubun==="11"){ res.sell={age:D.fatAge,bPer:cost}; }
+  if(c==="sow" && r.sGubun==="21"){ res.sell={age:D.sowAge,wt:D.sowWt,aPer:(+D.sowAmt||0),bPer:cost}; }
+  if(c==="boar" && r.sGubun==="21"){ res.sell={age:D.boarAge,wt:D.boarWt,aPer:D.boarAmt,bPer:cost}; }
   return res;
 }
 function applyLedgerDefaults(r){
@@ -457,7 +497,7 @@ function encStr(s){ try{ let o=""; for(let i=0;i<s.length;i++) o+=String.fromCha
 function decStr(s){ if(typeof s!=="string"||s.slice(0,5)!=="ENC1:") return s; try{ const raw=decodeURIComponent(escape(atob(s.slice(5)))); let o=""; for(let i=0;i<raw.length;i++) o+=String.fromCharCode(raw.charCodeAt(i)^CKEY.charCodeAt(i%CKEY.length)); return o; }catch(e){ return "{}"; } }
 function loadFarm(f){ try{ const raw=localStorage.getItem(storeKey(f)); if(!raw) return {}; return JSON.parse(decStr(raw)); }catch(e){ return {}; } }
 function saveFarm(f,obj){ try{ localStorage.setItem(storeKey(f),encStr(JSON.stringify(obj))); }catch(e){} }
-function mkMonth(){ const m={inv:{},herd:{},feedBasis:(CFG.feedDefault||"adult"),coef:Object.assign({},DEF_COEF),feedItems:defaultFeedItems(),ledgerRows:[],intake:{}};
+function mkMonth(){ const m={inv:{},herd:{},feedBasis:(CFG.feedDefault||"adult"),coef:Object.assign({},DEF_COEF),feedItems:defaultFeedItems(),ledgerRows:[],intake:{},pigDefaults:{}};
   CATS.forEach(c=>m.inv[c.id]={begin:0,birth:0,buy:0,in:0,out:0,sell:0,cull:0,dead:0,endChk:0});
   HERD.forEach(([k])=>m.herd[k]=0);
   return m; }
@@ -499,6 +539,11 @@ function loadMonth(){
   if(pk && store[pk] && store[pk].intake){
     const anyIntake=Object.keys(M.intake).some(k=>{ const d=M.intake[k]||{}; return d.kg||d.price||d.cnt||d.feed; });
     if(!anyIntake){ const src=store[pk].intake; M.intake={}; Object.keys(src).forEach(k=>{ const s=src[k]||{}; M.intake[k]={kg:s.kg||0,price:s.price||0,cnt:0,feed:0}; }); }
+  }
+  // 비육돈 기본값(원장·인공수정료) 이월: 현재 달 미설정 시 전월 저장값 사용
+  if(!M.pigDefaults) M.pigDefaults={};
+  if((!M.pigDefaults||!Object.keys(M.pigDefaults).length) && pk && store[pk] && store[pk].pigDefaults){
+    M.pigDefaults=Object.assign({},store[pk].pigDefaults);
   }
   $("days").value=daysIn(year,month);
   if(!M.ledgerRows)M.ledgerRows=[];
@@ -650,7 +695,7 @@ function recalcPerhead(){
     let cnt;
     if(r.cat) cnt=endOf(M,r.cat);
     else if(r.pigSow==="first") cnt=(M.herd&&M.herd.firstsow)||0;
-    else if(r.pigSow==="old"){ const sowEnd=M.inv.sow?endOf(M,"sow"):0; cnt=Math.max(0, sowEnd-((M.herd&&M.herd.firstsow)||0)); }
+    else if(r.pigSow==="old") cnt=(M.herd&&M.herd.oldsow)||0;
     else cnt=(+(d.cnt||0));
     const kg=+(d.kg||0), use=kg*cnt*days, feed=Math.round(use), amt=feed*(+(d.price||0));
     if(r.cat||r.pigSow){ const ec=$("icnt_"+k); if(ec)ec.textContent=nf(cnt); }
@@ -709,16 +754,14 @@ function syncBasisUI(){
 // 비육돈: 월중현황 경산돈·모돈계·인공수정료, 마리수표 산자수·폐사율
 function recalcPigHerd(){
   if(KIND!=="pig") return;
-  const sowEnd=M.inv.sow?endOf(M,"sow"):0;
   const first=(M.herd&&M.herd.firstsow)||0;
-  const old=Math.max(0, sowEnd-first);
-  const ai=(M.herd&&M.herd.ai)||0;
-  if($("herdc_oldsow"))$("herdc_oldsow").textContent=nf(old);
+  const old=(M.herd&&M.herd.oldsow)||0;
+  const ai=(M.herd&&M.herd.ai)||0, aiFee=+(pigDefaults().aiFee)||0;
   if($("herdc_sowtot"))$("herdc_sowtot").textContent=nf(first+old);
-  if($("herdc_aicost"))$("herdc_aicost").textContent=nf(ai*9000);
+  if($("herdc_aicost"))$("herdc_aicost").textContent=nf(ai*aiFee);
   const birth=(M.inv.suck&&M.inv.suck.birth)||0, dead=(M.inv.suck&&M.inv.suck.dead)||0, sowTot=first+old;
   const perSow=sowTot>0?Math.round(birth/sowTot*10)/10:0, deadRate=birth>0?Math.round(dead/birth*1000)/10:0;
-  if($("calfHint")) $("calfHint").innerHTML=`🐷 모돈 1마리당 생산(분만) <b>${perSow}두</b> <span class='sub'>(분만 ${nf(birth)} ÷ 모돈 ${nf(sowTot)})</span> · 포유자돈 폐사율 <b>${deadRate}%</b> <span class='sub'>(폐사 ${nf(dead)} ÷ 분만 ${nf(birth)})</span> · 인공수정료 <b>${nf(ai*9000)}원</b> <span class='sub'>(${nf(ai)}회×9,000)</span>`;
+  if($("calfHint")) $("calfHint").innerHTML=`🐷 모돈 1마리당 생산(분만) <b>${perSow}두</b> <span class='sub'>(분만 ${nf(birth)} ÷ 모돈 ${nf(sowTot)})</span> · 포유자돈 폐사율 <b>${deadRate}%</b> <span class='sub'>(폐사 ${nf(dead)} ÷ 분만 ${nf(birth)})</span> · 인공수정료 <b>${nf(ai*aiFee)}원</b> <span class='sub'>(${nf(ai)}회×${nf(aiFee)})</span>`;
 }
 
 function recalc(){
@@ -824,6 +867,18 @@ document.addEventListener("click",e=>{
   else if(db){ M.ledgerRows=(M.ledgerRows||[]).filter(r=>r.id!==db.dataset.dellrow); buildLedger(); recalcLedger(); autosave(); }
 });
 if($("reverseBtn")) $("reverseBtn").addEventListener("click",()=>{ reverseFromEnd(); });
+// 비육돈 기본값 팝업
+const PD_KEYS=["aiFee","weanWt","weanAge","fatAge","jajogeum","salebi","giltWt","giltAmt","sowAge","sowWt","sowAmt","boarAge","boarWt","boarAmt"];
+function openPigDefModal(){ const D=pigDefaults(); PD_KEYS.forEach(k=>{ const el=$("pd_"+k); if(el) el.value=D[k]; }); if($("pdMsg"))$("pdMsg").textContent=""; $("pigDefModal").hidden=false; }
+function closePigDefModal(){ $("pigDefModal").hidden=true; }
+function applyPigDef(){ if(!M.pigDefaults)M.pigDefaults={}; PD_KEYS.forEach(k=>{ const el=$("pd_"+k); if(el) M.pigDefaults[k]=parseFloat(el.value)||0; }); autosave(); recalc(); buildLedger(); recalcLedger(); if($("pdMsg")){ $("pdMsg").textContent="적용되었습니다. (이후 새 행·자동생성에 반영, 다음 달로 이월)"; } }
+function resetPigDef(){ PD_KEYS.forEach(k=>{ const el=$("pd_"+k); if(el) el.value=PIG_DEF_DEFAULT[k]; }); if($("pdMsg"))$("pdMsg").textContent="기본값을 불러왔습니다. ‘적용’을 눌러 저장하세요."; }
+if($("pigDefBtn1")) $("pigDefBtn1").addEventListener("click",openPigDefModal);
+if($("pigDefBtn2")) $("pigDefBtn2").addEventListener("click",openPigDefModal);
+if($("pdClose")) $("pdClose").addEventListener("click",closePigDefModal);
+if($("pdApply")) $("pdApply").addEventListener("click",applyPigDef);
+if($("pdReset")) $("pdReset").addEventListener("click",resetPigDef);
+if($("pigDefModal")) $("pigDefModal").addEventListener("click",e=>{ if(e.target.id==="pigDefModal") closePigDefModal(); });
 $("genLedger").addEventListener("click",genLedgerFromInv);
 $("addLedger").addEventListener("click",()=>{ if(!M.ledgerRows)M.ledgerRows=[]; M.ledgerRows.push(blankLedger()); buildLedger(); recalcLedger(); autosave(); });
 $("clearLedger").addEventListener("click",()=>{ if(!(M.ledgerRows&&M.ledgerRows.length)){ alert("지울 내역이 없습니다."); return; } if(!confirm("③ 대·소동물 구입 및 판매 내역을 모두 지울까요? (되돌릴 수 없습니다)"))return; M.ledgerRows=[]; buildLedger(); recalcLedger(); autosave(); });
@@ -946,8 +1001,10 @@ function setSpecies(id){
   if($("reverseBtn")) $("reverseBtn").hidden=!CFG.reverseMode;
   if($("reverseHint")) $("reverseHint").hidden=!CFG.reverseMode;
   if($("traceLookup")) $("traceLookup").hidden=!!CFG.noTrace;
+  if($("pigDefBtn1")) $("pigDefBtn1").hidden=(KIND!=="pig");
+  if($("pigDefBtn2")) $("pigDefBtn2").hidden=(KIND!=="pig");
   if($("herdNote")) $("herdNote").innerHTML = (KIND==="pig")
-    ? "※ <b>초임돈</b> 수를 넣으면 <b>경산돈 = 모돈 − 초임돈</b>으로 자동 계산되어 사료비(구분별 섭취량)의 초임·경산 마리수에 반영됩니다. 초임돈이 없으면 모돈 전체가 경산돈으로 계산됩니다."
+    ? "※ <b>초임돈·경산돈</b>을 입력하면 <b>모돈 합계 = 초임돈 + 경산돈</b>이 자동 계산되고, 사료비(구분별 섭취량)의 초임·경산 마리수에 그대로 반영됩니다. <b>인공수정료</b>는 ⚙️에서 기본 단가를 바꿀 수 있습니다."
     : "※ <b>초임분만</b>을 입력하면 <b>초임우 편입−</b> / <b>경산우 편입+</b> 칸에 자동으로 채워집니다(직접 수정 가능). 총분만 = 초임분만 + 경산분만.";
   if($("ledgerCodes")) $("ledgerCodes").textContent=`구입부호 ${CFG.spBuy} · 판매부호 ${CFG.spSell}`;
   refreshFarmList(); loadMonth(); updateHeaderInfo();
