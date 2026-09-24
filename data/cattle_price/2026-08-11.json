@@ -1,0 +1,43 @@
+{
+  "dataDate": "2026-08-11",
+  "updatedAt": "2026-08-11T18:00:00+09:00",
+  "source": "축산물품질평가원 축산유통정보 다봄·농협중앙회",
+  "prices": {
+    "largeCow600kg": {
+      "price": 6571,
+      "previousPrice": 6557
+    },
+    "femaleCalf4to5": {
+      "price": 3073,
+      "previousPrice": 2840
+    },
+    "maleCalf4to5": {
+      "price": 3895,
+      "previousPrice": 3895
+    },
+    "femaleCalf6to7": {
+      "price": 3732,
+      "previousPrice": 3716
+    },
+    "maleCalf6to7": {
+      "price": 5069,
+      "previousPrice": 5054
+    },
+    "hanwooAverage600kg": {
+      "price": 8013,
+      "previousPrice": 6291
+    },
+    "hanwooSteer600kg": {
+      "price": 8668,
+      "previousPrice": 7127
+    },
+    "hanwooBull600kg": {
+      "price": 5136,
+      "previousPrice": 6273
+    },
+    "beefCattleAverage600kg": {
+      "price": 4267,
+      "previousPrice": 3615
+    }
+  }
+}
