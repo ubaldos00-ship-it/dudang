@@ -229,26 +229,34 @@ async function fetchPrices(dateStr){
     return {error: navigator.onLine? "server":"offline"};
   }
 }
-/* 로컬 JSON(수동입력) 모드: data/cattle_price/latest.json + (선택) YYYY-MM-DD.json */
+/* 로컬 통합파일 모드(수동입력): data/cattle_price/prices.json 1개로 관리 */
+let _store=null;
+async function loadStore(){
+  if(_store) return _store;
+  try{ const r=await fetch(LOCAL_DATA_BASE+"prices.json",{cache:"no-store"}); if(!r.ok) return null; _store=await r.json(); return _store; }
+  catch(e){ if(!navigator.onLine) throw {offline:true}; return null; }
+}
+function storeDates(store){ return store&&store.data?Object.keys(store.data).sort():[]; }
+function buildHistoryFromStore(store,dates){
+  const KEYS=[...ITEMS.market,...ITEMS.receipt].map(x=>x[0]); const h={}; KEYS.forEach(k=>h[k]=[]);
+  dates.forEach(d=>{ const pr=(store.data[d]&&store.data[d].prices)||{}; KEYS.forEach(k=>{ const v=pr[k]&&pr[k].price; if(v!=null) h[k].push({date:d,value:v}); }); });
+  return h;
+}
 async function fetchLocal(dateStr){
-  async function tryFile(name){
-    try{ const r=await fetch(LOCAL_DATA_BASE+name,{cache:"no-store"}); if(!r.ok) return null; return await r.json(); }
-    catch(e){ if(!navigator.onLine) throw {offline:true}; return null; }
-  }
-  const stdize=(j,reqDate,isFb)=>({ success:true, requestedDate:reqDate, dataDate:(j.dataDate||reqDate), isFallbackDate:!!isFb, unit:"천원/마리", source:"축산물품질평가원·농협중앙회", updatedAt:j.updatedAt||"", prices:j.prices||{}, history:j.history });
-  const hasData=j=>j&&j.prices&&Object.values(j.prices).some(p=>p&&p.price!=null);
   try{
+    const store=await loadStore();
+    const dates=storeDates(store);
+    if(!dates.length) return {notConfigured:true};
+    const latestDate=store.latestDate||dates[dates.length-1];
+    let useDate=null, isFb=false;
     if(dateStr){
-      const d=await tryFile(dateStr+".json");
-      if(d) return {data:stdize(d,dateStr,false)};
-      const l=await tryFile("latest.json");
-      if(l) return {data:stdize(l,dateStr,(l.dataDate&&l.dataDate!==dateStr))};
-      return {notConfigured:true};
-    } else {
-      const l=await tryFile("latest.json");
-      if(l && (hasData(l)||l.dataDate)) return {data:stdize(l,(l.dataDate||todayKST()),false)};
-      return {notConfigured:true};   // latest.json 없거나 비어있음 → 입력 대기 안내
-    }
+      if(store.data[dateStr]) useDate=dateStr;
+      else { const prior=dates.filter(d=>d<=dateStr); useDate=prior.length?prior[prior.length-1]:dates[0]; isFb=(useDate!==dateStr); }
+    } else useDate=latestDate;
+    const day=store.data[useDate]||{prices:{}};
+    return {data:{ success:true, requestedDate:(dateStr||useDate), dataDate:useDate, isFallbackDate:!!isFb,
+      unit:store.unit||"천원/마리", source:store.source, updatedAt:(day.updatedAt||store.updatedAt||""),
+      prices:day.prices||{}, history:buildHistoryFromStore(store,dates) }};
   }catch(e){ return {error:"offline"}; }
 }
 function saveCache(data){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({at:Date.now(),data})); }catch(e){} }
@@ -364,6 +372,17 @@ function svgLineChart(pts){
 
 /* ---- 날짜 이동 ---- */
 function shiftDate(days){ const d=new Date(curDate+"T00:00:00"); d.setDate(d.getDate()+days); curDate=ymd(d); $("datePick").value=curDate; query(curDate); }
+// 통합파일 모드: 실제 발표일 사이를 이동. (API 모드면 하루씩 이동)
+async function stepDate(dir){
+  if(CATTLE_PRICE_API_URL){ if(dir>0 && curDate>=todayKST()) return; return shiftDate(dir); }
+  const store=await loadStore().catch(()=>null); const dates=storeDates(store);
+  if(!dates.length) return shiftDate(dir);
+  let target; const idx=dates.indexOf(curDate);
+  if(idx>=0){ target=dates[Math.max(0,Math.min(dates.length-1,idx+dir))]; }
+  else if(dir<0){ const p=dates.filter(d=>d<curDate); target=p.length?p[p.length-1]:dates[0]; }
+  else { const n=dates.filter(d=>d>curDate); target=n.length?n[0]:dates[dates.length-1]; }
+  curDate=target; $("datePick").value=curDate; query(curDate);
+}
 
 /* ---- 탭 ---- */
 function setTab(name){
@@ -374,8 +393,8 @@ function setTab(name){
 /* ---- 초기화/이벤트 ---- */
 (function init(){
   $("datePick").value=curDate; $("datePick").max=todayKST();
-  $("btnPrev").onclick=()=>shiftDate(-1);
-  $("btnNext").onclick=()=>{ const t=todayKST(); if(curDate>=t) return; shiftDate(1); };
+  $("btnPrev").onclick=()=>stepDate(-1);
+  $("btnNext").onclick=()=>stepDate(1);
   $("btnLatest").onclick=()=>{ curDate=todayKST(); $("datePick").value=curDate; query(""); };
   $("btnRefresh").onclick=()=>query(curDate===todayKST()?"":curDate);
   $("datePick").onchange=e=>{ curDate=e.target.value||todayKST(); query(curDate); };
