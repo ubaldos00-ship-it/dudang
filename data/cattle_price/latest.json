@@ -1,0 +1,17 @@
+{
+  "_안내": "축산유통정보 다봄(ekapepia) 산지가격 실측값. 단위 천원/마리. 발표일 2026-09-21, 전일 2026-09-18. 갱신 시 이 파일과 날짜별 파일(YYYY-MM-DD.json)을 함께 업데이트하세요.",
+  "dataDate": "2026-09-21",
+  "updatedAt": "2026-09-21T18:00:00+09:00",
+  "source": "축산물품질평가원 축산유통정보 다봄·농협중앙회",
+  "prices": {
+    "largeCow600kg":        { "price": 7042, "previousPrice": 6991 },
+    "femaleCalf4to5":       { "price": 3260, "previousPrice": 3260 },
+    "maleCalf4to5":         { "price": 3984, "previousPrice": 3984 },
+    "femaleCalf6to7":       { "price": 3930, "previousPrice": 4017 },
+    "maleCalf6to7":         { "price": 5646, "previousPrice": 5649 },
+    "hanwooAverage600kg":   { "price": 8361, "previousPrice": 8096 },
+    "hanwooSteer600kg":     { "price": 9086, "previousPrice": 8842 },
+    "hanwooBull600kg":      { "price": 5142, "previousPrice": 4846 },
+    "beefCattleAverage600kg": { "price": 4092, "previousPrice": 4114 }
+  }
+}

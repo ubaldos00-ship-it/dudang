@@ -1,0 +1,403 @@
+<!-- cattle_price.html · 소 산지가격 조회 · 참고자료(강제수정 기준 아님) · 데이터: 두당→AWS Lambda→표준JSON. API 미설정 시 '연동 준비 중' 표시(임의값 미표시) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>소 산지가격 조회 · 두당 頭當</title>
+<!-- Google tag (gtag.js) · 두당 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-PYTDP9E5YL');</script>
+<style>
+  :root{
+    --navy:#1a365d; --navy2:#2c5282; --blue:#2b6cb0; --sky:#3182ce;
+    --bg:#f4f6f9; --card:#fff; --line:#e2e8f0; --text:#1a202c; --muted:#718096;
+    --ok:#2f855a; --warn:#c05621; --red:#c53030; --up:#c53030; --dn:#2b6cb0;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;}
+  body{font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:var(--text);background:var(--bg);line-height:1.5;}
+  a{color:inherit;text-decoration:none;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:12px 16px;position:sticky;top:0;z-index:30;transition:transform .25s ease;will-change:transform;}
+  header.hide{transform:translateY(-100%);}
+  .hrow{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .back{color:#fff;font-size:22px;font-weight:700;padding:2px 6px;}
+  .htxt{flex:1;min-width:0;}
+  header h1{font-size:18px;margin:0;line-height:1.2;}
+  .hsub{font-size:12px;color:#cfe0f2;margin-top:2px;}
+  .home{color:#bcd4ef;font-size:14px;font-weight:600;white-space:nowrap;}
+  main{max-width:900px;margin:0 auto;padding:14px 14px 40px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.03);}
+  /* 참고 안내 배너 */
+  .refbar{background:#fffaf0;border:1px solid #f6e0b8;color:#8a5a1b;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px;}
+  .refbar b{color:#7a4a10;}
+  /* 조회 컨트롤 */
+  .ctrls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .ctrls .basis{font-size:13px;color:var(--muted);width:100%;}
+  .ctrls .basis b{color:var(--navy);font-size:14px;}
+  .ctrls input[type=date]{padding:9px 10px;font-size:15px;border:1px solid #cbd5e0;border-radius:9px;background:#fff;min-width:150px;}
+  .btn{padding:9px 12px;border:1px solid #cbd5e0;background:#fff;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;color:var(--navy);}
+  .btn:hover{background:#f2f6fc;}
+  .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .fallback{background:#eef5ff;border:1px solid #cfe0f7;color:#1d4e89;border-radius:10px;padding:8px 12px;font-size:13px;margin-top:10px;}
+  .statebar{border-radius:10px;padding:8px 12px;font-size:13px;margin-top:10px;}
+  .statebar.warn{background:#fff5f5;border:1px solid #f6c9c9;color:#9b2c2c;}
+  .statebar.info{background:#f0fff4;border:1px solid #c6f6d5;color:#276749;}
+  .statebar.cache{background:#fffaf0;border:1px solid #f6e0b8;color:#8a5a1b;}
+  /* 탭 */
+  .tabs{display:flex;gap:6px;margin:2px 0 12px;flex-wrap:wrap;}
+  .tabs button{flex:1;min-width:96px;padding:10px 8px;border:1px solid #cbd5e0;background:#fff;border-radius:10px;font-size:14px;font-weight:700;color:var(--navy);cursor:pointer;}
+  .tabs button.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  /* 가격 카드 그리드 */
+  .pgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  @media(min-width:680px){ .pgrid{grid-template-columns:repeat(3,1fr);} }
+  .pcard{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fff;}
+  .pcard .pname{font-size:13.5px;font-weight:700;color:var(--navy);min-height:38px;}
+  .pcard .pprice{font-size:22px;font-weight:800;margin-top:4px;color:var(--text);}
+  .pcard .pprice .unit{font-size:11px;color:var(--muted);font-weight:600;margin-left:3px;}
+  .pcard .pchg{font-size:13px;font-weight:700;margin-top:4px;}
+  .pcard .pchg.up{color:var(--up);} .pcard .pchg.dn{color:var(--dn);} .pcard .pchg.flat{color:var(--muted);}
+  .pcard .pna{font-size:15px;color:var(--muted);font-weight:700;margin-top:4px;}
+  .pcard.empty{background:#fafbfc;}
+  /* 스켈레톤 */
+  .sk{position:relative;overflow:hidden;background:#eef1f5;border-radius:6px;color:transparent!important;}
+  .sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);animation:shim 1.2s infinite;}
+  @keyframes shim{100%{transform:translateX(100%);}}
+  /* 추이 */
+  .trendbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px;}
+  .trendbar select{padding:8px 10px;font-size:14px;border:1px solid #cbd5e0;border-radius:9px;background:#fff;}
+  .rangebtns button{border:1px solid #cbd5e0;background:#fff;border-radius:16px;padding:6px 12px;font-size:13px;margin-right:5px;cursor:pointer;color:var(--navy);}
+  .rangebtns button.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .chartbox{width:100%;overflow-x:auto;}
+  .chart-empty{height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;border:1px dashed #cbd5e0;border-radius:10px;background:#fafbfc;font-size:14px;}
+  svg .axis{stroke:#cbd5e0;stroke-width:1;} svg .grid{stroke:#edf1f6;stroke-width:1;}
+  svg .line{fill:none;stroke:var(--blue);stroke-width:2.5;} svg .dot{fill:var(--blue);}
+  svg text{fill:var(--muted);font-size:11px;}
+  /* 접이식 */
+  details{border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 14px;margin-bottom:12px;}
+  details>summary{cursor:pointer;padding:13px 0;font-weight:700;color:var(--navy);font-size:14.5px;list-style:none;}
+  details>summary::-webkit-details-marker{display:none;}
+  details>summary::before{content:"▸ ";color:var(--blue);}
+  details[open]>summary::before{content:"▾ ";}
+  details .body{padding:0 0 14px;font-size:13.5px;color:var(--text);}
+  details .body ul{margin:6px 0;padding-left:18px;} details .body li{margin:3px 0;}
+  .srcnote{font-size:12.5px;color:var(--muted);line-height:1.7;}
+  .srcnote a{color:var(--blue);word-break:break-all;}
+  .srcnote b{color:var(--navy);}
+  [hidden]{display:none!important;}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+</head>
+<body>
+<header id="appHeader"><div class="hrow">
+  <a class="back" href="#" onclick="if(history.length>1){history.back();}else{location.href='index.html';}return false;" aria-label="뒤로">←</a>
+  <div class="htxt">
+    <h1>🐄 소 산지가격 조회</h1>
+    <div class="hsub">송아지·큰소·농가수취가격을 한눈에 확인하세요.</div>
+  </div>
+  <a class="home" href="index.html">🏠 홈</a>
+</div></header>
+
+<main>
+  <div class="refbar">📌 <b>참고자료 안내</b> — 이 페이지의 가격은 조사값을 강제로 수정하는 기준이 아니라, 농가가 말한 판매가격과 당시 시세를 <b>비교·검토</b>하기 위한 참고자료입니다. 실제 계약가격을 보장하지 않습니다.</div>
+
+  <!-- 조회 컨트롤 -->
+  <div class="card">
+    <div class="ctrls">
+      <div class="basis">기준일: <b id="basisDate">—</b> <span id="updatedAt" class="hsub" style="color:var(--muted)"></span></div>
+      <button class="btn" id="btnPrev" aria-label="이전 날짜">◀ 이전</button>
+      <input type="date" id="datePick" aria-label="날짜 선택">
+      <button class="btn" id="btnNext" aria-label="다음 날짜">다음 ▶</button>
+      <button class="btn" id="btnLatest">최신</button>
+      <button class="btn primary" id="btnRefresh">↻ 새로고침</button>
+    </div>
+    <div class="fallback" id="fallbackMsg" hidden></div>
+    <div class="statebar" id="stateMsg" hidden></div>
+  </div>
+
+  <!-- 탭 -->
+  <div class="tabs" role="tablist">
+    <button id="tab-market" class="on" role="tab">송아지·큰소</button>
+    <button id="tab-receipt" role="tab">농가수취가격</button>
+    <button id="tab-trend" role="tab">가격 추이</button>
+  </div>
+
+  <!-- 탭1: 가축시장(송아지·큰소) -->
+  <section id="panel-market" class="card">
+    <div class="hsub" style="color:var(--muted);margin-bottom:8px">🐮 가축시장 가격 · 단위 천원/마리 <span style="color:var(--muted)">(농협중앙회 가축시장가격조사)</span></div>
+    <div class="pgrid" id="gridMarket"></div>
+  </section>
+
+  <!-- 탭2: 농가수취가격 -->
+  <section id="panel-receipt" class="card" hidden>
+    <div class="hsub" style="color:var(--muted);margin-bottom:8px">💰 농가수취가격 · 단위 천원/마리 <span style="color:var(--muted)">(경락가격을 생체 600㎏으로 환산한 참고가격)</span></div>
+    <div class="pgrid" id="gridReceipt"></div>
+    <div class="note" style="font-size:12px;color:var(--warn);margin-top:10px">※ 농가수취가격은 <b>도체 경락가격</b>을 생체 600㎏ 기준으로 환산한 참고가격입니다. 가축시장에서 살아 있는 소가 실제 거래된 가격이 아닙니다.</div>
+  </section>
+
+  <!-- 탭3: 가격 추이 -->
+  <section id="panel-trend" class="card" hidden>
+    <div class="trendbar">
+      <select id="trendItem" aria-label="항목 선택"></select>
+      <span class="rangebtns" id="rangeBtns">
+        <button data-r="30" class="on">최근 30일</button>
+        <button data-r="90">3개월</button>
+        <button data-r="365">1년</button>
+      </span>
+    </div>
+    <div class="chartbox" id="chartBox"><div class="chart-empty" id="chartEmpty">추이 자료가 준비되면 선그래프로 표시됩니다.</div></div>
+  </section>
+
+  <!-- 가격 산정 기준(접이식) -->
+  <details>
+    <summary>가격 산정 기준 보기</summary>
+    <div class="body">
+      <ul>
+        <li><b>가축시장가격</b>: 농협중앙회 조사자료(살아 있는 소의 시장 거래가격)</li>
+        <li><b>농가수취가격</b>: 전국 경락가격에 <b>생체중과 지육률</b>을 적용한 환산가격</li>
+      </ul>
+      <div style="margin-top:6px">적용 지육률(참고):</div>
+      <ul>
+        <li>한우 평균 <b>59.7%</b></li>
+        <li>한우 거세우 <b>59.9%</b></li>
+        <li>한우 비거세우 <b>59.1%</b></li>
+        <li>육우 평균 <b>57.2%</b></li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- 출처 -->
+  <div class="card srcnote">
+    <b>자료 출처</b> · 축산물품질평가원 축산유통정보 <b>다봄</b> 및 <b>농협중앙회</b> 가축시장가격조사<br>
+    <b>공식 조회 화면</b> · <a href="https://www.ekapepia.com/v3/price/livestock/cow/producer.do" target="_blank" rel="noopener">ekapepia.com/v3/price/livestock/cow/producer.do</a><br>
+    <b>단위</b> · 천 원/마리 · <b>기준</b> · 한국시간<br>
+    · 가격은 조사·발표 시점과 실제 거래 조건에 따라 달라질 수 있습니다.<br>
+    · 본 자료는 현장조사를 위한 <b>참고자료</b>이며 실제 계약가격을 보장하지 않습니다.
+  </div>
+</main>
+
+<script>
+/* ===== 환경설정 : AWS(API Gateway/Lambda) 배포 후 아래 주소만 입력 =====
+   프론트엔드는 이 표준화 주소만 호출합니다. HTML에 인증키를 넣지 않습니다.
+   예: "https://xxxx.execute-api.ap-northeast-2.amazonaws.com/prod/livestock-prices/cattle" */
+const CATTLE_PRICE_API_URL = "";           // ← AWS API가 있으면 그 주소. 비어 있으면 아래 로컬 JSON(수동입력) 사용
+const LOCAL_DATA_BASE = "data/cattle_price/"; // 공식 API가 없어 관리자가 갱신하는 로컬 JSON 경로(GitHub)
+const REQUEST_TIMEOUT_MS = 8000;           // API 요청 타임아웃
+const CACHE_TTL_MS = 30*60*1000;           // 동일 날짜 자료 캐시 유지(30분)
+const CACHE_KEY = "dudang_cattlePrice_v1"; // 마지막 정상 자료(오프라인 대비) — 민감정보 저장 안 함
+
+/* 조회 항목 정의 (그룹·표시명) */
+const ITEMS={
+  market:[
+    ["largeCow600kg","한우 큰 암소 600㎏"],
+    ["femaleCalf4to5","한우 암송아지 4~5개월령"],
+    ["maleCalf4to5","한우 수송아지 4~5개월령"],
+    ["femaleCalf6to7","한우 암송아지 6~7개월령"],
+    ["maleCalf6to7","한우 수송아지 6~7개월령"]
+  ],
+  receipt:[
+    ["hanwooAverage600kg","한우 평균 600㎏"],
+    ["hanwooSteer600kg","한우 거세우 600㎏"],
+    ["hanwooBull600kg","한우 비거세우 600㎏"],
+    ["beefCattleAverage600kg","육우 평균 600㎏"]
+  ]
+};
+const $=id=>document.getElementById(id);
+const nf=v=>(v||v===0)?Number(v).toLocaleString("ko-KR"):"";
+function kstNow(){ const d=new Date(); return new Date(d.getTime()+(d.getTimezoneOffset()+540)*60000); }
+function ymd(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function todayKST(){ return ymd(kstNow()); }
+
+let curDate=todayKST(), curData=null, _loading=false, _reqSeq=0;
+
+/* ---- 데이터 호출 ---- */
+async function fetchPrices(dateStr){
+  if(!CATTLE_PRICE_API_URL) return fetchLocal(dateStr);   // 공식 API 없음 → 로컬 JSON(수동입력)
+  const url=CATTLE_PRICE_API_URL+(dateStr?("?date="+encodeURIComponent(dateStr)):"");
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),REQUEST_TIMEOUT_MS);
+  try{
+    const res=await fetch(url,{signal:ctrl.signal,headers:{"Accept":"application/json"}});
+    clearTimeout(t);
+    if(!res.ok) return {error:"server",status:res.status};
+    const j=await res.json();
+    if(!j||j.success===false) return {error:"server"};
+    return {data:j};
+  }catch(e){
+    clearTimeout(t);
+    if(e&&e.name==="AbortError") return {error:"timeout"};
+    return {error: navigator.onLine? "server":"offline"};
+  }
+}
+/* 로컬 JSON(수동입력) 모드: data/cattle_price/latest.json + (선택) YYYY-MM-DD.json */
+async function fetchLocal(dateStr){
+  async function tryFile(name){
+    try{ const r=await fetch(LOCAL_DATA_BASE+name,{cache:"no-store"}); if(!r.ok) return null; return await r.json(); }
+    catch(e){ if(!navigator.onLine) throw {offline:true}; return null; }
+  }
+  const stdize=(j,reqDate,isFb)=>({ success:true, requestedDate:reqDate, dataDate:(j.dataDate||reqDate), isFallbackDate:!!isFb, unit:"천원/마리", source:"축산물품질평가원·농협중앙회", updatedAt:j.updatedAt||"", prices:j.prices||{}, history:j.history });
+  const hasData=j=>j&&j.prices&&Object.values(j.prices).some(p=>p&&p.price!=null);
+  try{
+    if(dateStr){
+      const d=await tryFile(dateStr+".json");
+      if(d) return {data:stdize(d,dateStr,false)};
+      const l=await tryFile("latest.json");
+      if(l) return {data:stdize(l,dateStr,(l.dataDate&&l.dataDate!==dateStr))};
+      return {notConfigured:true};
+    } else {
+      const l=await tryFile("latest.json");
+      if(l && (hasData(l)||l.dataDate)) return {data:stdize(l,(l.dataDate||todayKST()),false)};
+      return {notConfigured:true};   // latest.json 없거나 비어있음 → 입력 대기 안내
+    }
+  }catch(e){ return {error:"offline"}; }
+}
+function saveCache(data){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({at:Date.now(),data})); }catch(e){} }
+function loadCache(){ try{ const r=localStorage.getItem(CACHE_KEY); if(!r)return null; return JSON.parse(r); }catch(e){ return null; } }
+
+/* ---- 조회 실행 ---- */
+async function query(dateStr){
+  if(_loading) return; _loading=true; setButtons(false);
+  const seq=++_reqSeq;
+  showSkeleton();
+  hide("fallbackMsg"); hide("stateMsg");
+  const r=await fetchPrices(dateStr);
+  if(seq!==_reqSeq){ _loading=false; return; }   // 중복요청 방지: 최신 요청만 반영
+  if(r.notConfigured){
+    curData=null; renderState("notConfigured");
+    render(null);
+  } else if(r.data){
+    curData=r.data; saveCache(r.data);
+    render(r.data);
+    if(r.data.isFallbackDate){ $("fallbackMsg").textContent="선택한 날짜의 자료가 없어 가장 가까운 이전 발표일 자료를 표시합니다."; show("fallbackMsg"); }
+    if(r.data.isCached){ renderState("apiCached", r.data.updatedAt); }
+  } else {
+    // 오류 → 캐시 있으면 캐시 표시
+    const c=loadCache();
+    if(c&&c.data){ curData=c.data; render(c.data); renderState(r.error==="offline"?"offlineCache":"errorCache", c.at); }
+    else { curData=null; render(null); renderState(r.error||"server"); }
+  }
+  _loading=false; setButtons(true);
+}
+function setButtons(on){ ["btnPrev","btnNext","btnLatest","btnRefresh","datePick"].forEach(id=>{ const e=$(id); if(e) e.disabled=!on; }); }
+
+function renderState(kind,extra){
+  const el=$("stateMsg"); if(!el) return; let cls="warn", msg="";
+  if(kind==="notConfigured"){ cls="cache"; msg="🔧 가격 자료 입력 대기 중입니다. 관리자가 최신 산지가격(다봄)을 입력하면 표시됩니다."; }
+  else if(kind==="offline"){ cls="warn"; msg="📴 인터넷 연결이 없습니다."; }
+  else if(kind==="offlineCache"){ cls="cache"; msg="📴 인터넷 연결이 없어 마지막으로 저장된 가격을 표시합니다. ("+fmtTime(extra)+")"; }
+  else if(kind==="errorCache"){ cls="cache"; msg="⚠️ 서버 응답이 없어 마지막으로 저장된 가격을 표시합니다. ("+fmtTime(extra)+")"; }
+  else if(kind==="apiCached"){ cls="cache"; msg="🗂 수집 서버의 캐시 자료입니다. (갱신 "+(extra?fmtTime2(extra):"—")+")"; }
+  else if(kind==="timeout"){ cls="warn"; msg="⏱ 서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요."; }
+  else if(kind==="server"){ cls="warn"; msg="⚠️ 서버 응답이 없습니다. 잠시 후 다시 시도해 주세요."; }
+  else { cls="warn"; msg="⚠️ 자료를 불러오지 못했습니다."; }
+  el.className="statebar "+cls; el.textContent=msg; show("stateMsg");
+}
+function fmtTime(ms){ try{ const d=new Date(ms); return d.toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}); }catch(e){ return "—"; } }
+function fmtTime2(iso){ try{ const d=new Date(iso); return d.toLocaleString("ko-KR",{timeZone:"Asia/Seoul"}); }catch(e){ return iso||"—"; } }
+
+/* ---- 렌더 ---- */
+function show(id){ $(id).hidden=false; } function hide(id){ $(id).hidden=true; }
+function showSkeleton(){
+  ["gridMarket","gridReceipt"].forEach(gid=>{
+    const g=$(gid); const items=(gid==="gridMarket")?ITEMS.market:ITEMS.receipt;
+    g.innerHTML=items.map(([,nm])=>`<div class='pcard'><div class='pname'>${nm}</div><div class='pprice sk'>0000</div><div class='pchg sk' style='width:70px'>0</div></div>`).join("");
+  });
+}
+function chgHtml(price,prev){
+  if(price==null||prev==null) return `<div class='pchg flat'>—</div>`;
+  const d=price-prev; const rate=prev!==0?(d/prev*100):0;
+  const rt=(rate>0?"+":"")+rate.toFixed(1)+"%";
+  if(d>0) return `<div class='pchg up'>▲ ${nf(d)} (${rt})</div>`;
+  if(d<0) return `<div class='pchg dn'>▼ ${nf(Math.abs(d))} (${rt})</div>`;
+  return `<div class='pchg flat'>- 0 (0.0%)</div>`;
+}
+function cardHtml(nm,item){
+  if(!item || item.price==null){
+    return `<div class='pcard empty'><div class='pname'>${nm}</div><div class='pna'>자료 없음</div></div>`;
+  }
+  return `<div class='pcard'><div class='pname'>${nm}</div><div class='pprice'>${nf(item.price)}<span class='unit'>천원/마리</span></div>${chgHtml(item.price,item.previousPrice)}</div>`;
+}
+function render(data){
+  const prices=(data&&data.prices)||{};
+  ["market","receipt"].forEach(grp=>{
+    const g=$(grp==="market"?"gridMarket":"gridReceipt");
+    g.innerHTML=ITEMS[grp].map(([key,nm])=>cardHtml(nm, prices[key])).join("");
+  });
+  $("basisDate").textContent=(data&&(data.dataDate||data.requestedDate))||curDate||"—";
+  $("updatedAt").textContent=(data&&data.updatedAt)?("· 발표 "+fmtTime2(data.updatedAt)):"";
+  if($("datePick").value!==curDate) $("datePick").value=curDate;
+  fillTrendItems();
+  renderTrend();
+}
+
+/* ---- 추이(선그래프) : series 데이터가 오면 SVG로 렌더, 없으면 안내 ---- */
+let trendRange=30;
+function fillTrendItems(){
+  const sel=$("trendItem"); if(sel.options.length) return;
+  const all=[...ITEMS.market,...ITEMS.receipt];
+  sel.innerHTML=all.map(([k,nm])=>`<option value='${k}'>${nm}</option>`).join("");
+}
+function renderTrend(){
+  const box=$("chartBox");
+  const key=$("trendItem").value;
+  const series=(curData&&curData.history&&curData.history[key])||null;   // 표준응답에 history가 있으면 사용
+  if(!series||!series.length){
+    box.innerHTML=`<div class='chart-empty'>${CATTLE_PRICE_API_URL?"선택 항목의 추이 자료가 없습니다.":"추이 자료는 데이터 연동 후 표시됩니다. (연동 준비 중)"}</div>`;
+    return;
+  }
+  const pts=series.filter(p=>p&&p.value!=null).slice(-trendRange);
+  box.innerHTML=svgLineChart(pts);
+}
+function svgLineChart(pts){
+  const W=Math.max(320, pts.length*Math.min(34,Math.max(10,900/pts.length))), H=230, pad={l:52,r:12,t:14,b:26};
+  const xs=pts.map((_,i)=>pad.l+i*((W-pad.l-pad.r)/Math.max(1,pts.length-1)));
+  const vals=pts.map(p=>p.value); const mn=Math.min(...vals), mx=Math.max(...vals); const rng=(mx-mn)||1;
+  const y=v=>pad.t+(1-(v-mn)/rng)*(H-pad.t-pad.b);
+  let g="";
+  for(let k=0;k<=4;k++){ const gy=pad.t+k*((H-pad.t-pad.b)/4); const gv=mx-(k*rng/4); g+=`<line class='grid' x1='${pad.l}' y1='${gy.toFixed(1)}' x2='${W-pad.r}' y2='${gy.toFixed(1)}'/><text x='${pad.l-6}' y='${(gy+3).toFixed(1)}' text-anchor='end'>${nf(Math.round(gv))}</text>`; }
+  const line=pts.map((p,i)=>`${i?'L':'M'}${xs[i].toFixed(1)},${y(p.value).toFixed(1)}`).join(" ");
+  const dots=pts.map((p,i)=>`<circle class='dot' cx='${xs[i].toFixed(1)}' cy='${y(p.value).toFixed(1)}' r='2.5'/>`).join("");
+  const step=Math.ceil(pts.length/6);
+  const xl=pts.map((p,i)=>(i%step===0||i===pts.length-1)?`<text x='${xs[i].toFixed(1)}' y='${H-8}' text-anchor='middle'>${(p.date||"").slice(5)}</text>`:"").join("");
+  return `<svg viewBox='0 0 ${W} ${H}' width='${W}' height='${H}' role='img' aria-label='가격 추이 선그래프'><line class='axis' x1='${pad.l}' y1='${pad.t}' x2='${pad.l}' y2='${H-pad.b}'/><line class='axis' x1='${pad.l}' y1='${H-pad.b}' x2='${W-pad.r}' y2='${H-pad.b}'/>${g}<path class='line' d='${line}'/>${dots}${xl}</svg>`;
+}
+
+/* ---- 날짜 이동 ---- */
+function shiftDate(days){ const d=new Date(curDate+"T00:00:00"); d.setDate(d.getDate()+days); curDate=ymd(d); $("datePick").value=curDate; query(curDate); }
+
+/* ---- 탭 ---- */
+function setTab(name){
+  ["market","receipt","trend"].forEach(t=>{ $("tab-"+t).classList.toggle("on",t===name); $("panel-"+t).hidden=(t!==name); });
+  if(name==="trend") renderTrend();
+}
+
+/* ---- 초기화/이벤트 ---- */
+(function init(){
+  $("datePick").value=curDate; $("datePick").max=todayKST();
+  $("btnPrev").onclick=()=>shiftDate(-1);
+  $("btnNext").onclick=()=>{ const t=todayKST(); if(curDate>=t) return; shiftDate(1); };
+  $("btnLatest").onclick=()=>{ curDate=todayKST(); $("datePick").value=curDate; query(""); };
+  $("btnRefresh").onclick=()=>query(curDate===todayKST()?"":curDate);
+  $("datePick").onchange=e=>{ curDate=e.target.value||todayKST(); query(curDate); };
+  $("tab-market").onclick=()=>setTab("market");
+  $("tab-receipt").onclick=()=>setTab("receipt");
+  $("tab-trend").onclick=()=>setTab("trend");
+  $("trendItem").onchange=renderTrend;
+  $("rangeBtns").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b)return; trendRange=+b.dataset.r; [...$("rangeBtns").children].forEach(x=>x.classList.toggle("on",x===b)); renderTrend(); });
+  // 헤더 스크롤 숨김/표시
+  let ly=0; window.addEventListener("scroll",()=>{ const y=window.scrollY||0; const h=$("appHeader"); if(!h)return; if(y>ly&&y>60)h.classList.add("hide"); else h.classList.remove("hide"); ly=y; },{passive:true});
+  window.addEventListener("online",()=>query(curDate===todayKST()?"":curDate));
+  // 최초: 최신 자료 조회(날짜 미지정)
+  query("");
+})();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
+<!-- 네이버 애널리틱스(Wcslog) · 두당 -->
+<script type="text/javascript" src="//wcs.pstatic.net/wcslog.js"></script>
+<script type="text/javascript">
+if(!wcs_add) var wcs_add = {};
+wcs_add["wa"] = "1b150b27ece7010";
+if(window.wcs) { wcs_do(); }
+</script>
+</body>
+</html>
