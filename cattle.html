@@ -146,6 +146,12 @@
       <div><label>성별</label><input id="rSex" readonly></div>
       <div><label>출생일</label><input id="rBirth" type="date" readonly></div>
     </div>
+    <div style="margin-top:10px">
+      <button type="button" class="btn pri" id="btnInsem"
+        onclick="(function(){var t=(document.getElementById('rTrace').value||'').replace(/[^0-9]/g,'');if(!t){alert('식별번호가 없습니다.');return;}location.href='insemination.html?chiNo='+encodeURIComponent(t);})();">
+        🐄 인공수정이력 조회</button>
+      <span class="hint">이 개체의 한우 인공수정 이력을 조회합니다. (개체번호 자동 전달)</span>
+    </div>
 
     <div class="sec-title">신고 · 이동 이력 (경영자별)</div>
     <div id="moveHistory"></div>

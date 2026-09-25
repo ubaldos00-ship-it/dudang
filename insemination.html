@@ -1,0 +1,344 @@
+<!-- insemination.html · 한우 개체별 인공수정이력 조회 · 데이터: 두당→AWS API Gateway/Lambda→한우AI OpenAPI. 개발키는 서버(환경변수)에만 둠. API 미설정 시 '연동 준비 중' 표시(임의값 미표시) · 저장: 2026-09-25 07:27 KST(v1) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>한우 인공수정이력 조회 · 두당 頭當</title>
+<!-- Google tag (gtag.js) · 두당 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-PYTDP9E5YL');</script>
+<style>
+  :root{
+    --navy:#1a365d; --navy2:#2c5282; --blue:#2b6cb0; --sky:#3182ce;
+    --bg:#f4f6f9; --card:#fff; --line:#e2e8f0; --text:#1a202c; --muted:#718096;
+    --ok:#2f855a; --warn:#c05621; --red:#c53030;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;}
+  body{font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:var(--text);background:var(--bg);line-height:1.5;}
+  a{color:inherit;text-decoration:none;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:12px 16px;position:sticky;top:0;z-index:30;transition:transform .25s ease;will-change:transform;}
+  header.hide{transform:translateY(-100%);}
+  .hrow{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .back{color:#fff;font-size:22px;font-weight:700;padding:2px 6px;}
+  .htxt{flex:1;min-width:0;}
+  header h1{font-size:18px;margin:0;line-height:1.2;}
+  .hsub{font-size:12px;color:#cfe0f2;margin-top:2px;}
+  .home{color:#bcd4ef;font-size:14px;font-weight:600;white-space:nowrap;}
+  main{max-width:900px;margin:0 auto;padding:14px 14px 40px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.03);}
+  .lead{font-size:13.5px;color:var(--muted);margin-bottom:10px;}
+  /* 조회 입력 */
+  .qlabel{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+  .qbox{display:flex;flex-direction:column;gap:10px;}
+  #chiNo{width:100%;padding:15px 14px;font-size:22px;font-weight:700;letter-spacing:1px;border:2px solid #cbd5e0;border-radius:12px;text-align:center;color:var(--text);background:#fff;}
+  #chiNo:focus{outline:none;border-color:var(--blue);}
+  .btn{padding:11px 14px;border:1px solid #cbd5e0;background:#fff;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;color:var(--navy);}
+  .btn:hover{background:#f2f6fc;}
+  .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);font-size:18px;padding:15px;}
+  .btn:disabled{opacity:.55;cursor:default;}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;}
+  .err{font-size:13px;color:var(--red);font-weight:600;margin-top:6px;min-height:0;}
+  /* 상세조건 */
+  details.adv{border:1px solid var(--line);border-radius:12px;background:#fbfcfe;padding:0 14px;margin-top:12px;}
+  details.adv>summary{cursor:pointer;padding:12px 0;font-weight:700;color:var(--navy);font-size:14px;list-style:none;}
+  details.adv>summary::-webkit-details-marker{display:none;}
+  details.adv>summary::before{content:"▸ ";color:var(--blue);}
+  details.adv[open]>summary::before{content:"▾ ";}
+  .advgrid{display:grid;grid-template-columns:1fr;gap:10px;padding:0 0 14px;}
+  @media(min-width:560px){ .advgrid{grid-template-columns:repeat(3,1fr);} }
+  .fld label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;}
+  .fld input{width:100%;padding:10px;font-size:15px;border:1px solid #cbd5e0;border-radius:9px;background:#fff;}
+  /* 상태 배너 */
+  .statebar{border-radius:10px;padding:10px 12px;font-size:13.5px;margin-bottom:12px;}
+  .statebar.warn{background:#fff5f5;border:1px solid #f6c9c9;color:#9b2c2c;}
+  .statebar.info{background:#f0fff4;border:1px solid #c6f6d5;color:#276749;}
+  .statebar.soon{background:#fffaf0;border:1px solid #f6e0b8;color:#8a5a1b;}
+  /* 요약 */
+  .sumgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .sumcell{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;background:#fff;}
+  .sumcell .k{font-size:12px;color:var(--muted);}
+  .sumcell .v{font-size:18px;font-weight:800;color:var(--navy);margin-top:3px;word-break:break-all;}
+  /* 타임라인 (모바일 우선) */
+  .tl{margin-top:6px;}
+  .tlitem{position:relative;padding:0 0 0 26px;}
+  .tlitem::before{content:"";position:absolute;left:6px;top:6px;width:11px;height:11px;border-radius:50%;background:var(--blue);border:2px solid #fff;box-shadow:0 0 0 2px var(--blue);}
+  .tlitem .tldate{font-size:16px;font-weight:800;color:var(--text);}
+  .tlitem .tlmeta{font-size:14px;color:var(--navy);margin-top:2px;}
+  .tlitem .tlmeta .rank{display:inline-block;background:#e9f1fb;color:var(--blue);border-radius:8px;padding:1px 8px;font-size:12.5px;font-weight:700;margin-left:6px;}
+  .tlgap{position:relative;margin:6px 0 6px 0;padding:4px 0 4px 26px;color:var(--muted);font-size:12.5px;}
+  .tlgap::before{content:"";position:absolute;left:11px;top:0;bottom:0;width:2px;background:#cfe0f7;}
+  .tlgap b{color:var(--blue);}
+  .na{color:var(--muted);}
+  /* PC 표 */
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:center;}
+  th{background:#f0f4f9;color:var(--navy);font-weight:700;}
+  .only-mobile{display:block;} .only-pc{display:none;}
+  @media(min-width:680px){ .only-mobile{display:none;} .only-pc{display:block;} }
+  /* 최근조회 */
+  .recentwrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{border:1px solid #cbd5e0;background:#fff;border-radius:18px;padding:8px 14px;font-size:14px;font-weight:600;color:var(--navy);cursor:pointer;}
+  .chip:hover{background:#eef5ff;border-color:var(--blue);}
+  .linkbtn{background:none;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;text-decoration:underline;padding:4px;}
+  .calcnote{font-size:12px;color:var(--warn);margin-top:8px;}
+  .srcnote{font-size:12.5px;color:var(--muted);line-height:1.7;}
+  .srcnote a{color:var(--blue);word-break:break-all;} .srcnote b{color:var(--navy);}
+  .mst{font-size:14.5px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+  [hidden]{display:none!important;}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+</head>
+<body>
+<header id="appHeader"><div class="hrow">
+  <a class="back" href="#" onclick="if(history.length>1){history.back();}else{location.href='index.html';}return false;" aria-label="뒤로">←</a>
+  <div class="htxt">
+    <h1>🐄 한우 인공수정이력 조회</h1>
+    <div class="hsub">개체번호로 인공수정 이력을 확인합니다.</div>
+  </div>
+  <a class="home" href="index.html">🏠 홈</a>
+</div></header>
+
+<main>
+  <!-- 상태 배너 -->
+  <div class="statebar soon" id="stateMsg" hidden></div>
+
+  <!-- 조회 입력 -->
+  <div class="card">
+    <div class="lead">개체번호를 입력하면 해당 한우의 <b>인공수정 이력</b>을 조회합니다.</div>
+    <div class="qbox">
+      <div>
+        <div class="qlabel">개체번호</div>
+        <input id="chiNo" type="text" inputmode="numeric" autocomplete="off"
+               placeholder="예: 002071405200" aria-label="개체번호">
+        <div class="hint">410을 포함한 전체 번호를 넣어도 12자리로 자동 정리합니다. (공백·하이픈 제거)</div>
+        <div class="err" id="chiErr"></div>
+      </div>
+      <button class="btn primary" id="btnQuery">🔎 수정이력 조회</button>
+    </div>
+
+    <!-- 상세조건 -->
+    <details class="adv" id="advBox">
+      <summary>상세조건</summary>
+      <div class="advgrid">
+        <div class="fld"><label for="insemDate">인공수정일자</label><input id="insemDate" type="date" aria-label="인공수정일자"></div>
+        <div class="fld"><label for="kpnNo">종모우번호(KPN)</label><input id="kpnNo" type="text" inputmode="text" placeholder="예: KPN1234" aria-label="종모우번호"></div>
+        <div class="fld"><label for="rowRank">수정순위</label><input id="rowRank" type="number" min="1" placeholder="예: 1" aria-label="수정순위"></div>
+      </div>
+    </details>
+  </div>
+
+  <!-- 조회결과 -->
+  <section class="card" id="resultCard" hidden>
+    <div class="mst">조회결과</div>
+    <div class="sumgrid">
+      <div class="sumcell"><div class="k">개체번호</div><div class="v" id="sumChi">—</div></div>
+      <div class="sumcell"><div class="k">총 수정이력</div><div class="v" id="sumCount">—</div></div>
+      <div class="sumcell"><div class="k">최근 수정일</div><div class="v" id="sumLast">—</div></div>
+    </div>
+
+    <!-- 타임라인(모바일) -->
+    <div class="only-mobile">
+      <div class="mst" style="margin-top:14px">수정이력</div>
+      <div class="tl" id="timeline"></div>
+    </div>
+
+    <!-- 표(PC) -->
+    <div class="only-pc">
+      <div class="mst" style="margin-top:14px">수정이력</div>
+      <div style="overflow-x:auto"><table id="histTable"></table></div>
+    </div>
+
+    <div class="calcnote" id="calcNote" hidden>※ 수정 간격은 조회된 수정일자를 기준으로 <b>두당에서 자동 계산한 참고정보</b>입니다. 임신 여부나 정상·비정상 여부를 판정하지 않습니다.</div>
+  </section>
+
+  <!-- 최근 조회 -->
+  <section class="card" id="recentCard" hidden>
+    <div class="mst">최근 조회</div>
+    <div class="recentwrap" id="recentList"></div>
+    <div style="margin-top:8px"><button class="linkbtn" id="clearRecent">최근조회 전체삭제</button></div>
+  </section>
+
+  <!-- 출처 -->
+  <div class="card srcnote">
+    <b>자료 출처</b> · 한우AI OpenAPI<br>
+    조회 결과는 한우AI OpenAPI에서 제공된 자료를 기반으로 합니다.<br>
+    · 개체번호는 <b>410 접두를 제외한 12자리</b> 기준입니다.<br>
+    · 수정 간격은 두당이 자동 계산한 <b>참고정보</b>이며 API 제공값이 아닙니다.<br>
+    · 개인·농가 식별정보는 저장하지 않으며, 최근 조회한 개체번호만 이 기기(브라우저)에 임시 저장됩니다.
+  </div>
+</main>
+
+<!-- API 모듈(화면코드와 분리) -->
+<script src="js/hanwooApi.js"></script>
+<script>
+/* ===== 화면 로직 =====
+   실제 API 호출은 HanwooAPI.getInseminationHistory() → AWS 중계 → 한우AI.
+   RELAY_URL 이 비어 있으면(js/hanwooApi.js) '연동 준비 중'만 표시하고 임의값은 만들지 않습니다. */
+const $=id=>document.getElementById(id);
+const RECENT_KEY="dudang_insem_recent_v1";
+const RECENT_MAX=10;
+let _loading=false;
+let _lastKey="", _lastResult=null, _lastAt=0;
+const DEDUP_TTL_MS=60*1000;   // 동일 조건 60초 내 반복조회는 캐시 사용(트래픽 절약)
+
+/* 사용자 표시 메시지(오류코드 → 안내). 실제 코드는 콘솔/AWS 로그에서 확인. */
+const CODE_MSG={
+  "INFO-000":  {t:"", cls:""},
+  "INFO-100":  {t:"API 인증정보를 확인할 수 없습니다.", cls:"warn"},
+  "INFO-200":  {t:"해당 개체의 인공수정 이력이 확인되지 않습니다.", cls:"info"},
+  "ERROR-340": {t:"개체번호를 입력해 주세요.", cls:"warn"},
+  "ERROR-341": {t:"개체번호 형식을 확인해 주세요.", cls:"warn"},
+  "ERROR-342": {t:"상세 조회조건을 확인해 주세요.", cls:"warn"},
+  "ERROR-350": {t:"오늘의 API 조회 가능 횟수를 초과했습니다.", cls:"warn"},
+  "ERROR-500": {t:"현재 한우AI 서버에서 자료를 조회할 수 없습니다. 잠시 후 다시 시도해 주세요.", cls:"warn"},
+  "ERROR-600": {t:"현재 한우AI 서버에서 자료를 조회할 수 없습니다. 잠시 후 다시 시도해 주세요.", cls:"warn"},
+  "ERROR-601": {t:"현재 한우AI 서버에서 자료를 조회할 수 없습니다. 잠시 후 다시 시도해 주세요.", cls:"warn"},
+  "TIMEOUT":   {t:"서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.", cls:"warn"},
+  "NETWORK":   {t:"네트워크 오류로 조회할 수 없습니다.", cls:"warn"},
+  "OFFLINE":   {t:"📴 인터넷 연결이 없습니다.", cls:"warn"},
+  "NOT_CONFIGURED": {t:"🔧 인공수정이력 조회는 연동 준비 중입니다. AWS 중계 서버가 연결되면 조회할 수 있습니다.", cls:"soon"}
+};
+
+/* ---- 표시 유틸 ---- */
+function fmtDate(s){ if(!s) return "—"; const d=String(s).replace(/[^0-9]/g,""); if(d.length<8) return String(s); return d.slice(0,4)+"."+d.slice(4,6)+"."+d.slice(6,8); }
+function setState(kind){
+  const el=$("stateMsg"); const m=CODE_MSG[kind];
+  if(!m||!m.t){ el.hidden=true; el.textContent=""; return; }
+  el.className="statebar "+(m.cls||"warn"); el.textContent=m.t; el.hidden=false;
+}
+function setErr(msg){ $("chiErr").textContent=msg||""; }
+
+/* ---- 조회 ---- */
+async function doQuery(){
+  if(_loading) return;
+  setErr(""); setState(null);
+  const norm=HanwooAPI.normalizeChiNo($("chiNo").value);
+  if(!norm.ok){ setErr(norm.reason==="empty"?"개체번호를 입력해 주세요.":"개체번호를 확인해 주세요. (410 제외 12자리 숫자)"); $("chiNo").focus(); return; }
+  $("chiNo").value=norm.value;   // 정리된 12자리로 표시
+
+  const params={ chiNo:norm.value };
+  if($("insemDate").value) params.insemDate=$("insemDate").value;
+  if($("kpnNo").value.trim()) params.kpnNo=$("kpnNo").value.trim();
+  if($("rowRank").value.trim()) params.rowRank=$("rowRank").value.trim();
+  const key=JSON.stringify(params);
+
+  // 트래픽 절약: 동일 조건 60초 내 반복조회는 캐시 사용
+  if(key===_lastKey && _lastResult && (Date.now()-_lastAt)<DEDUP_TTL_MS){
+    renderResult(_lastResult); addRecent(norm.value); return;
+  }
+
+  _loading=true; setBusy(true);
+  let res;
+  try{ res=await HanwooAPI.getInseminationHistory(params); }
+  catch(e){ res={ok:false,code:"NETWORK",message:"네트워크 오류로 조회할 수 없습니다."}; }
+  _loading=false; setBusy(false);
+
+  _lastKey=key; _lastResult=res; _lastAt=Date.now();
+  renderResult(res);
+  if(res && (res.ok || res.code==="INFO-200")) addRecent(norm.value);
+}
+function setBusy(on){
+  const b=$("btnQuery");
+  b.disabled=on; ["chiNo","insemDate","kpnNo","rowRank"].forEach(id=>{const e=$(id); if(e) e.disabled=on;});
+  b.textContent=on?"⏳ 인공수정 이력을 조회하고 있습니다…":"🔎 수정이력 조회";
+}
+
+/* ---- 결과 렌더 ---- */
+function renderResult(res){
+  if(!res){ return; }
+  if(!res.ok){
+    // 데이터 없음(INFO-200)은 결과영역에 빈 상태로, 그 외는 상태배너로
+    setState(res.code||"ERROR-500");
+    if(res.code==="INFO-200"){ renderEmpty(res.chiNo); }
+    else { $("resultCard").hidden=true; }
+    return;
+  }
+  const recs=res.records||[];
+  if(!recs.length){ setState("INFO-200"); renderEmpty(res.chiNo); return; }
+
+  setState(null);
+  $("sumChi").textContent=res.chiNo||"—";
+  $("sumCount").textContent=recs.length+"회";
+  const last=recs[recs.length-1];
+  $("sumLast").textContent=fmtDate(last&&last.date);
+
+  // 타임라인(오래된→최근)
+  let tl="";
+  recs.forEach((r,i)=>{
+    if(i>0 && r.gapDays!=null) tl+=`<div class='tlgap'><b>${r.gapDays}일</b> 후</div>`;
+    else if(i>0) tl+=`<div class='tlgap'>간격 계산 불가</div>`;
+    const kpn=r.kpn?String(r.kpn):"<span class='na'>종모우번호 미상</span>";
+    const rank=(r.rank!=null&&r.rank!=="")?`<span class='rank'>${r.rank}차</span>`:"";
+    tl+=`<div class='tlitem'><div class='tldate'>${fmtDate(r.date)}</div><div class='tlmeta'>종모우 ${kpn}${rank}</div></div>`;
+  });
+  $("timeline").innerHTML=tl;
+
+  // 표(PC)
+  let th="<tr><th>수정일자</th><th>종모우번호</th><th>수정순위</th><th>이전 수정과 간격</th></tr>";
+  recs.forEach((r,i)=>{
+    const gap=(i===0)?"-":(r.gapDays!=null?(r.gapDays+"일"):"—");
+    const kpn=r.kpn!=null&&r.kpn!==""?r.kpn:"<span class='na'>—</span>";
+    const rank=(r.rank!=null&&r.rank!=="")?(r.rank+"차"):"—";
+    th+=`<tr><td>${fmtDate(r.date)}</td><td>${kpn}</td><td>${rank}</td><td>${gap}</td></tr>`;
+  });
+  $("histTable").innerHTML=th;
+
+  $("calcNote").hidden=(recs.length<2);
+  $("resultCard").hidden=false;
+}
+function renderEmpty(chi){
+  $("sumChi").textContent=chi||"—";
+  $("sumCount").textContent="0회";
+  $("sumLast").textContent="—";
+  $("timeline").innerHTML="<div class='na' style='padding:8px 0'>표시할 인공수정 이력이 없습니다.</div>";
+  $("histTable").innerHTML="<tr><th>수정일자</th><th>종모우번호</th><th>수정순위</th><th>이전 수정과 간격</th></tr><tr><td colspan='4' class='na'>이력 없음</td></tr>";
+  $("calcNote").hidden=true;
+  $("resultCard").hidden=false;
+}
+
+/* ---- 최근 조회 ---- */
+function getRecent(){ try{ return JSON.parse(localStorage.getItem(RECENT_KEY)||"[]"); }catch(e){ return []; } }
+function saveRecent(a){ try{ localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0,RECENT_MAX))); }catch(e){} }
+function addRecent(chi){ if(!chi) return; let a=getRecent().filter(x=>x!==chi); a.unshift(chi); saveRecent(a); renderRecent(); }
+function renderRecent(){
+  const a=getRecent(); const wrap=$("recentList");
+  if(!a.length){ $("recentCard").hidden=true; return; }
+  wrap.innerHTML=a.map(c=>`<button class='chip' data-chi='${c}'>${c}</button>`).join("");
+  $("recentCard").hidden=false;
+}
+
+/* ---- 초기화/이벤트 ---- */
+(function init(){
+  // 개체번호 정리: 입력 중 숫자 외 제거는 하지 않되(붙여넣기 편의), 조회 시 정규화
+  $("btnQuery").addEventListener("click",doQuery);
+  $("chiNo").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); doQuery(); } });
+  $("kpnNo").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); doQuery(); } });
+  $("rowRank").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); doQuery(); } });
+  $("recentList").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b)return; $("chiNo").value=b.dataset.chi; doQuery(); window.scrollTo({top:0,behavior:"smooth"}); });
+  $("clearRecent").addEventListener("click",()=>{ saveRecent([]); renderRecent(); });
+  renderRecent();
+
+  // 소이력 조회 등에서 넘어온 개체번호 자동입력 (예: insemination.html?chiNo=002071405200)
+  const p=new URLSearchParams(location.search);
+  const chi=p.get("chiNo")||p.get("chino")||p.get("cattleNo");
+  if(chi){ const n=HanwooAPI.normalizeChiNo(chi); $("chiNo").value=n.ok?n.value:chi.replace(/[^0-9]/g,""); doQuery(); }
+
+  // 연동 미설정 안내(입력은 가능하되, 조회하면 '연동 준비 중' 안내)
+  if(!HanwooAPI.isConfigured()){ setState("NOT_CONFIGURED"); }
+
+  // 헤더 스크롤 숨김/표시
+  let ly=0; window.addEventListener("scroll",()=>{ const y=window.scrollY||0; const h=$("appHeader"); if(!h)return; if(y>ly&&y>60)h.classList.add("hide"); else h.classList.remove("hide"); ly=y; },{passive:true});
+})();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
+<!-- 네이버 애널리틱스(Wcslog) · 두당 -->
+<script type="text/javascript" src="//wcs.pstatic.net/wcslog.js"></script>
+<script type="text/javascript">
+if(!wcs_add) var wcs_add = {};
+wcs_add["wa"] = "1b150b27ece7010";
+if(window.wcs) { wcs_do(); }
+</script>
+</body>
+</html>
