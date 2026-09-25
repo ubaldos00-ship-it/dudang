@@ -1,0 +1,296 @@
+<!-- cattle_all.html · 한우 개체 통합조회 · 개체번호 1회 입력 → 소이력(기본이력)+인공수정이력 한 화면. 소이력 중계는 cattle.html과 동일 URL(localStorage cattle_url) 재사용, 인공수정은 js/hanwooApi.js. 임의값 미표시 · 저장: 2026-09-26 02:38 KST (v1) -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>한우 개체 통합조회 · 두당 頭當</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-PYTDP9E5YL');</script>
+<style>
+  :root{
+    --navy:#1a365d; --navy2:#2c5282; --blue:#2b6cb0; --sky:#3182ce;
+    --bg:#f4f6f9; --card:#fff; --line:#e2e8f0; --text:#1a202c; --muted:#718096;
+    --ok:#2f855a; --warn:#c05621; --red:#c53030;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;}
+  body{font-family:-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;color:var(--text);background:var(--bg);line-height:1.5;}
+  a{color:inherit;text-decoration:none;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:12px 16px;position:sticky;top:0;z-index:30;transition:transform .25s ease;}
+  header.hide{transform:translateY(-100%);}
+  .hrow{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .back{color:#fff;font-size:22px;font-weight:700;padding:2px 6px;}
+  .htxt{flex:1;min-width:0;}
+  header h1{font-size:18px;margin:0;line-height:1.2;}
+  .hsub{font-size:12px;color:#cfe0f2;margin-top:2px;}
+  .home{color:#bcd4ef;font-size:14px;font-weight:600;white-space:nowrap;}
+  main{max-width:900px;margin:0 auto;padding:14px 14px 40px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.03);}
+  .lead{font-size:13.5px;color:var(--muted);margin-bottom:10px;}
+  .qlabel{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+  .qbox{display:flex;flex-direction:column;gap:10px;}
+  #chiNo{width:100%;padding:15px 14px;font-size:22px;font-weight:700;letter-spacing:1px;border:2px solid #cbd5e0;border-radius:12px;text-align:center;color:var(--text);background:#fff;}
+  #chiNo:focus{outline:none;border-color:var(--blue);}
+  .btn{padding:11px 14px;border:1px solid #cbd5e0;background:#fff;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;color:var(--navy);}
+  .btn:hover{background:#f2f6fc;}
+  .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);font-size:18px;padding:15px;}
+  .btn:disabled{opacity:.55;cursor:default;}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+  .btnrow .btn{flex:1;min-width:150px;text-align:center;}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;}
+  .err{font-size:13px;color:var(--red);font-weight:600;margin-top:6px;}
+  .mst{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+  .mst .pill{font-size:11px;font-weight:700;color:#fff;background:var(--blue);border-radius:10px;padding:2px 8px;}
+  /* 상태 배너 */
+  .statebar{border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:10px;}
+  .statebar.warn{background:#fff5f5;border:1px solid #f6c9c9;color:#9b2c2c;}
+  .statebar.soon{background:#fffaf0;border:1px solid #f6e0b8;color:#8a5a1b;}
+  .statebar.info{background:#f0fff4;border:1px solid #c6f6d5;color:#276749;}
+  /* 기본이력 표 */
+  .kv{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  @media(min-width:560px){ .kv{grid-template-columns:repeat(3,1fr);} }
+  .kvcell{border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:#fff;}
+  .kvcell .k{font-size:11.5px;color:var(--muted);}
+  .kvcell .v{font-size:15.5px;font-weight:700;color:var(--text);margin-top:2px;word-break:break-all;}
+  .kvcell .v.big{font-size:17px;color:var(--navy);}
+  .kvcell .v.na{color:var(--muted);font-weight:600;}
+  .calcbadge{font-size:10.5px;color:var(--blue);font-weight:700;margin-left:4px;}
+  /* 인공수정 요약 */
+  .sumgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px;}
+  .sumcell{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;background:#fff;}
+  .sumcell .k{font-size:12px;color:var(--muted);}
+  .sumcell .v{font-size:18px;font-weight:800;color:var(--navy);margin-top:3px;}
+  /* 타임라인(간단) */
+  .tl{margin-top:8px;}
+  .tlitem{position:relative;padding:0 0 0 24px;}
+  .tlitem::before{content:"";position:absolute;left:5px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--blue);border:2px solid #fff;box-shadow:0 0 0 2px var(--blue);}
+  .tlitem .tldate{font-size:15px;font-weight:800;}
+  .tlitem .tlmeta{font-size:13.5px;color:var(--navy);}
+  .tlitem .tlmeta .rank{display:inline-block;background:#e9f1fb;color:var(--blue);border-radius:8px;padding:1px 7px;font-size:12px;font-weight:700;margin-left:5px;}
+  .tlgap{position:relative;margin:5px 0;padding:3px 0 3px 24px;color:var(--muted);font-size:12px;}
+  .tlgap::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:#cfe0f7;}
+  .tlgap b{color:var(--blue);}
+  .moreline{font-size:12.5px;color:var(--muted);margin-top:8px;text-align:center;}
+  .na{color:var(--muted);}
+  .calcnote{font-size:11.5px;color:var(--warn);margin-top:8px;}
+  .srcnote{font-size:12.5px;color:var(--muted);line-height:1.7;}
+  .srcnote b{color:var(--navy);}
+  [hidden]{display:none!important;}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+</head>
+<body>
+<header id="appHeader"><div class="hrow">
+  <a class="back" href="#" onclick="if(history.length>1){history.back();}else{location.href='index.html';}return false;" aria-label="뒤로">←</a>
+  <div class="htxt">
+    <h1>🐮 한우 개체 통합조회</h1>
+    <div class="hsub">개체번호 한 번으로 이력 + 인공수정을 함께 봅니다.</div>
+  </div>
+  <a class="home" href="index.html">🏠 홈</a>
+</div></header>
+
+<main>
+  <!-- 조회 입력 -->
+  <div class="card">
+    <div class="lead">개체번호를 입력하면 <b>소 이력(기본정보)</b>과 <b>인공수정 이력</b>을 한 화면에서 조회합니다.</div>
+    <div class="qbox">
+      <div>
+        <div class="qlabel">개체번호</div>
+        <input id="chiNo" type="text" inputmode="numeric" autocomplete="off" placeholder="예: 002071405200" aria-label="개체번호">
+        <div class="hint">410을 포함해 넣어도 자동 정리합니다. (공백·하이픈 제거)</div>
+        <div class="err" id="chiErr"></div>
+      </div>
+      <button class="btn primary" id="btnQuery">🔎 통합조회</button>
+    </div>
+  </div>
+
+  <!-- ① 기본이력(소이력) -->
+  <section class="card" id="traceCard" hidden>
+    <div class="mst">🐂 기본이력 <span class="pill">소이력</span></div>
+    <div class="statebar" id="traceState" hidden></div>
+    <div class="kv" id="traceKV"></div>
+    <div class="calcnote" id="traceCalcNote" hidden>※ 개월수는 조회된 날짜로 <b>두당이 자동 계산한 참고값</b>입니다. 정밀 계산·저장은 「소이력 조회」에서 하세요.</div>
+    <div class="btnrow" style="margin-top:12px">
+      <button class="btn" id="toTrace">🐂 소이력 상세·개월수·생체중 계산 →</button>
+    </div>
+  </section>
+
+  <!-- ② 인공수정 이력 -->
+  <section class="card" id="insemCard" hidden>
+    <div class="mst">🐄 인공수정 이력</div>
+    <div class="statebar" id="insemState" hidden></div>
+    <div id="insemBody" hidden>
+      <div class="sumgrid">
+        <div class="sumcell"><div class="k">총 수정이력</div><div class="v" id="sumCount">—</div></div>
+        <div class="sumcell"><div class="k">최근 수정일</div><div class="v" id="sumLast">—</div></div>
+        <div class="sumcell"><div class="k">최근 종모우</div><div class="v" id="sumKpn">—</div></div>
+      </div>
+      <div class="tl" id="timeline"></div>
+      <div class="moreline" id="moreLine" hidden></div>
+      <div class="calcnote" id="insemCalcNote" hidden>※ 수정 간격은 조회된 수정일자로 <b>두당이 자동 계산한 참고정보</b>입니다. 임신 여부·정상 여부를 판정하지 않습니다.</div>
+    </div>
+    <div class="btnrow" style="margin-top:12px">
+      <button class="btn" id="toInsem">🐄 인공수정 전체이력·상세조건 →</button>
+    </div>
+  </section>
+
+  <!-- 출처 -->
+  <div class="card srcnote">
+    <b>자료 출처</b> · 소 이력정보(축산물품질평가원 이력제) · 인공수정(한우AI OpenAPI)<br>
+    · 개체번호는 <b>410 접두 제외 12자리</b> 기준입니다. · 개월수·수정간격은 두당 <b>자동 계산 참고값</b>입니다.<br>
+    · 최근 조회한 개체번호만 이 기기(브라우저)에 임시 저장됩니다.
+  </div>
+</main>
+
+<script src="js/hanwooApi.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+// 소이력 중계 URL: cattle.html과 동일 저장키(cattle_url) 재사용. 없으면 기본값.
+const DEFAULT_TRACE_URL="https://r2vnmzx2rnwirfazkzvugdyqne0vljcr.lambda-url.ap-northeast-2.on.aws/";
+function traceBase(){ let u=""; try{ u=localStorage.getItem("cattle_url")||""; }catch(e){} return (u||DEFAULT_TRACE_URL).replace(/\/+$/,""); }
+let _loading=false;
+const TL_MAX=6;   // 통합화면 타임라인은 최근 6건까지, 나머지는 전체이력 링크로
+
+/* ---- 유틸 ---- */
+function fmtDate(s){ if(!s) return "—"; const d=String(s).replace(/[^0-9]/g,""); if(d.length<8) return String(s); return d.slice(0,4)+"."+d.slice(4,6)+"."+d.slice(6,8); }
+function ymdToDate(s){ const d=String(s||"").replace(/[^0-9]/g,""); if(d.length<8) return null; const dt=new Date(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8)); return isNaN(dt)?null:dt; }
+function monthsBetween(a,b){ const da=ymdToDate(a), db=ymdToDate(b); if(!da||!db) return null; return Math.round((db-da)/86400000/30.44); }
+function todayYmd(){ const d=new Date(); return ""+d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0"); }
+
+/* ---- 소이력 조회(표시용 최소 파싱, cattle.html과 동일 응답구조) ---- */
+async function fetchTrace(traceNo){
+  const base=traceBase();
+  let data;
+  try{
+    const res=await fetch(`${base}/?traceNo=${encodeURIComponent(traceNo)}&all=1`,{headers:{"Accept":"application/json"}});
+    data=await res.json();
+  }catch(e){ return {error:"network"}; }
+  if(!data||!data.ok) return {error:"server", message:(data&&data.message)||""};
+  const byOpt={}; (data.results||[]).forEach(r=>byOpt[r.optionNo]=r);
+  const o1=byOpt[1]&&byOpt[1].items&&byOpt[1].items[0];
+  const o2=(byOpt[2]&&byOpt[2].items)||[];
+  const o3=byOpt[3]&&byOpt[3].items&&byOpt[3].items[0];
+  if(!o1) return {empty:true};
+  const butcheryYmd=(o3&&o3.butcheryYmd)||null;
+  const yangsu=o2.filter(x=>x.regType==="양수"&&/^\d{8}$/.test(x.regYmd)).filter(x=>!butcheryYmd||x.regYmd<=butcheryYmd).map(x=>x.regYmd).sort();
+  const autoBuy=yangsu.length?yangsu[yangsu.length-1]:null;
+  const mgr=(function(){ const v=o2.filter(x=>/^\d{8}$/.test(x.regYmd)); if(!v.length)return""; v.sort((a,b)=>a.regYmd.localeCompare(b.regYmd)); return v[v.length-1].farmerNm||""; })();
+  return { traceNo, birthYmd:o1.birthYmd, breed:o1.lsTypeNm, sex:o1.sexNm, butcheryYmd,
+    place:(o3&&o3.butcheryPlaceNm)||"", grade:(o3&&o3.gradeNm)||"", weight:(o3&&o3.weight)?Number(o3.weight):null, autoBuy, manager:mgr };
+}
+function renderTrace(t){
+  const box=$("traceKV"), st=$("traceState");
+  if(t.error){ st.className="statebar warn"; st.textContent=(t.error==="network")?"소이력 서버에 연결할 수 없습니다.(설정 URL 확인)":"소이력 자료를 불러오지 못했습니다."; st.hidden=false; box.innerHTML=""; $("traceCalcNote").hidden=true; return; }
+  if(t.empty){ st.className="statebar warn"; st.textContent="개체 기본정보가 없습니다. 개체번호를 확인하세요."; st.hidden=false; box.innerHTML=""; $("traceCalcNote").hidden=true; return; }
+  st.hidden=true;
+  const shipM=monthsBetween(t.birthYmd, t.butcheryYmd);
+  const raiseM=monthsBetween(t.autoBuy, t.butcheryYmd);
+  const ageM=t.butcheryYmd?null:monthsBetween(t.birthYmd, todayYmd());
+  const cells=[
+    ["개체번호", t.traceNo, "big"],
+    ["품종", t.breed||"—"],
+    ["성별", t.sex||"—"],
+    ["출생일", fmtDate(t.birthYmd)],
+    ["구입일(자동)", t.autoBuy?fmtDate(t.autoBuy):"—"],
+    ["도축일", t.butcheryYmd?fmtDate(t.butcheryYmd):"—"],
+    t.butcheryYmd? ["출하월령", shipM!=null?shipM+"개월":"—","calc"] : ["현재 월령", ageM!=null?ageM+"개월":"—","calc"],
+    ["사육개월수", raiseM!=null?raiseM+"개월":"—","calc"],
+    ["도체중량", t.weight!=null?(t.weight+" kg"):"—"],
+    ["육질등급", t.grade||"—"],
+    ["경영자", t.manager||"—"]
+  ];
+  box.innerHTML=cells.map(c=>{
+    const big=c[2]==="big"?" big":""; const isCalc=c[2]==="calc";
+    const val=(c[1]==null||c[1]==="—"||c[1]==="")?`<span class='v na'>—</span>`:`<span class='v${big}'>${c[1]}${isCalc?"<span class='calcbadge'>계산</span>":""}</span>`;
+    return `<div class='kvcell'><div class='k'>${c[0]}</div>${val}</div>`;
+  }).join("");
+  $("traceCalcNote").hidden = !(shipM!=null||raiseM!=null||ageM!=null);
+}
+
+/* ---- 인공수정 요약 렌더 ---- */
+function renderInsem(res){
+  const st=$("insemState"), body=$("insemBody");
+  if(!res.ok){
+    body.hidden=true; st.hidden=false;
+    if(res.code==="NOT_CONFIGURED"){ st.className="statebar soon"; st.textContent="🔧 인공수정이력 조회는 연동 준비 중입니다."; }
+    else if(res.code==="INFO-200"){ st.className="statebar info"; st.textContent="해당 개체의 인공수정 이력이 확인되지 않습니다."; }
+    else { st.className="statebar warn"; st.textContent=res.message||"인공수정 이력을 불러오지 못했습니다."; }
+    return;
+  }
+  const recs=res.records||[];
+  if(!recs.length){ body.hidden=true; st.className="statebar info"; st.textContent="해당 개체의 인공수정 이력이 확인되지 않습니다."; st.hidden=false; return; }
+  st.hidden=true; body.hidden=false;
+  const last=recs[recs.length-1];
+  $("sumCount").textContent=recs.length+"회";
+  $("sumLast").textContent=fmtDate(last.date);
+  $("sumKpn").textContent=last.kpn||"—";
+  // 최근 TL_MAX건만(오래된→최근). 잘린 앞부분은 안내.
+  const show=recs.slice(-TL_MAX);
+  let tl="";
+  show.forEach((r,i)=>{
+    if(i>0){ const g=r.gapDays; tl+=`<div class='tlgap'>${g!=null?("<b>"+g+"일</b> 후"):"간격 계산 불가"}</div>`; }
+    const kpn=r.kpn?r.kpn:"<span class='na'>종모우 미상</span>";
+    const rank=(r.rank!=null&&r.rank!=="")?`<span class='rank'>${r.rank}차</span>`:"";
+    tl+=`<div class='tlitem'><div class='tldate'>${fmtDate(r.date)}</div><div class='tlmeta'>종모우 ${kpn}${rank}</div></div>`;
+  });
+  $("timeline").innerHTML=tl;
+  const hidden=recs.length-show.length;
+  $("moreLine").hidden=!(hidden>0);
+  if(hidden>0) $("moreLine").textContent=`… 이전 ${hidden}건 더 있음 · 아래 「전체이력」에서 모두 보기`;
+  $("insemCalcNote").hidden=(recs.length<2);
+}
+
+/* ---- 통합 조회 ---- */
+async function doQuery(){
+  if(_loading) return;
+  $("chiErr").textContent="";
+  const norm=HanwooAPI.normalizeChiNo($("chiNo").value);
+  if(!norm.ok){ $("chiErr").textContent=(norm.reason==="empty")?"개체번호를 입력해 주세요.":"개체번호를 확인해 주세요. (410 제외 12자리 숫자)"; $("chiNo").focus(); return; }
+  $("chiNo").value=norm.value;
+  const chi=norm.value;
+
+  _loading=true; const b=$("btnQuery"); b.disabled=true; b.textContent="⏳ 조회 중…";
+  $("traceCard").hidden=false; $("insemCard").hidden=false;
+  $("traceState").hidden=true; $("traceKV").innerHTML="<div class='hint'>불러오는 중…</div>";
+  $("insemState").className="statebar info"; $("insemState").textContent="불러오는 중…"; $("insemState").hidden=false; $("insemBody").hidden=true;
+  // 링크 버튼 연결
+  $("toTrace").onclick=()=>{ location.href="cattle.html?chiNo="+encodeURIComponent(chi); };
+  $("toInsem").onclick=()=>{ location.href="insemination.html?chiNo="+encodeURIComponent(chi); };
+
+  // 두 API 병렬 호출(서로 독립적으로 실패 처리)
+  const [trace, insem] = await Promise.all([
+    fetchTrace(chi).catch(e=>({error:"network"})),
+    HanwooAPI.getInseminationHistory({chiNo:chi}).catch(e=>({ok:false,code:"NETWORK",message:"네트워크 오류"}))
+  ]);
+  renderTrace(trace);
+  renderInsem(insem);
+  addRecent(chi);
+
+  _loading=false; b.disabled=false; b.textContent="🔎 통합조회";
+}
+
+/* ---- 최근 조회(인공수정 페이지와 동일 키 공유) ---- */
+const RECENT_KEY="dudang_insem_recent_v1", RECENT_MAX=10;
+function getRecent(){ try{ return JSON.parse(localStorage.getItem(RECENT_KEY)||"[]"); }catch(e){ return []; } }
+function addRecent(chi){ if(!chi) return; try{ let a=getRecent().filter(x=>x!==chi); a.unshift(chi); localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0,RECENT_MAX))); }catch(e){} }
+
+/* ---- 초기화 ---- */
+(function init(){
+  $("btnQuery").addEventListener("click",doQuery);
+  $("chiNo").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); doQuery(); } });
+  const p=new URLSearchParams(location.search);
+  const chi=p.get("chiNo")||p.get("chino")||p.get("traceNo");
+  if(chi){ const n=HanwooAPI.normalizeChiNo(chi); $("chiNo").value=n.ok?n.value:chi.replace(/[^0-9]/g,""); doQuery(); }
+  let ly=0; window.addEventListener("scroll",()=>{ const y=window.scrollY||0; const h=$("appHeader"); if(!h)return; if(y>ly&&y>60)h.classList.add("hide"); else h.classList.remove("hide"); ly=y; },{passive:true});
+})();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
+<script type="text/javascript" src="//wcs.pstatic.net/wcslog.js"></script>
+<script type="text/javascript">
+if(!wcs_add) var wcs_add = {};
+wcs_add["wa"] = "1b150b27ece7010";
+if(window.wcs) { wcs_do(); }
+</script>
+</body>
+</html>

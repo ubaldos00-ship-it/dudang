@@ -797,6 +797,15 @@ initVisit();
 
 /* 시작 */
 openDB().then(refreshList).catch(e=>setStatus("❌ IndexedDB 오류: "+escHtml(e.message||e),"bad"));
+
+/* 통합조회/인공수정 페이지에서 개체번호 전달 시 자동입력·자동조회 (예: cattle.html?chiNo=002071405200) */
+(function(){
+  try{
+    var p=new URLSearchParams(location.search);
+    var v=(p.get("chiNo")||p.get("traceNo")||"").replace(/[^0-9]/g,"");
+    if(v && v.length>=9 && v.length<=15){ $("fTrace").value=v; setTimeout(function(){ try{ doSearch(); }catch(e){} }, 200); }
+  }catch(e){}
+})();
 </script>
 
 <!-- 네이버 애널리틱스(Wcslog) · 두당 -->
