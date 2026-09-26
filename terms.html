@@ -4,7 +4,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>조사용어 검색 · 두당 頭當</title>
 <!-- Google tag (gtag.js) · 두당 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
@@ -70,7 +70,7 @@
   </div>
   <div class="cats" id="cats"></div>
   <div class="sp-row" id="spRow"></div>
-  <div id="termNav" style="display:none;margin-bottom:10px"><button id="termBack" class="tback">← 이전 용어로</button></div>
+  <div id="termNav" style="display:none;margin-bottom:10px;line-height:2.1"></div>
   <div class="count" id="count"></div>
   <div id="list"></div>
   <div class="src" id="src"></div>
@@ -89,15 +89,62 @@ const SURVEY=new Set(["성축환산두수","번식율","사육구분","부담비
 const CATS=["전체","소","돼지","닭","조사용어"];
 const $=id=>document.getElementById(id);
 const esc=s=>(s==null?"":(""+s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])));
-let TERMS=[], curCat="전체", curQ="", termHist=[];
-function updateTermNav(){ const el=document.getElementById("termNav"); if(el) el.style.display=termHist.length?"block":"none"; }
+let TERMS=[], curCat="전체", curQ="", termPath=[];   // termPath: 트리 탐색 경로(용어명 순서)
 
 function hl(text,q){ text=esc(text); if(!q)return text; try{const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi"); return text.replace(re,"<mark>$1</mark>");}catch(e){return text;} }
 function inCat(t){ if(curCat==="전체")return true; if(curCat==="조사용어")return SURVEY.has(t.term); return (t.species||[]).includes(curCat); }
 function match(t,q){ if(!q)return true; const hay=[t.term,...(t.aka||[]),t.def,t.easy].join(" ").toLowerCase(); return hay.includes(q.toLowerCase()); }
+function findTerm(name){ if(name==null) return null; const n=(""+name).trim().toLowerCase();
+  return TERMS.find(t=>(""+(t.term||"")).toLowerCase()===n) || TERMS.find(t=>(t.aka||[]).some(a=>(""+a).toLowerCase()===n)) || null; }
+
+/* 트리(브레드크럼): 탐색한 용어 경로를 순서대로 표시, 클릭 시 그 지점으로 이동 */
+function renderCrumb(){
+  const el=$("termNav"); if(!el) return;
+  if(!termPath.length){ el.style.display="none"; el.innerHTML=""; return; }
+  el.style.display="block";
+  const cs="display:inline-block;background:#e9f1fb;color:#2b6cb0;border-radius:8px;padding:3px 10px;margin:2px;font-size:13px;font-weight:700;cursor:pointer";
+  const sep='<span style="color:#a0aec0;margin:0 3px">›</span>';
+  el.innerHTML=`<span class="crumb" data-home="1" style="${cs};background:#edf2f7;color:#4a5568">🔎 전체</span>`+sep
+    +termPath.map((n,i)=>`<span class="crumb" data-i="${i}" style="${cs}${i===termPath.length-1?';background:#2b6cb0;color:#fff':''}">${esc(n)}</span>`).join(sep);
+  el.querySelectorAll(".crumb").forEach(c=>c.onclick=()=>{
+    if(c.dataset.home){ termPath=[]; renderCrumb(); curQ=$("q").value; renderList(); window.scrollTo(0,0); return; }
+    const i=+c.dataset.i; termPath=termPath.slice(0,i+1); focusTerm(termPath[i]);
+  });
+}
+function relHtml(t){ return (t.related||[]).map(r=>`<span data-r="${esc(r)}" data-parent="${esc(t.term)}">${esc(r)}</span>`).join(""); }
+function bindTermInteractions(){
+  $("list").querySelectorAll(".term .hd").forEach(hd=>hd.onclick=()=>hd.parentElement.classList.toggle("open"));
+  $("list").querySelectorAll(".term .rel span").forEach(s=>s.onclick=e=>{ e.stopPropagation();
+    const r=s.dataset.r, parent=s.dataset.parent;
+    if(!termPath.length && parent) termPath.push(parent);           // 트리 시작: 부모 용어 먼저
+    if(termPath[termPath.length-1]!==r) termPath.push(r);           // 클릭한 관련 용어 추가
+    focusTerm(r);
+  });
+}
+/* 관련 용어 클릭 시: 그 용어를 정확히 찾아 펼쳐 보여주고, 트리에 이어붙임 */
+function focusTerm(name){
+  renderCrumb();
+  $("spRow").innerHTML="";
+  $("count").textContent="🌳 용어 트리 · "+termPath.join(" › ");
+  const t=findTerm(name);
+  if(!t){ $("list").innerHTML=`<div class="msg">‘${esc(name)}’ 용어 설명이 아직 준비되지 않았습니다.<br>위 검색창에서 다른 낱말로 찾아보세요.</div>`; window.scrollTo(0,0); return; }
+  const sp=(t.species||[]).join("·");
+  $("list").innerHTML=`<div class="term open" data-i="0">
+    <div class="hd"><span class="name">${esc(t.term)}</span>${t.aka?`<span class="aka">(${t.aka.map(a=>esc(a)).join(", ")})</span>`:""}<span class="sp">${esc(sp)}</span></div>
+    <div class="easy">${esc(t.easy||t.def)}</div>
+    <div class="body">
+      <div class="row"><span class="lb">정확한 정의</span><br>${esc(t.def)}</div>
+      ${t.easy?`<div class="row"><span class="lb">쉽게 설명하면</span><br>${esc(t.easy)}</div>`:""}
+      ${t.livestock&&t.livestock!=="—"?`<div class="survey">📈 가축동향조사: ${esc(t.livestock)}</div>`:""}
+      ${t.cost&&t.cost!=="—"?`<div class="survey">💰 생산비조사: ${esc(t.cost)}</div>`:""}
+      ${relHtml(t)?`<div class="row rel"><span class="lb">관련 용어 <span style="font-weight:400;color:#718096">(누르면 트리로 이어집니다)</span></span><br>${relHtml(t)}</div>`:""}
+    </div></div>`;
+  bindTermInteractions();
+  window.scrollTo(0,0);
+}
 
 function renderCats(){ $("cats").innerHTML=CATS.map(c=>`<button data-c="${c}"${c===curCat?' class="on"':''}>${c}</button>`).join("");
-  $("cats").querySelectorAll("button").forEach(b=>b.onclick=()=>{termHist=[];curCat=b.dataset.c;renderCats();renderList();updateTermNav();}); }
+  $("cats").querySelectorAll("button").forEach(b=>b.onclick=()=>{termPath=[];curCat=b.dataset.c;renderCats();renderList();renderCrumb();}); }
 function renderSpecies(q){ // 검색어가 축종명과 겹치면 축종 바로가기 노출
   const sp=SPECIES.filter(s=>!q||s.title.replace(/\s/g,"").includes(q.replace(/\s/g,""))||q.includes(s.title.slice(0,2)));
   $("spRow").innerHTML = (q&&sp.length)? ("축종 학습: "+sp.map(s=>`<a href="species.html?s=${s.id}">${s.emoji} ${s.title}${s.ready?"":" ·준비중"}</a>`).join("")) : "";
@@ -110,7 +157,6 @@ function renderList(){
   if(!rows.length){ $("list").innerHTML='<div class="msg">일치하는 용어가 없습니다. 다른 낱말로 검색해 보세요.</div>'; return; }
   $("list").innerHTML=rows.map((t,i)=>{
     const sp=(t.species||[]).join("·");
-    const rel=(t.related||[]).map(r=>`<span data-r="${esc(r)}">${esc(r)}</span>`).join("");
     return `<div class="term" data-i="${i}">
       <div class="hd"><span class="name">${hl(t.term,q)}</span>${t.aka?`<span class="aka">(${t.aka.map(a=>esc(a)).join(", ")})</span>`:""}<span class="sp">${esc(sp)}</span></div>
       <div class="easy">${hl(t.easy||t.def,q)}</div>
@@ -119,16 +165,12 @@ function renderList(){
         ${t.easy?`<div class="row"><span class="lb">쉽게 설명하면</span><br>${esc(t.easy)}</div>`:""}
         ${t.livestock&&t.livestock!=="—"?`<div class="survey">📈 가축동향조사: ${esc(t.livestock)}</div>`:""}
         ${t.cost&&t.cost!=="—"?`<div class="survey">💰 생산비조사: ${esc(t.cost)}</div>`:""}
-        ${rel?`<div class="row rel"><span class="lb">관련 용어</span><br>${rel}</div>`:""}
+        ${relHtml(t)?`<div class="row rel"><span class="lb">관련 용어</span><br>${relHtml(t)}</div>`:""}
       </div></div>`;
   }).join("");
-  // 상호작용
-  $("list").querySelectorAll(".term .hd").forEach(hd=>hd.onclick=()=>hd.parentElement.classList.toggle("open"));
-  $("list").querySelectorAll(".term .rel span").forEach(s=>s.onclick=e=>{e.stopPropagation(); termHist.push({q:curQ,cat:curCat}); curQ=s.dataset.r; $("q").value=curQ; curCat="전체"; renderCats(); renderList(); window.scrollTo(0,0);});
-  updateTermNav();
+  bindTermInteractions();
 }
-function doSearch(){ termHist=[]; curQ=$("q").value; renderList(); }
-document.getElementById("termBack").onclick=()=>{ const st=termHist.pop(); if(st){ curQ=st.q; $("q").value=st.q; curCat=st.cat; renderCats(); renderList(); window.scrollTo(0,0);} };
+function doSearch(){ termPath=[]; curQ=$("q").value; renderCrumb(); renderList(); }
 $("qbtn").onclick=doSearch; $("q").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
 
 (async function(){
