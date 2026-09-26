@@ -140,7 +140,7 @@
         <div class="fld"><label>저장된 농가 불러오기</label>
           <span style="display:flex;gap:6px">
             <select id="farmSel" style="min-width:120px"><option value="">— 선택 —</option></select>
-            <button class="btn reset" id="btnLoad" style="padding:8px 12px">불러오기</button>
+            <button class="btn reset" id="btnLoad" style="padding:8px 12px;color:#2b6cb0;font-weight:800">불러오기</button>
           </span>
         </div>
       </div>
@@ -604,7 +604,7 @@ function encStr(s){ try{ let o=""; for(let i=0;i<s.length;i++) o+=String.fromCha
 function decStr(s){ if(typeof s!=="string"||s.slice(0,5)!=="ENC1:") return s; try{ const raw=decodeURIComponent(escape(atob(s.slice(5)))); let o=""; for(let i=0;i<raw.length;i++) o+=String.fromCharCode(raw.charCodeAt(i)^CKEY.charCodeAt(i%CKEY.length)); return o; }catch(e){ return "{}"; } }
 function loadFarm(f){ try{ const raw=localStorage.getItem(storeKey(f)); if(!raw) return {}; return JSON.parse(decStr(raw)); }catch(e){ return {}; } }
 function saveFarm(f,obj){ try{ localStorage.setItem(storeKey(f),encStr(JSON.stringify(obj))); }catch(e){} }
-function mkMonth(){ const m={inv:{},herd:{},feedBasis:(CFG.feedDefault||"adult"),coef:Object.assign({},DEF_COEF),feedItems:defaultFeedItems(),ledgerRows:[],intake:{},pigDefaults:{}};
+function mkMonth(){ const m={inv:{},herd:{},feedBasis:(CFG.feedDefault||"adult"),coef:Object.assign({},DEF_COEF),feedItems:defaultFeedItems(),ledgerRows:[],intake:{},intakeRough:[],pigDefaults:{}};
   CATS.forEach(c=>m.inv[c.id]={begin:0,birth:0,buy:0,in:0,out:0,sell:0,cull:0,dead:0,endChk:0});
   HERD.forEach(([k])=>m.herd[k]=0);
   return m; }
@@ -764,6 +764,7 @@ function feedItemRow(it,i,total,cat){
   r+=`<td class='auto'><input type='number' inputmode='numeric' min='0' id='fi_${it.id}' data-fid='${it.id}' data-f='kgIn' value='0' class='calcin'></td>`;
   r+=`<td><input type='number' inputmode='numeric' min='0' data-fid='${it.id}' data-f='price' value='${it.price||0}'></td>`;
   r+=`<td class='auto'><input type='number' inputmode='numeric' min='0' id='fc_${it.id}' data-fid='${it.id}' data-f='wonIn' value='0' class='calcin'></td>`;
+  r+=`<td class='ip'><input type='text' data-feednote='${it.id}' value='${(it.note||"").replace(/'/g,"&#39;").replace(/"/g,"&quot;")}' style='min-width:56px' placeholder='비고'></td>`;
   r+=`<td class='act'>`+(i===0?`<button type='button' class='mini add' data-add='${it.id}' title='같은 사료 줄 추가'>＋</button>`:`<button type='button' class='mini del' data-del='${it.id}' title='이 줄 삭제'>－</button>`)+`</td></tr>`;
   return r;
 }
@@ -772,7 +773,7 @@ function feedTypeBlocks(grp,typeList,cat,lead){
   typeList.forEach(t=>{
     const items=M.feedItems.filter(x=>x.grp===grp&&x.type===t);
     items.forEach((it,i)=> h+=feedItemRow(it,i,items.length,cat));
-    if(items.length>1){ h+=`<tr class='subt'><td class='rc' style='text-align:left;color:#5b6b7d'>↳ ${t} 소계</td>${lead>1?`<td colspan='${lead-1}'></td>`:""}<td class='auto'><span id='subt_${grp}_${t}_kg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_avg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_won'>0</span></td><td></td></tr>`; }
+    if(items.length>1){ h+=`<tr class='subt'><td class='rc' style='text-align:left;color:#5b6b7d'>↳ ${t} 소계</td>${lead>1?`<td colspan='${lead-1}'></td>`:""}<td class='auto'><span id='subt_${grp}_${t}_kg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_avg'>0</span></td><td class='auto'><span id='subt_${grp}_${t}_won'>0</span></td><td></td><td></td></tr>`; }
   });
   return h;
 }
@@ -787,7 +788,7 @@ function buildFeedPerhead(){
   const subGroups=CFG.intakeSub||[];
   const grpCount={}; rows.forEach(r=>{ if(r.grp) grpCount[r.grp]=(grpCount[r.grp]||0)+1; });
   const grpSeen={};
-  let h="<tr><th class='rc' colspan='2'>구분</th><th>1일섭취량<br><span class='sub'>kg/두·일</span></th><th>마리수<br><span class='sub'>두</span></th><th>섭취량<br><span class='sub'>kg</span></th><th>급여량<br><span class='sub'>kg</span></th><th>단가<br><span class='sub'>원/kg</span></th><th>금액<br><span class='sub'>원</span></th></tr>";
+  let h="<tr><th class='rc' colspan='2'>구분</th><th>1일섭취량<br><span class='sub'>kg/두·일</span></th><th>마리수<br><span class='sub'>두</span></th><th>섭취량<br><span class='sub'>kg</span></th><th>급여량<br><span class='sub'>kg</span></th><th>단가<br><span class='sub'>원/kg</span></th><th>금액<br><span class='sub'>원</span></th><th>비고</th></tr>";
   rows.forEach((r,i)=>{
     const k=intakeKey(r,i), d=M.intake[k];
     const isTot=(r.grp && grpCount[r.grp]===1);   // 한 줄뿐인 그룹(자돈·수퇘지)은 그 줄이 그룹 소계 → 빨강
@@ -808,13 +809,16 @@ function buildFeedPerhead(){
          `<td class='ip${rv}'><input type='number' inputmode='numeric' min='0' data-intake='${k}' data-if='price' value='${d.price||0}'></td>`+
          `<td class='end${rv}'><span id='iamt_${k}'>0</span></td>`;
     }
+    h+=`<td class='ip'><input type='text' data-intakenote='${k}' value='${(d.note||"").replace(/'/g,"&#39;").replace(/"/g,"&quot;")}' style='min-width:50px' placeholder='비고'></td>`;
     h+="</tr>";
     const nextGrp=(i+1<rows.length)?rows[i+1].grp:null;
     if(r.grp && subGroups.indexOf(r.grp)>=0 && nextGrp!==r.grp){
-      h+=`<tr class='subt'><td class='psub tot' colspan='2'>${r.grp} 소계</td><td class='auto'></td><td class='end'><span id='isub_${r.grp}_cnt'>0</span></td><td class='end redval'><span id='isub_${r.grp}_use'>0</span></td><td class='end redval'><span id='isub_${r.grp}_feed'>0</span></td><td class='end redval'><span id='isub_${r.grp}_avg'>0</span></td><td class='end redval'><span id='isub_${r.grp}_amt'>0</span></td></tr>`;
+      h+=`<tr class='subt'><td class='psub tot' colspan='2'>${r.grp} 소계</td><td class='auto'></td><td class='end'><span id='isub_${r.grp}_cnt'>0</span></td><td class='end redval'><span id='isub_${r.grp}_use'>0</span></td><td class='end redval'><span id='isub_${r.grp}_feed'>0</span></td><td class='end redval'><span id='isub_${r.grp}_avg'>0</span></td><td class='end redval'><span id='isub_${r.grp}_amt'>0</span></td><td></td></tr>`;
     }
   });
-  h+=`<tr><td class='psub tot' colspan='2' style='background:#e9eef6'>합계</td><td class='end'><span id='isum_kg'>0</span></td><td class='end'><span id='isum_cnt'>0</span></td><td class='end'><span id='isum_use'>0</span></td><td class='end'><span id='isum_feed'>0</span></td><td class='end'><span id='isum_avg'>0</span></td><td class='end'><span id='isum_amt'>0</span></td></tr>`;
+  h+=roughSectionHtml();   // 조사료 섹션(소 축종)
+  h+=`<tr><td class='psub tot' colspan='2' style='background:#e9eef6'>합계</td><td class='end'><span id='isum_kg'>0</span></td><td class='end'><span id='isum_cnt'>0</span></td><td class='end'><span id='isum_use'>0</span></td><td class='end'><span id='isum_feed'>0</span></td><td class='end'><span id='isum_avg'>0</span></td><td class='end'><span id='isum_amt'>0</span></td><td></td></tr>`;
+  h+=`<tr><td class='psub tot' colspan='2' style='background:#eef6ee'>두당 평균 <span class='sub' style='font-weight:400'>(사육 <span id='iph_cnt'>0</span>두)</span></td><td class='auto'></td><td class='auto'></td><td class='auto'></td><td class='end'><span id='iph_feed'>0</span></td><td class='auto'></td><td class='end'><span id='iph_amt'>0</span></td><td></td></tr>`;
   $("feedTbl").innerHTML=h;
 }
 function recalcPerhead(){
@@ -843,17 +847,62 @@ function recalcPerhead(){
     if($("isub_"+name+"_avg"))$("isub_"+name+"_avg").textContent=nf(x.feed>0?Math.round(x.amt/x.feed):0);
     if($("isub_"+name+"_amt"))$("isub_"+name+"_amt").textContent=nf(Math.round(x.amt));
   });
+  // 조사료(소 축종): 급여량·금액을 합계에 포함
+  let rCnt=0,rUse=0,rFeed=0,rAmt=0;
+  (M.intakeRough||[]).forEach(rg=>{ const kg=+(rg.kg||0),cnt=+(rg.cnt||0),use=kg*cnt*days,feed=Math.round(use),amt=feed*(+(rg.price||0));
+    if($("ruse_"+rg.id))$("ruse_"+rg.id).textContent=nf(Math.round(use*10)/10);
+    if($("rfeed_"+rg.id))$("rfeed_"+rg.id).textContent=nf(feed);
+    if($("ramt_"+rg.id))$("ramt_"+rg.id).textContent=nf(Math.round(amt));
+    rCnt+=cnt; rUse+=use; rFeed+=feed; rAmt+=amt;
+  });
+  if($("rsub_cnt"))$("rsub_cnt").textContent=nf(rCnt);
+  if($("rsub_use"))$("rsub_use").textContent=nf(Math.round(rUse*10)/10);
+  if($("rsub_feed"))$("rsub_feed").textContent=nf(rFeed);
+  if($("rsub_avg"))$("rsub_avg").textContent=nf(rFeed>0?Math.round(rAmt/rFeed):0);
+  if($("rsub_amt"))$("rsub_amt").textContent=nf(Math.round(rAmt));
+  sUse+=rUse; sFeed+=rFeed; sAmt+=rAmt;
   if($("isum_kg"))$("isum_kg").textContent=nf(Math.round(sKg*100)/100);
   if($("isum_cnt"))$("isum_cnt").textContent=nf(sCnt);
   if($("isum_use"))$("isum_use").textContent=nf(Math.round(sUse*10)/10);
   if($("isum_feed"))$("isum_feed").textContent=nf(sFeed);
   if($("isum_avg"))$("isum_avg").textContent=nf(sFeed>0?Math.round(sAmt/sFeed):0);
   if($("isum_amt"))$("isum_amt").textContent=nf(Math.round(sAmt));
+  // 두당 평균(총 사육두수 기준 · 내검용: 1두가 먹는 급여량·금액)
+  const headCnt=CATS.reduce((a,c)=>a+endOf(M,c.id),0);
+  if($("iph_cnt"))$("iph_cnt").textContent=nf(headCnt);
+  if($("iph_feed"))$("iph_feed").textContent=nf(headCnt>0?Math.round(sFeed/headCnt):0);
+  if($("iph_amt"))$("iph_amt").textContent=nf(headCnt>0?Math.round(sAmt/headCnt):0);
   renderFeedSurvey();
 }
 // 사료 부호 (조사료=5-2 자료 반영). 농후사료(CONC) 부호는 추후.
 const CONC_CODE={"배합사료":"10","강류":"11","곡류":"12","가공부산물":"13","사료첨가제":"14","기타":"15","TMR":"21"};   // 농후사료·TMR 부호(5-1)
 const ROUGH_CODE={"청예류":"16","볏짚":"17","건초":"18","엔시레지":"19","기타":"20"};  // 조사료 구분(수분함량)
+// ===== 구분별 섭취량(perhead)의 조사료 섹션 (소 축종만·사료 선택식) =====
+const ROUGH_SPECIES=["breeding","beef","beeffat","dairy"];   // 조사료 먹는 소 축종
+function hasRoughSec(){ return ROUGH_SPECIES.indexOf(KIND)>=0; }
+function rgId(){ return "rg"+Math.random().toString(36).slice(2,8); }
+function roughRowHtml(rg){
+  const opts=Object.keys(ROUGH_CODE).map(t=>`<option${t===rg.type?" selected":""}>${t}</option>`).join("");
+  return `<tr>
+   <td class='psub' colspan='2' style='white-space:nowrap'><select data-roughsel='${rg.id}' style='max-width:92px'>${opts}</select> <button type='button' class='btn del' data-roughdel='${rg.id}' style='padding:2px 7px;font-size:12px'>−</button></td>
+   <td class='ip'><input type='number' inputmode='decimal' min='0' step='0.01' data-rough='${rg.id}' data-rf='kg' value='${rg.kg||0}'></td>
+   <td class='ip'><input type='number' inputmode='numeric' min='0' data-rough='${rg.id}' data-rf='cnt' value='${rg.cnt||0}'></td>
+   <td class='auto'><span id='ruse_${rg.id}'>0</span></td>
+   <td class='auto redval'><span id='rfeed_${rg.id}'>0</span></td>
+   <td class='ip'><input type='number' inputmode='numeric' min='0' data-rough='${rg.id}' data-rf='price' value='${rg.price||0}'></td>
+   <td class='end'><span id='ramt_${rg.id}'>0</span></td>
+   <td class='ip'><input type='text' data-roughnote='${rg.id}' value='${(rg.note||"").replace(/'/g,"&#39;").replace(/"/g,"&quot;")}' style='min-width:50px' placeholder='비고'></td>
+ </tr>`;
+}
+function roughSectionHtml(){
+  if(!hasRoughSec()) return "";
+  if(!M.intakeRough) M.intakeRough=[];
+  let h=`<tr><td class='rc' colspan='2' style='background:#eef3fb;color:#1a365d'>■ 조사료 <span class='sub' style='font-weight:400'>(볏짚·건초 등 골라 추가)</span></td><td colspan='7' style='background:#eef3fb'></td></tr>`;
+  M.intakeRough.forEach(rg=> h+=roughRowHtml(rg));
+  h+=`<tr><td colspan='9' style='text-align:left;padding:6px 4px'><button type='button' class='btn manage' id='addRough' style='padding:4px 10px;font-size:12px'>＋ 조사료 추가</button></td></tr>`;
+  h+=`<tr class='subt'><td class='psub tot' colspan='2'>조사료 소계</td><td class='auto'></td><td class='end'><span id='rsub_cnt'>0</span></td><td class='end redval'><span id='rsub_use'>0</span></td><td class='end redval'><span id='rsub_feed'>0</span></td><td class='end redval'><span id='rsub_avg'>0</span></td><td class='end redval'><span id='rsub_amt'>0</span></td><td></td></tr>`;
+  return h;
+}
 const GUBUN_CODE={"구입":"1","자급(부산물)":"2","자가생산":"3"};   // 구입 구분
 function feedSurveyTable(title,note,rowsOut,codeMap){
   const days=daysIn(year,month), cm=codeMap||{}, gCode=GUBUN_CODE["구입"]||"";
@@ -894,22 +943,22 @@ function buildFeed(){
   const cat=(M.feedBasis==="cat");
   const dataCols=cat?FEEDGRP.length:1;
   const lead=1+dataCols;      // 사료+데이터
-  const cols=lead+4;          // +월투입+단가+월금액+액션
+  const cols=lead+5;          // +월투입+단가+월금액+비고+액션
   let hdrRow="<tr><th class='rc'>사료</th>";
   if(cat){ FEEDGRP.forEach(([,l])=>hdrRow+=`<th>${l}<br><span class='sub'>kg/두·일</span></th>`); }
   else { hdrRow+="<th>먹는량<br><span class='sub'>kg/두·일</span></th>"; }
-  hdrRow+="<th>월투입<br><span class='sub'>kg</span></th><th>단가<br><span class='sub'>원/kg</span></th><th>월금액<br><span class='sub'>원</span></th><th>추가<br>삭제</th></tr>";
+  hdrRow+="<th>월투입<br><span class='sub'>kg</span></th><th>단가<br><span class='sub'>원/kg</span></th><th>월금액<br><span class='sub'>원</span></th><th>비고</th><th>추가<br>삭제</th></tr>";
   let h=hdrRow;
-  if(cat){ h+="<tr class='cntrow'><td class='rc'>적용 마리수(두)</td>"; FEEDGRP.forEach(([k])=>h+=`<td class='auto'><span id='gcnt_${k}'>0</span></td>`); h+="<td></td><td></td><td></td><td></td></tr>"; }
+  if(cat){ h+="<tr class='cntrow'><td class='rc'>적용 마리수(두)</td>"; FEEDGRP.forEach(([k])=>h+=`<td class='auto'><span id='gcnt_${k}'>0</span></td>`); h+="<td></td><td></td><td></td><td></td><td></td></tr>"; }
   const spc=(n,st)=>n>0?`<td colspan='${n}'${st?` style='${st}'`:""}></td>`:"";   // 고정 라벨 뒤 빈 칸(스티키+colspan 버그 회피)
   h+=`<tr><td class='rc' style='background:#eef3fb;color:#1a365d'>■ 농후사료</td>${spc(cols-1,'background:#eef3fb')}</tr>`;
   h+=feedTypeBlocks("c",CONC,cat,lead);
-  h+=`<tr><td class='rc tot'>농후사료 소계</td>${spc(lead-1)}<td class='end'><span id='grpkg_c'>0</span></td><td class='end'><span id='grpavg_c'>0</span></td><td class='end'><span id='grpwon_c'>0</span></td><td></td></tr>`;
+  h+=`<tr><td class='rc tot'>농후사료 소계</td>${spc(lead-1)}<td class='end'><span id='grpkg_c'>0</span></td><td class='end'><span id='grpavg_c'>0</span></td><td class='end'><span id='grpwon_c'>0</span></td><td></td><td></td></tr>`;
   h+=hdrRow;   // 조사료 위에 열 제목 반복(젖소 등 열 많을 때 헤더 안 보임 방지)
   h+=`<tr><td class='rc' style='background:#eef3fb;color:#1a365d'>■ 조사료</td>${spc(cols-1,'background:#eef3fb')}</tr>`;
   h+=feedTypeBlocks("r",ROUGH,cat,lead);
-  h+=`<tr><td class='rc tot'>조사료 소계</td>${spc(lead-1)}<td class='end'><span id='grpkg_r'>0</span></td><td class='end'><span id='grpavg_r'>0</span></td><td class='end'><span id='grpwon_r'>0</span></td><td></td></tr>`;
-  h+=`<tr><td class='rc tot' style='background:#e9eef6'>합계(전체)</td>${spc(lead-1,'background:#e9eef6')}<td class='end'><span id='feed_kg'>0</span></td><td class='end'><span id='feed_avg'>0</span></td><td class='end'><span id='feed_won'>0</span></td><td></td></tr>`;
+  h+=`<tr><td class='rc tot'>조사료 소계</td>${spc(lead-1)}<td class='end'><span id='grpkg_r'>0</span></td><td class='end'><span id='grpavg_r'>0</span></td><td class='end'><span id='grpwon_r'>0</span></td><td></td><td></td></tr>`;
+  h+=`<tr><td class='rc tot' style='background:#e9eef6'>합계(전체)</td>${spc(lead-1,'background:#e9eef6')}<td class='end'><span id='feed_kg'>0</span></td><td class='end'><span id='feed_avg'>0</span></td><td class='end'><span id='feed_won'>0</span></td><td></td><td></td></tr>`;
   $("feedTbl").innerHTML=h;
 }
 function addFeedItem(id){ const src=M.feedItems.find(x=>x.id===id); if(!src)return; let last=-1; M.feedItems.forEach((x,j)=>{ if(x.grp===src.grp&&x.type===src.type) last=j; }); M.feedItems.splice(last+1,0,{id:newFid(),grp:src.grp,type:src.type,price:0,amt:0,g:gzero()}); buildFeed(); recalc(); autosave(); }
@@ -1027,6 +1076,10 @@ document.addEventListener("input",e=>{
         else if(f==='price'){ if(d.feed>0){ d.won=Math.round(d.feed*p); setIntakeVal(k,'won',d.won); } else if(d.won>0&&p>0){ d.feed=Math.round(d.won/p*10)/10; setIntakeVal(k,'feed',d.feed); } }
       }
       recalcPerhead(); autosave(); }
+  else if(el.dataset.rough){ const rg=(M.intakeRough||[]).find(x=>x.id===el.dataset.rough); if(rg){ rg[el.dataset.rf]=parseFloat(el.value)||0; recalcPerhead(); autosave(); } }
+  else if(el.dataset.feednote){ const it=(M.feedItems||[]).find(x=>x.id===el.dataset.feednote); if(it){ it.note=el.value; autosave(); } }         // 비고(텍스트)
+  else if(el.dataset.intakenote){ const k=el.dataset.intakenote; if(!M.intake)M.intake={}; if(!M.intake[k])M.intake[k]={}; M.intake[k].note=el.value; autosave(); }
+  else if(el.dataset.roughnote){ const rg=(M.intakeRough||[]).find(x=>x.id===el.dataset.roughnote); if(rg){ rg.note=el.value; autosave(); } }
   else if(el.dataset.lrow){ ledgerSet(el); }
 });
 function ledgerSet(el){
@@ -1039,9 +1092,13 @@ function ledgerSet(el){
 }
 document.addEventListener("change",e=>{
   if(e.target.name==="basis"){ M.feedBasis=e.target.value; buildFeed(); recalc(); autosave(); }
+  else if(e.target.dataset.roughsel){ const rg=(M.intakeRough||[]).find(x=>x.id===e.target.dataset.roughsel); if(rg){ rg.type=e.target.value; autosave(); } }
   else if(e.target.dataset.lrow){ ledgerSet(e.target); }
 });
 document.addEventListener("click",e=>{
+  const ra=e.target.closest("#addRough"), rd=e.target.closest("[data-roughdel]");
+  if(ra){ if(!M.intakeRough)M.intakeRough=[]; M.intakeRough.push({id:rgId(),type:Object.keys(ROUGH_CODE)[0],kg:0,cnt:Math.round(adultCount())||0,price:0}); buildFeed(); recalcPerhead(); autosave(); return; }
+  if(rd){ const id=rd.getAttribute("data-roughdel"); M.intakeRough=(M.intakeRough||[]).filter(x=>x.id!==id); buildFeed(); recalcPerhead(); autosave(); return; }
   const a=e.target.closest("[data-add]"), d=e.target.closest("[data-del]");
   const db=e.target.closest("[data-dellrow]");
   if(a){ addFeedItem(a.dataset.add); } else if(d){ delFeedItem(d.dataset.del); }
