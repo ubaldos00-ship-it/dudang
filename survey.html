@@ -1103,7 +1103,7 @@ function applyTraceResult(res){
   row.codeSel=CFG.hasHerd?"sell":"both";   // 번식형=판매, 비육형=구입+판매(연결)
   row.sGubun=SELL_GUBUN[0][0];            // 기본 판매/비육완료
   row.sQty=res.count||0;                   // 수량
-  row.sWt=res.avgWeight||0;                // 체중(도체중량)
+  row.sWt=res.avgLive||res.avgWeight||0;   // 체중=생체중량(추정) · 없으면 도체중량으로 폴백
   row.sAge=res.avgShipMonth||0;            // 축령(출하개월수)
   if(!CFG.hasHerd){                        // 육우 등 비육축종: 구입일자·사육일수 자동
     row.buyDate=ymd6(res.firstBuyDate)||"";
@@ -1113,7 +1113,7 @@ function applyTraceResult(res){
   M.ledgerRows.push(row);
   buildLedger(); recalcLedger(); autosave();
   const src=(res.rows&&res.rows.length)?` (${res.count}두 평균)`:"";
-  alert("소이력제 자료를 판매(도축) 행에 반영했습니다"+src+".\n· 수량 "+(res.count||0)+"두 · 도체중량 "+(res.avgWeight||0)+"kg · 축령 "+(res.avgShipMonth||0)+"개월"+(CFG.hasHerd?"":("\n· 구입일 "+(ymd6(res.firstBuyDate)||"-")+" · 평균 사육일수 "+(res.avgRaiseDays||0)+"일 (일당증체는 직접 입력)"))+"\n금액·구입시 비용 등 나머지는 직접 입력하세요.");
+  alert("소이력제 자료를 판매(도축) 행에 반영했습니다"+src+".\n· 수량 "+(res.count||0)+"두 · 생체중량 "+(res.avgLive||res.avgWeight||0)+"kg(추정) · 축령 "+(res.avgShipMonth||0)+"개월"+(CFG.hasHerd?"":("\n· 구입일 "+(ymd6(res.firstBuyDate)||"-")+" · 평균 사육일수 "+(res.avgRaiseDays||0)+"일 (일당증체는 직접 입력)"))+"\n금액·구입시 비용 등 나머지는 직접 입력하세요.");
 }
 function consumeTraceResult(){
   let res=null,req=null;

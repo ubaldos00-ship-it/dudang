@@ -1,7 +1,7 @@
 <!-- 소이력관리_v12.html (배포명 cattle.html) · 저장: 2026-09-21 07:26 KST · v12[v25]: 축비 조사표 연동(?pick=survey 진입 시 하단 '조사표로 보내기' 바→현재 목록 요약[수량·평균 도체중·축령·구입일·사육일수]을 dudang_trace_res로 저장 후 조사표 복귀) · v12b[v26]: 뒤로가기=히스토리 뒤로(홈 아님)+우측 홈버튼 추가 -->
 <!-- v10 → 방문 카운트(Abacus 전역, 실패시 이 기기 폴백) · Google Analytics(gtag) 추가 -->
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>소 이력·출하·판매 관리</title>
 
 <!-- Google tag (gtag.js) -->
@@ -221,7 +221,7 @@
     <div class="tbl-wrap">
       <table id="listTbl">
         <thead><tr>
-          <th class="l">경영자</th><th class="l">출하차수</th><th class="l">식별번호</th>
+          <th class="l">경영자</th><th class="l">출하차수</th><th class="l">품종</th><th>성별</th><th class="l">식별번호</th>
           <th>출생일</th><th>구입일</th><th>도축일</th><th>구입<br>개월</th><th>사육<br>개월</th><th>출하<br>개월</th>
           <th>도체<br>중량</th><th>추정<br>생체중</th><th>등급</th>
           <th>판매금액</th><th>판매비용</th><th>실판매액</th><th>kg단가</th><th class="l">비고</th><th>관리</th>
@@ -411,7 +411,7 @@ function fillForm(){
   $("buyHint").textContent= manual ? "출생일·구입일·도축일을 입력하면 개월수가 자동 계산됩니다."
     : (CUR.autoBuy?`구입일 자동판정: ${ymdDash(CUR.autoBuy)} (도축 이전 마지막 양수일)`:"구입일 자동판정 불가 — 직접 입력");
   $("rWeight").value=CUR.weight!=null?CUR.weight:"";
-  $("rRate").value=$("cfgRate").value||"60";
+  { const dr=dressRateFor(CUR.breed,CUR.sex); $("rRate").value = dr!=null ? r1(dr) : ($("cfgRate").value||"60"); }
   $("rLot").value="";   // 출하차수: 자동입력 제거(사용자 직접 입력)
   $("rSale").value=""; $("rCost").value="";
   recalc(); clearMods(); refreshNeed();
@@ -453,6 +453,19 @@ function recalcMonths(){ const birth=inputToDate($("rBirth").value),buy=inputToD
   $("rBuyMonth").value=rM(p1); $("rRaiseMonth").value=rM(p2); $("rShipMonth").value=rM(p3);
   const ex=v=>(v==null||isNaN(v))?"":`반올림 전: ${r1(v)}개월`;
   $("rBuyMonthEx").textContent=ex(p1); $("rRaiseMonthEx").textContent=ex(p2); $("rShipMonthEx").textContent=ex(p3); }
+// 도체율 기본값: 품종·성별에 따라 자동(한우 평균59.7·거세59.9·비거세59.1, 육우57.2). 그 외(젖소 등)는 설정 기본값. 사용자 수정 가능.
+function dressRateFor(breed, sex){
+  const b=String(breed||""), s=String(sex||"");
+  if(b.indexOf("육우")>=0) return 57.2;
+  if(b.indexOf("한우")>=0){
+    if(s.indexOf("거세")>=0 && s.indexOf("미거세")<0 && s.indexOf("비거세")<0) return 59.9;  // 거세우
+    if(s.indexOf("미거세")>=0 || s.indexOf("비거세")>=0) return 59.1;                        // 비거세우
+    if(s.indexOf("수")>=0) return 59.1;    // 수 = 비거세
+    if(s.indexOf("암")>=0) return 59.7;    // 암 = 평균
+    return 59.7;                            // 성별 미상 → 평균
+  }
+  return null;   // 젖소 등: 설정 기본 도체율 사용
+}
 function recalcLiveFromRate(){ const w=Number($("rWeight").value)||0,rate=Number($("rRate").value)||0;
   if(w>0&&rate>0){ const live=w/(rate/100); $("rLive").value=String(Math.round(live)); $("rLiveEx").textContent=`반올림 전: ${r1(live)}kg`; }
   else { $("rLive").value=""; $("rLiveEx").textContent=""; } }
@@ -564,12 +577,13 @@ function applyFilter(){ const q=($("fSearch").value||"").trim().toLowerCase();
   const recs=q?ALL_RECS.filter(r=>[r.manager,r.lot,r.traceNo,r.grade].some(v=>String(v||"").toLowerCase().includes(q))):ALL_RECS;
   FILTERED=recs;
   $("listCount").textContent=`(${recs.length}두${q?` / 전체 ${ALL_RECS.length}`:""})`;
-  $("listBody").innerHTML=recs.map(rowHtml).join("")||`<tr><td class="l" colspan="18" style="color:var(--mut)">${q?"검색 결과 없음":"저장된 개체가 없습니다."}</td></tr>`;
+  $("listBody").innerHTML=recs.map(rowHtml).join("")||`<tr><td class="l" colspan="20" style="color:var(--mut)">${q?"검색 결과 없음":"저장된 개체가 없습니다."}</td></tr>`;
   $("listBody").querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{ if(confirm(`${b.dataset.del} 삭제할까요?`)){ await delRec(b.dataset.del); refreshList(); } });
   $("listBody").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>loadForEdit(b.dataset.edit));
   renderFoot(recs); renderStats(recs); }
+function sexMark(s){ s=String(s||""); if(!s) return ""; if(s.indexOf("암")>=0) return s+" ♀"; if(s.indexOf("거세")>=0||s.indexOf("수")>=0) return s+" ♂"; return s; }
 function rowHtml(r){ return `<tr>
-  <td class="l">${escHtml(r.manager)}</td><td class="l">${escHtml(r.lot)}</td><td class="l">${escHtml(r.traceNo)}</td>
+  <td class="l">${escHtml(r.manager)}</td><td class="l">${escHtml(r.lot)}</td><td class="l">${escHtml(r.breed)}</td><td>${escHtml(sexMark(r.sex))}</td><td class="l">${escHtml(r.traceNo)}</td>
   <td>${ymdDash(r.birthYmd)}</td><td>${escHtml(r.buyDate)}</td><td>${ymdDash(r.butcheryYmd)}</td>
   <td>${rM(r.buyMonth)}</td><td>${rM(r.raiseMonth)}</td><td>${rM(r.shipMonth)}</td>
   <td>${r.weight??""}</td><td>${rM(r.liveWeight)}</td><td>${escHtml(r.grade)}</td>
@@ -581,9 +595,9 @@ const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
 const sum=a=>a.reduce((s,x)=>s+x,0);
 function renderFoot(recs){ if(!recs.length){ $("listFoot").innerHTML=""; return; }
   const w=recs.map(r=>r.weight||0),lw=recs.map(r=>r.liveWeight||0),sp=recs.map(r=>r.salePrice||0),sc=recs.map(r=>r.saleCost||0),ns=recs.map(r=>r.netSale||0);
-  $("listFoot").innerHTML=`<tr><td class="l" colspan="9">합계 (${recs.length}두)</td>
+  $("listFoot").innerHTML=`<tr><td class="l" colspan="11">합계 (${recs.length}두)</td>
     <td>${r1(sum(w))}</td><td>${r1(sum(lw))}</td><td></td><td>${won(sum(sp))}</td><td>${won(sum(sc))}</td><td>${won(sum(ns))}</td><td></td><td class="l"></td><td></td></tr>
-   <tr><td class="l" colspan="6">평균</td>
+   <tr><td class="l" colspan="8">평균</td>
     <td>${r1(avg(recs.map(r=>r.buyMonth).filter(v=>v!=null)))}</td><td>${r1(avg(recs.map(r=>r.raiseMonth).filter(v=>v!=null)))}</td><td>${r1(avg(recs.map(r=>r.shipMonth).filter(v=>v!=null)))}</td>
     <td>${r1(avg(w.filter(v=>v)))}</td><td>${r1(avg(lw.filter(v=>v)))}</td><td></td>
     <td>${won(avg(sp))}</td><td>${won(avg(sc))}</td><td>${won(avg(ns))}</td><td>${won(avg(recs.map(r=>r.unitPrice).filter(v=>v!=null)))}</td><td class="l"></td><td></td></tr>`; }
