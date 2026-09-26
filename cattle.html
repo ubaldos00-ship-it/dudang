@@ -779,7 +779,7 @@ initVisit();
       var chi=eb.getAttribute("data-edit");
       var first=tr.querySelector("td"); if(!first || first.querySelector(".pickChk")) return;
       var cb=document.createElement("input"); cb.type="checkbox"; cb.className="pickChk"; cb.checked=pickSel.has(chi);
-      cb.style.cssText="margin-right:7px;transform:scale(1.3);vertical-align:middle;accent-color:#2b6cb0;cursor:pointer";
+      cb.style.cssText="margin-right:7px;width:16px;height:16px;vertical-align:middle;accent-color:#2b6cb0;cursor:pointer";
       cb.addEventListener("click",function(e){ e.stopPropagation(); if(cb.checked)pickSel.add(chi); else pickSel.delete(chi); syncHeadChk(); upd(); });
       first.insertBefore(cb, first.firstChild);
     });
@@ -788,7 +788,7 @@ initVisit();
     var thr=document.querySelector("#listTbl thead tr"); if(!thr) return;
     var th=thr.querySelector("th"); if(!th || th.querySelector("#pickHeadChk")) return;
     var cb=document.createElement("input"); cb.type="checkbox"; cb.id="pickHeadChk"; cb.title="전체선택/해제";
-    cb.style.cssText="margin-right:6px;transform:scale(1.2);vertical-align:middle;accent-color:#2b6cb0;cursor:pointer";
+    cb.style.cssText="margin-right:6px;width:15px;height:15px;vertical-align:middle;accent-color:#2b6cb0;cursor:pointer";
     cb.addEventListener("click",function(){ cb.checked?selectAll():selectNone(); });
     th.insertBefore(cb, th.firstChild);
   }
