@@ -4,7 +4,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>가축마리수 조회 · 두당 頭當</title>
 <!-- Google tag (gtag.js) · 두당 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
@@ -48,12 +48,25 @@
   th.reg{background:#eef3fb;}
   .tbl-scroll{overflow-x:auto;}
   .src{color:var(--muted);font-size:12px;margin-top:10px;}
+  /* 지역별 마리수 분포 지도 (disease.html 사육두수 레이어 재사용) */
+  #mapWrap{position:relative;margin-top:2px;}
+  #map{width:100%;height:440px;border-radius:12px;border:1px solid var(--line);background:#e9edf1;}
+  #mapMsg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;background:rgba(20,20,22,.78);color:#fff;font-size:14px;font-weight:600;padding:12px 18px;border-radius:12px;text-align:center;max-width:80%;}
+  #mapMsg.hidden,#lvTitle.hidden{display:none;}
+  #lvTitle{position:absolute;top:8px;left:8px;z-index:5;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:9px;padding:5px 11px;font-size:13px;font-weight:800;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.18);}
+  #lvTitle .pd{font-size:11px;font-weight:600;color:var(--muted);margin-left:4px;}
+  .lv-ov{transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;}
+  .lv-bubble{display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(47,168,79,.75);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);}
+  .lv-bubble span{color:#fff;font-weight:800;font-size:11px;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+  .lv-name{margin-top:3px;font-size:12.5px;font-weight:800;color:#fff;background:rgba(20,44,72,.94);border:1.5px solid #fff;border-radius:8px;padding:1px 8px;line-height:1.5;white-space:nowrap;letter-spacing:-.2px;box-shadow:0 1px 4px rgba(0,0,0,.45);}
+  .mapnote{font-size:12px;color:var(--muted);margin-top:8px;}
   .unit{font-size:12px;color:var(--muted);font-weight:500;}
 </style>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a365d">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d7a99b2a71a456ad75815e664f3dda20&libraries=services&autoload=false"></script>
 </head>
 <body>
 <header><div class="hrow">
@@ -84,6 +97,16 @@
       </select>
       <span class="unit">단위: 마리</span>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="lb">🗺️ 지역별 마리수 분포 <span class="unit" id="mapSub"></span></div>
+    <div id="mapWrap">
+      <div id="lvTitle" class="hidden"></div>
+      <div id="map"></div>
+      <div id="mapMsg" class="hidden"></div>
+    </div>
+    <div class="mapnote">※ 원 크기는 지역별 사육 마리수에 비례합니다. 위 <b>축종</b>을 바꾸면 지도도 함께 바뀝니다. 지도는 <b>인터넷 연결(github.io 배포본)</b>에서 표시됩니다.</div>
   </div>
 
   <div class="card">
@@ -137,7 +160,7 @@ function renderChips(){
     const on=sel.has(s.n);
     return `<button data-sido="${s.n}"${on?' class="on"':''}`+(on?` style="background:${s.c}"`:'')+`><span class="dot" style="background:${s.c}"></span>${s.n}</button>`;
   }).join("");
-  $("species").querySelectorAll("button").forEach(b=>b.onclick=()=>{curSp=b.dataset.sp;renderChips();load();});
+  $("species").querySelectorAll("button").forEach(b=>b.onclick=()=>{curSp=b.dataset.sp;renderChips();load();renderLivestockMap();});
   $("office").querySelectorAll("[data-off]").forEach(b=>b.onclick=()=>{ sel=new Set(OFFICE[b.dataset.off]); renderChips(); load(); });
   $("office").querySelectorAll("[data-reset]").forEach(b=>b.onclick=()=>{ sel=new Set(); renderChips(); load(); });
   // 개별 시도 클릭 → 해당 시도만 선택
@@ -216,8 +239,62 @@ function draw(d, spLabel){
 }
 
 $("periodN").addEventListener("change",load);
+
+/* ===== 지역별 마리수 분포 지도 (disease.html의 축종별 사육두수 레이어 재사용) =====
+   같은 relay(mode=livestock)의 시도별 스냅샷을 카카오 지도에 마리수 비례 원으로 표시. */
+const ANCHORS=[
+ {name:"서울",lat:37.56,lng:126.98},{name:"인천",lat:37.46,lng:126.70},{name:"경기",lat:37.20,lng:127.60},
+ {name:"강원",lat:37.55,lng:128.45},{name:"충북",lat:36.85,lng:127.80},{name:"충남",lat:36.55,lng:126.75},
+ {name:"대전",lat:36.30,lng:127.62},{name:"세종",lat:36.60,lng:127.26},{name:"전북",lat:35.72,lng:127.15},
+ {name:"전남",lat:34.60,lng:126.55},{name:"광주",lat:35.16,lng:127.05},{name:"경북",lat:36.35,lng:128.85},
+ {name:"대구",lat:35.87,lng:128.60},{name:"경남",lat:35.10,lng:128.10},{name:"부산",lat:35.05,lng:129.05},
+ {name:"울산",lat:35.54,lng:129.31},{name:"제주",lat:33.40,lng:126.55}
+];
+let _map=null,_overlays=[],LIVESTOCK={},LV_PERIOD="";
+function fmtCount(n){ if(n>=10000) return (n/10000).toFixed(n>=100000?0:1)+"만"; return String(n); }
+function fmtPeriodMap(p){ if(!p) return ""; const m=/^(\d{4})(\d{2})$/.exec(p); if(m){ const q=parseInt(m[2],10); return m[1]+"년"+((q>=1&&q<=4)?(" "+q+"분기"):""); } return p; }
+function showMapMsg(t){ const e=$("mapMsg"); if(e){ e.textContent=t; e.classList.remove("hidden"); } }
+function hideMapMsg(){ const e=$("mapMsg"); if(e) e.classList.add("hidden"); }
+function clearOverlays(){ _overlays.forEach(o=>o.setMap(null)); _overlays=[]; }
+function renderLivestockMap(){
+  if(!_map) return;
+  clearOverlays();
+  const sp=SPECIES.find(s=>s.id===curSp)||{};
+  const pd=fmtPeriodMap(LV_PERIOD);
+  const lt=$("lvTitle"); lt.innerHTML=(sp.emoji||"")+" "+(sp.label||"")+" 사육 마리수"+(pd?`<span class="pd">${pd} 기준</span>`:""); lt.classList.remove("hidden");
+  $("mapSub").textContent=pd?("· "+pd+" 기준"):("· "+(sp.label||""));
+  const data=LIVESTOCK[curSp];
+  if(!data || !Object.keys(data).length){ showMapMsg((sp.emoji||"")+" "+(sp.label||"")+" 사육 마리수 — 데이터 연동 준비 중"); return; }
+  hideMapMsg();
+  const vals=Object.values(data).filter(v=>v>0); const max=Math.max(...vals,1);
+  ANCHORS.forEach(a=>{
+    const cnt=data[a.name]; if(!cnt) return;
+    const r=Math.round(9+24*Math.sqrt(cnt/max));
+    const wrap=document.createElement("div"); wrap.className="lv-ov";
+    const d=document.createElement("div"); d.className="lv-bubble"; d.style.width=d.style.height=(r*2)+"px";
+    d.innerHTML=`<span>${fmtCount(cnt)}</span>`;
+    const nm=document.createElement("div"); nm.className="lv-name"; nm.textContent=a.name;
+    wrap.appendChild(d); wrap.appendChild(nm);
+    const ov=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(a.lat,a.lng),content:wrap,yAnchor:0.5,xAnchor:0.5});
+    ov.setMap(_map); _overlays.push(ov);
+  });
+}
+async function loadLivestockMap(){
+  try{
+    const r=await fetch(RELAY+"?mode=livestock",{cache:"no-store"});
+    const d=await r.json();
+    if(d && d.ok && d.data){ LIVESTOCK=d.data; LV_PERIOD=d.period||""; renderLivestockMap(); }
+    else showMapMsg("지역별 마리수 데이터 연동 준비 중");
+  }catch(e){ showMapMsg("지도 데이터를 불러오지 못했습니다. (인터넷 연결·github.io 배포본에서 표시됩니다)"); }
+}
+function initMap(){
+  if(!window.kakao || !kakao.maps){ showMapMsg("지도는 인터넷 연결(github.io 배포본)에서 표시됩니다."); return; }
+  kakao.maps.load(()=>{ _map=new kakao.maps.Map($("map"),{center:new kakao.maps.LatLng(36.3,127.8),level:13}); loadLivestockMap(); });
+}
+
 renderChips();
 load();
+initMap();
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
 <!-- 네이버 애널리틱스(Wcslog) · 두당 -->
