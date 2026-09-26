@@ -115,7 +115,10 @@
         <div class="hint">410을 포함한 전체 번호를 넣어도 12자리로 자동 정리합니다. (공백·하이픈 제거)</div>
         <div class="err" id="chiErr"></div>
       </div>
-      <button class="btn primary" id="btnQuery">🔎 수정이력 조회</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn primary" id="btnQuery" style="flex:2;min-width:180px">🔎 수정이력 조회</button>
+        <button class="btn" id="btnReset" style="flex:1;min-width:88px">↺ 초기화</button>
+      </div>
     </div>
 
     <!-- 상세조건 -->
@@ -309,10 +312,21 @@ function renderRecent(){
   $("recentCard").hidden=false;
 }
 
-/* ---- 초기화/이벤트 ---- */
+/* ---- 초기화(입력·결과·상세조건 지움. 최근조회는 유지) ---- */
+function resetAll(){
+  ["chiNo","insemDate","kpnNo","rowRank"].forEach(id=>{ const e=$(id); if(e) e.value=""; });
+  $("chiErr").textContent="";
+  $("resultCard").hidden=true; $("timeline").innerHTML=""; $("histTable").innerHTML="";
+  setState(HanwooAPI.isConfigured()?null:"NOT_CONFIGURED");
+  _lastKey=""; _lastResult=null; _lastAt=0;
+  $("chiNo").focus(); window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ---- 이벤트 ---- */
 (function init(){
   // 개체번호 정리: 입력 중 숫자 외 제거는 하지 않되(붙여넣기 편의), 조회 시 정규화
   $("btnQuery").addEventListener("click",doQuery);
+  $("btnReset").addEventListener("click",resetAll);
   $("chiNo").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); doQuery(); } });
   $("kpnNo").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); doQuery(); } });
   $("rowRank").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); doQuery(); } });

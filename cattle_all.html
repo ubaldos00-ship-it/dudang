@@ -75,6 +75,11 @@
   .calcnote{font-size:11.5px;color:var(--warn);margin-top:8px;}
   .srcnote{font-size:12.5px;color:var(--muted);line-height:1.7;}
   .srcnote b{color:var(--navy);}
+  /* 최근조회 */
+  .recentwrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{border:1px solid #cbd5e0;background:#fff;border-radius:18px;padding:8px 14px;font-size:14px;font-weight:600;color:var(--navy);cursor:pointer;}
+  .chip:hover{background:#eef5ff;border-color:var(--blue);}
+  .linkbtn{background:none;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;text-decoration:underline;padding:4px;}
   [hidden]{display:none!important;}
 </style>
 <link rel="manifest" href="manifest.json">
@@ -101,7 +106,10 @@
         <div class="hint">410을 포함해 넣어도 자동 정리합니다. (공백·하이픈 제거)</div>
         <div class="err" id="chiErr"></div>
       </div>
-      <button class="btn primary" id="btnQuery">🔎 통합조회</button>
+      <div class="btnrow">
+        <button class="btn primary" id="btnQuery" style="flex:2">🔎 통합조회</button>
+        <button class="btn" id="btnReset" style="flex:1;min-width:88px">↺ 초기화</button>
+      </div>
     </div>
   </div>
 
@@ -133,6 +141,13 @@
     <div class="btnrow" style="margin-top:12px">
       <button class="btn" id="toInsem">🐄 인공수정 전체이력·상세조건 →</button>
     </div>
+  </section>
+
+  <!-- 최근 조회 -->
+  <section class="card" id="recentCard" hidden>
+    <div class="mst">🕘 최근 조회</div>
+    <div class="recentwrap" id="recentList"></div>
+    <div style="margin-top:8px"><button class="linkbtn" id="clearRecent">최근조회 전체삭제</button></div>
   </section>
 
   <!-- 출처 -->
@@ -273,12 +288,30 @@ async function doQuery(){
 /* ---- 최근 조회(인공수정 페이지와 동일 키 공유) ---- */
 const RECENT_KEY="dudang_insem_recent_v1", RECENT_MAX=10;
 function getRecent(){ try{ return JSON.parse(localStorage.getItem(RECENT_KEY)||"[]"); }catch(e){ return []; } }
-function addRecent(chi){ if(!chi) return; try{ let a=getRecent().filter(x=>x!==chi); a.unshift(chi); localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0,RECENT_MAX))); }catch(e){} }
+function saveRecent(a){ try{ localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0,RECENT_MAX))); }catch(e){} }
+function addRecent(chi){ if(!chi) return; let a=getRecent().filter(x=>x!==chi); a.unshift(chi); saveRecent(a); renderRecent(); }
+function renderRecent(){
+  const a=getRecent(), wrap=$("recentList");
+  if(!a.length){ $("recentCard").hidden=true; return; }
+  wrap.innerHTML=a.map(c=>`<button class='chip' data-chi='${c}'>${c}</button>`).join("");
+  $("recentCard").hidden=false;
+}
 
-/* ---- 초기화 ---- */
+/* ---- 초기화(입력·결과 지움. 최근조회는 유지) ---- */
+function resetAll(){
+  $("chiNo").value=""; $("chiErr").textContent="";
+  $("traceCard").hidden=true; $("insemCard").hidden=true;
+  $("traceKV").innerHTML=""; $("timeline").innerHTML="";
+  $("chiNo").focus(); window.scrollTo({top:0,behavior:"smooth"});
+}
+
 (function init(){
   $("btnQuery").addEventListener("click",doQuery);
+  $("btnReset").addEventListener("click",resetAll);
   $("chiNo").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); doQuery(); } });
+  $("recentList").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b)return; $("chiNo").value=b.dataset.chi; doQuery(); window.scrollTo({top:0,behavior:"smooth"}); });
+  $("clearRecent").addEventListener("click",()=>{ saveRecent([]); renderRecent(); });
+  renderRecent();
   const p=new URLSearchParams(location.search);
   const chi=p.get("chiNo")||p.get("chino")||p.get("traceNo");
   if(chi){ const n=HanwooAPI.normalizeChiNo(chi); $("chiNo").value=n.ok?n.value:chi.replace(/[^0-9]/g,""); doQuery(); }
