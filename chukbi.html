@@ -4,7 +4,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>두당 DUDANG (웹)</title>
 <!-- Google tag (gtag.js) · 두당 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
@@ -61,6 +61,7 @@
   <h1 id="title">축산물생산비 집계·검토</h1>
   <span class="ver">웹 · 한우 번식우</span>
   <span id="admin" class="ver"></span>
+  <a class="ver" href="chukbi.html" download="두당_생산비분석.html" title="인터넷 안 되는 PC에서 쓰려면 내려받으세요" style="text-decoration:underline;cursor:pointer;white-space:nowrap">📥 분석도구 다운로드</a>
   <a class="home" href="index.html">🏠 홈</a>
 </div></header>
 <div class="tabs" id="tabs"></div>
@@ -322,29 +323,56 @@ function metricsOf(A){
   return m;
 }
 
-/* ===================== 저장(IndexedDB) ===================== */
-let DB=null;
-function openDB(){ return new Promise((res,rej)=>{ const q=indexedDB.open("dudang",1);
+/* ===================== 저장(IndexedDB, 불가 시 메모리+localStorage 폴백) =====================
+   인터넷 안 되는 PC에서 파일(file://)로 바로 열면 크롬·엣지가 IndexedDB를 막습니다.
+   그 경우 자동으로 메모리+localStorage에 저장해 오프라인 단일 파일로도 작동하게 합니다. */
+let DB=null, MEM=false;
+let _memRecs=[], _memSet={}, _memId=1;
+const MEM_KEY="dudang_chukbi_recs", MEMSET_KEY="dudang_chukbi_set";
+function _memLoad(){
+  try{ _memRecs=JSON.parse(localStorage.getItem(MEM_KEY)||"[]"); }catch(e){ _memRecs=[]; }
+  try{ _memSet=JSON.parse(localStorage.getItem(MEMSET_KEY)||"{}"); }catch(e){ _memSet={}; }
+  _memId=_memRecs.reduce((m,r)=>Math.max(m,(+r.id||0)),0)+1;
+}
+function _memSaveRecs(){ try{ localStorage.setItem(MEM_KEY, JSON.stringify(_memRecs)); }catch(e){} }
+function _memSaveSet(){ try{ localStorage.setItem(MEMSET_KEY, JSON.stringify(_memSet)); }catch(e){} }
+function openDB(){ return new Promise((res)=>{
+  let q;
+  try{ if(!window.indexedDB) throw 0; q=indexedDB.open("dudang",1); }
+  catch(e){ MEM=true; _memLoad(); return res(); }               // IndexedDB 자체가 없음 → 폴백
   q.onupgradeneeded=e=>{ const db=e.target.result;
     if(!db.objectStoreNames.contains("records")){ const os=db.createObjectStore("records",{keyPath:"id",autoIncrement:true}); os.createIndex("period",["farm_no","survey_year","survey_month","sheet_type"]); }
     if(!db.objectStoreNames.contains("settings")) db.createObjectStore("settings",{keyPath:"key"});
   };
-  q.onsuccess=e=>{DB=e.target.result;res();}; q.onerror=e=>rej(e); }); }
-function tx(store,mode){ return DB.transaction(store,mode).objectStore(store); }
-function getAllRecords(){ return new Promise(res=>{ const r=tx("records","readonly").getAll(); r.onsuccess=()=>res(r.result||[]); }); }
-function saveRecords(recs){ return new Promise((res)=>{
-  // 같은 (농가,년,월,시트) 기존행 삭제 후 추가
-  const keys=new Set(recs.map(r=>[r.farm_no,r.survey_year,r.survey_month,r.sheet_type].join("|")));
-  const store=tx("records","readwrite");
-  const cur=store.getAll(); cur.onsuccess=()=>{
-    for(const ex of cur.result){ if(keys.has([ex.farm_no,ex.survey_year,ex.survey_month,ex.sheet_type].join("|"))) store.delete(ex.id); }
-    for(const r of recs) store.add(r);
-    store.transaction.oncomplete=()=>res();
-  };
+  q.onsuccess=e=>{DB=e.target.result;res();};
+  q.onerror=()=>{ MEM=true; _memLoad(); res(); };                // file:// 등에서 차단 → 폴백
+  q.onblocked=()=>{ MEM=true; _memLoad(); res(); };
 }); }
-function clearRecords(){ return new Promise(res=>{ const s=tx("records","readwrite").clear(); s.onsuccess=()=>res(); }); }
-function getSetting(k){ return new Promise(res=>{ const r=tx("settings","readonly").get(k); r.onsuccess=()=>res(r.result?r.result.value:null); }); }
-function setSetting(k,v){ return new Promise(res=>{ const r=tx("settings","readwrite").put({key:k,value:v}); r.onsuccess=()=>res(); }); }
+function tx(store,mode){ return DB.transaction(store,mode).objectStore(store); }
+function getAllRecords(){ if(MEM) return Promise.resolve(_memRecs.slice());
+  return new Promise(res=>{ const r=tx("records","readonly").getAll(); r.onsuccess=()=>res(r.result||[]); }); }
+function saveRecords(recs){
+  const keys=new Set(recs.map(r=>[r.farm_no,r.survey_year,r.survey_month,r.sheet_type].join("|")));
+  if(MEM){
+    _memRecs=_memRecs.filter(ex=>!keys.has([ex.farm_no,ex.survey_year,ex.survey_month,ex.sheet_type].join("|")));
+    for(const r of recs){ const c=Object.assign({},r); c.id=_memId++; _memRecs.push(c); }
+    _memSaveRecs(); return Promise.resolve();
+  }
+  return new Promise((res)=>{
+    const store=tx("records","readwrite");
+    const cur=store.getAll(); cur.onsuccess=()=>{
+      for(const ex of cur.result){ if(keys.has([ex.farm_no,ex.survey_year,ex.survey_month,ex.sheet_type].join("|"))) store.delete(ex.id); }
+      for(const r of recs) store.add(r);
+      store.transaction.oncomplete=()=>res();
+    };
+  });
+}
+function clearRecords(){ if(MEM){ _memRecs=[]; _memSaveRecs(); return Promise.resolve(); }
+  return new Promise(res=>{ const s=tx("records","readwrite").clear(); s.onsuccess=()=>res(); }); }
+function getSetting(k){ if(MEM) return Promise.resolve((k in _memSet)?_memSet[k]:null);
+  return new Promise(res=>{ const r=tx("settings","readonly").get(k); r.onsuccess=()=>res(r.result?r.result.value:null); }); }
+function setSetting(k,v){ if(MEM){ _memSet[k]=v; _memSaveSet(); return Promise.resolve(); }
+  return new Promise(res=>{ const r=tx("settings","readwrite").put({key:k,value:v}); r.onsuccess=()=>res(); }); }
 
 /* ===================== 상태 & 유틸 ===================== */
 let RECORDS=[];      // 메모리 캐시
@@ -450,8 +478,10 @@ document.getElementById("clearBtn").onclick=async()=>{ if(!confirm("모든 자�
 document.getElementById("exportBtn").onclick=()=>{ const blob=new Blob([JSON.stringify(RECORDS)],{type:"application/json"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="dudang_backup_"+Date.now()+".json"; a.click(); };
 document.getElementById("restoreInput").onchange=async e=>{ const f=e.target.files[0]; if(!f)return;
-  const data=JSON.parse(await f.text()); await clearRecords(); const store=tx("records","readwrite");
-  data.forEach(r=>{ delete r.id; store.add(r); }); store.transaction.oncomplete=async()=>{ RECORDS=await getAllRecords(); buildFarms(); renderStatus(); alert("복원 완료 "+data.length+"건"); }; };
+  const data=JSON.parse(await f.text()); await clearRecords();
+  const clean=data.map(r=>{ const c=Object.assign({},r); delete c.id; return c; });
+  await saveRecords(clean);   // IndexedDB·메모리 모드 모두 대응
+  RECORDS=await getAllRecords(); buildFarms(); renderStatus(); alert("복원 완료 "+data.length+"건"); };
 function renderStatus(){
   const sm={}; for(const r of RECORDS){ const k=[r.farm_no,r.survey_year,r.survey_month,r.sheet_type].join("|"); sm[k]=(sm[k]||0)+1; }
   document.getElementById("statusSummary").textContent=`농가 ${FARMS.length}호 · 저장 행 ${RECORDS.length}건 · 연도 ${yearsAvailable().join(", ")||"없음"}`;
