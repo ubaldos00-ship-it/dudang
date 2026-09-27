@@ -913,8 +913,10 @@ function roughSectionHtml(){
 /* ===== 구분별 섭취량(소 축종): 농후사료/조사료 × 사육구분 (사료 선택식·이월) ===== */
 const CONC_TYPES=Object.keys(CONC_CODE);    // 배합사료,강류,곡류,가공부산물,사료첨가제,기타,TMR
 const ROUGH_TYPES=Object.keys(ROUGH_CODE);  // 청예류,볏짚,건초,엔시레지,기타
+const GUBUN3=[["구입","1"],["자가","2"],["생산","3"]];   // 구입구분 부호
+const GUBUN3_CODE={"구입":"1","자가":"2","생산":"3"};
 function pfId(){ return "pf"+Math.random().toString(36).slice(2,8); }
-function pfNewType(type){ const lines={}; CATS.forEach(c=>lines[c.id]={kg:0,price:0,note:""}); return {id:pfId(),type:type,lines:lines}; }
+function pfNewType(type){ const lines={}; CATS.forEach(c=>lines[c.id]={kg:0,price:0,note:""}); return {id:pfId(),type:type,gubun:"구입",lines:lines}; }
 function pfInit(){
   if(!M.perFeed||typeof M.perFeed!=="object") M.perFeed={conc:[],rough:[]};
   if(!Array.isArray(M.perFeed.conc)) M.perFeed.conc=[];
@@ -930,7 +932,8 @@ function pfSectionHtml(sect,title){
       const ln=ft.lines[c.id]||{kg:0,price:0,note:""};
       h+="<tr>";
       if(ci===0){ const CM=(sect==="conc")?CONC_CODE:ROUGH_CODE; const opts=(sect==="conc"?CONC_TYPES:ROUGH_TYPES).map(t=>`<option value='${t}'${t===ft.type?" selected":""}>${t}${CM[t]?" ("+CM[t]+")":""}</option>`).join("");
-        h+=`<td class='pgrp' rowspan='${CATS.length}' style='vertical-align:top;white-space:nowrap'><select data-pftype='${sect}:${ft.id}' style='max-width:126px;font-weight:700'>${opts}</select><br><button type='button' class='btn del' data-pfdel='${sect}:${ft.id}' style='padding:1px 6px;font-size:11px;margin-top:4px'>삭제</button></td>`; }
+        const gopts=GUBUN3.map(([l,cd])=>`<option value='${l}'${l===(ft.gubun||"구입")?" selected":""}>${l} (${cd})</option>`).join("");
+        h+=`<td class='pgrp' rowspan='${CATS.length}' style='vertical-align:top;white-space:nowrap'><select data-pftype='${sect}:${ft.id}' style='max-width:126px;font-weight:700'>${opts}</select><br><button type='button' class='btn del' data-pfdel='${sect}:${ft.id}' style='padding:1px 6px;font-size:11px;margin-top:4px'>삭제</button><br><span class='sub' style='font-size:10.5px'>구입구분</span><br><select data-pfgubun='${sect}:${ft.id}' style='max-width:112px;font-size:11px'>${gopts}</select></td>`; }
       h+=`<td class='psub'>${c.label}</td>`;
       h+=`<td class='ip'><input type='number' inputmode='decimal' min='0' step='0.01' data-pf='${sect}:${ft.id}:${c.id}' data-pff='kg' value='${ln.kg||0}'></td>`;
       h+=`<td class='auto'><span id='pfcnt_${ft.id}_${c.id}'>0</span></td>`;
@@ -1009,7 +1012,8 @@ function feedSurveyTable(title,note,rowsOut,codeMap){
   let h=`<div class='mst' style='margin-top:12px'>${title} <span class='sub'>${note||""}</span></div><div class='tbl-scroll'><table><tr><th>번호</th><th>일자</th><th>축종명<br><span class='sub'>(부호)</span></th><th>사료명<br><span class='sub'>(부호)</span></th><th>구입구분<br><span class='sub'>(부호)</span></th><th>급여량<br><span class='sub'>kg</span></th><th>단가<br><span class='sub'>원</span></th><th>평가액<br><span class='sub'>원</span></th></tr>`;
   let tf=0,ta=0;
   rowsOut.forEach((r,i)=>{ tf+=r.feed; ta+=r.amt; const sc=cm[r.saryo]||"";
-    h+=`<tr><td>${i+1}</td><td>${days}</td><td class='rc'>${r.jong}</td><td class='rc'>${r.saryo}${sc?` <span class='sub'>(${sc})</span>`:""}</td><td>구입${gCode?` <span class='sub'>(${gCode})</span>`:""}</td><td class='end'>${nf(r.feed)}</td><td class='end'>${nf(r.price)}</td><td class='end'>${nf(r.amt)}</td></tr>`; });
+    const gb=r.gubun||"구입", gbc=GUBUN3_CODE[gb]||gCode;
+    h+=`<tr><td>${i+1}</td><td>${days}</td><td class='rc'>${r.jong}</td><td class='rc'>${r.saryo}${sc?` <span class='sub'>(${sc})</span>`:""}</td><td>${gb}${gbc?` <span class='sub'>(${gbc})</span>`:""}</td><td class='end'>${nf(r.feed)}</td><td class='end'>${nf(r.price)}</td><td class='end'>${nf(r.amt)}</td></tr>`; });
   if(!rowsOut.length) h+="<tr><td colspan='8' class='sub' style='text-align:center;padding:8px'>사료를 입력하면 자동으로 표시됩니다.</td></tr>";
   h+=`<tr><td class='rc tot' colspan='5'>합계</td><td class='end'>${nf(tf)}</td><td class='end'></td><td class='end'>${nf(ta)}</td></tr></table></div>`;
   return h;
@@ -1019,7 +1023,7 @@ function renderFeedSurvey(){
   const days=daysIn(year,month), sp=KLABEL+(CFG.spBuy?" ("+CFG.spBuy+")":"");
   if(M.feedBasis==="perhead" && !CFG.intakeRows){   // 소 축종: 농후사료·조사료 조사표
     pfInit();
-    const mk=(sect)=> (M.perFeed[sect]||[]).map(ft=>{ let feed=0,amt=0; CATS.forEach(c=>{ const ln=ft.lines[c.id]||{}; const f=Math.round((+(ln.kg||0))*endOf(M,c.id)*days); feed+=f; amt+=f*(+(ln.price||0)); }); return {jong:sp,saryo:ft.type,feed:feed,price:feed>0?Math.round(amt/feed):0,amt:amt}; }).filter(r=>r.feed>0||r.amt>0);
+    const mk=(sect)=> (M.perFeed[sect]||[]).map(ft=>{ let feed=0,amt=0; CATS.forEach(c=>{ const ln=ft.lines[c.id]||{}; const f=Math.round((+(ln.kg||0))*endOf(M,c.id)*days); feed+=f; amt+=f*(+(ln.price||0)); }); return {jong:sp,saryo:ft.type,gubun:ft.gubun||"구입",feed:feed,price:feed>0?Math.round(amt/feed):0,amt:amt}; }).filter(r=>r.feed>0||r.amt>0);
     box.innerHTML=feedSurveyTable("📋 농후사료 및 TMR 조사표","(농후사료·TMR)",mk("conc"),CONC_CODE);
     if(boxR) boxR.innerHTML=feedSurveyTable("🌾 조사료 조사표","(조사료)",mk("rough"),ROUGH_CODE);
     return;
@@ -1204,6 +1208,7 @@ document.addEventListener("change",e=>{
   if(e.target.name==="basis"){ M.feedBasis=e.target.value; buildFeed(); recalc(); autosave(); }
   else if(e.target.dataset.roughsel){ const rg=(M.intakeRough||[]).find(x=>x.id===e.target.dataset.roughsel); if(rg){ rg.type=e.target.value; autosave(); } }
   else if(e.target.dataset.pftype){ const p=e.target.dataset.pftype.split(":"); const ft=((M.perFeed&&M.perFeed[p[0]])||[]).find(x=>x.id===p[1]); if(ft){ ft.type=e.target.value; buildFeed(); recalcPerhead(); autosave(); } }
+  else if(e.target.dataset.pfgubun){ const p=e.target.dataset.pfgubun.split(":"); const ft=((M.perFeed&&M.perFeed[p[0]])||[]).find(x=>x.id===p[1]); if(ft){ ft.gubun=e.target.value; recalcPerhead(); autosave(); } }
   else if(e.target.dataset.lrow){ ledgerSet(e.target); }
 });
 document.addEventListener("click",e=>{
