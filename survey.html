@@ -312,8 +312,8 @@
 const SPECIES_LIST=[
  {id:"breeding",label:"번식우",emoji:"🐮",ready:true},{id:"beeffat",label:"비육우",emoji:"🐂",ready:true},
  {id:"beef",label:"육우",emoji:"🐄",ready:true},{id:"dairy",label:"젖소",emoji:"🥛",ready:true},
- {id:"pig",label:"비육돈",emoji:"🐖",ready:true},{id:"layer",label:"산란계",emoji:"🥚",ready:false},
- {id:"broiler",label:"육계",emoji:"🐔",ready:false}
+ {id:"pig",label:"비육돈",emoji:"🐖",ready:true},{id:"layer",label:"산란계",emoji:"🥚",ready:true},
+ {id:"broiler",label:"육계",emoji:"🐔",ready:true}
 ];
 const SPCFG={
  breeding:{ label:"번식우", spBuy:"310", spSell:"610", feedDefault:"adult", hasHerd:true, firstCalfTarget:"cow",
@@ -373,7 +373,27 @@ const SPCFG={
   feedSurveyJong:{"자돈":"포유자돈 (356)","모돈":"후보모돈·모돈 (355)","비육":"비육돈 (351)","수퇘지":"번식용수퇘지 (360)"},
   sellGubun:[["11","판매"],["21","도태판매"],["31","편입"]], sellSrc:[["sell","11"],["cull","21"],["out","31"]],
   edgeNext:{suck:"wean",wean:"grow",grow:"fat",fat:"gilt",gilt:"sow"}, starOut:[], starIn:["wean","gilt","boar"],
-  starHint:"<span class='star'>*</span> 이유자돈·후보모돈·번식용 수퇘지의 <b>편입+</b>는 사육구분 간 이동을 뜻합니다. 성장 단계(포유→이유→육성→비육→후보모돈→모돈)의 <b>편입감소는 다음 단계 편입증가</b>로 자동 연결됩니다. <b>월말 마리수만 알 때는 판매·분만·폐사를 넣고 ‘🔄 자동편입’</b>을 누르면 편입 증감이 자동 계산됩니다." }
+  starHint:"<span class='star'>*</span> 이유자돈·후보모돈·번식용 수퇘지의 <b>편입+</b>는 사육구분 간 이동을 뜻합니다. 성장 단계(포유→이유→육성→비육→후보모돈→모돈)의 <b>편입감소는 다음 단계 편입증가</b>로 자동 연결됩니다. <b>월말 마리수만 알 때는 판매·분만·폐사를 넣고 ‘🔄 자동편입’</b>을 누르면 편입 증감이 자동 계산됩니다." },
+ layer:{ label:"산란계", spBuy:"360", spSell:"660", feedDefault:"cat", hasHerd:false, noTrace:true,
+  cats:[{id:"adult",label:"성계"},{id:"grower",label:"중추"},{id:"chick",label:"초생추"}],
+  groups:[{name:"성계",rows:[["adult",null]]},{name:"중추",rows:[["grower",null]]},{name:"초생추",rows:[["chick",null]]}],
+  feedGrp:[["adult","성계"],["grower","중추"],["chick","초생추"]],
+  catToGrp:{adult:"adult",grower:"grower",chick:"chick"},
+  catCode:{adult:{b:"01",s:"01"},grower:{b:"02",s:"02"},chick:{b:"03",s:"03"}},
+  coef:{adult:1.0,grower:0.5,chick:0.2},
+  sellGubun:[["11","판매"],["21","도태판매"],["31","편입"]], sellSrc:[["sell","11"],["cull","21"],["out","31"]],
+  edgeNext:{chick:"adult"}, starOut:[], starIn:["adult","grower"],
+  starHint:"<span class='star'>*</span> 성계·중추 <b>편입+</b>는 사육구분 간 이동(초생추→성계 등)을 뜻합니다. 실제 <b>구입·판매</b>는 구입/판매 칸에 입력하세요. (부호 성계01·중추02·초생추03)" },
+ broiler:{ label:"육계", spBuy:"370", spSell:"670", feedDefault:"cat", hasHerd:false, noTrace:true,
+  cats:[{id:"broiler",label:"육계"}],
+  groups:[{name:"육계",rows:[["broiler",null]]}],
+  feedGrp:[["broiler","육계"]],
+  catToGrp:{broiler:"broiler"},
+  catCode:{broiler:{b:"01",s:"01"}},
+  coef:{broiler:1.0},
+  sellGubun:[["11","판매"],["21","도태판매"],["31","편입"]], sellSrc:[["sell","11"],["cull","21"],["out","31"]],
+  edgeNext:{}, starOut:[], starIn:[],
+  starHint:"" }
 };
 let SPID="breeding", KIND="breeding", KLABEL="번식우", CFG=SPCFG.breeding;
 let CATS, GROUPS, FEEDGRP, CATTOGRP, CAT_CODE, SELL_GUBUN, SELL_SRC, DEF_COEF, EDGE_NEXT, SPBUY, SPSELL, STAR_OUT, STAR_IN, HERD, FIRSTCALF;
@@ -921,7 +941,7 @@ function pfInit(){
   if(!M.perFeed||typeof M.perFeed!=="object") M.perFeed={conc:[],rough:[]};
   if(!Array.isArray(M.perFeed.conc)) M.perFeed.conc=[];
   if(!Array.isArray(M.perFeed.rough)) M.perFeed.rough=[];
-  if(!M.perFeed.conc.length && !M.perFeed.rough.length){ M.perFeed.conc.push(pfNewType("배합사료")); M.perFeed.rough.push(pfNewType("볏짚")); }
+  if(!M.perFeed.conc.length && !M.perFeed.rough.length){ M.perFeed.conc.push(pfNewType("배합사료")); if(ROUGH_SPECIES.indexOf(KIND)>=0) M.perFeed.rough.push(pfNewType("볏짚")); }
   ["conc","rough"].forEach(s=>M.perFeed[s].forEach(ft=>{ if(!ft.lines)ft.lines={}; CATS.forEach(c=>{ if(!ft.lines[c.id]) ft.lines[c.id]={kg:0,price:0,note:""}; }); }));
 }
 function pfSectionHtml(sect,title){
@@ -953,7 +973,7 @@ function buildFeedPerheadCattle(){
   pfInit();
   let h="<tr><th class='rc'>사료명</th><th>사육구분</th><th>1일섭취량<br><span class='sub'>kg/두·일</span></th><th>마리수<br><span class='sub'>두</span></th><th>급여량<br><span class='sub'>kg</span></th><th>단가<br><span class='sub'>원/kg</span></th><th>금액<br><span class='sub'>원</span></th><th>비고</th></tr>";
   h+=pfSectionHtml("conc","■ 농후사료");
-  h+=pfSectionHtml("rough","■ 조사료");
+  if(ROUGH_SPECIES.indexOf(KIND)>=0) h+=pfSectionHtml("rough","■ 조사료");   // 조사료는 소 축종만
   h+=`<tr><td class='rc tot' colspan='4' style='background:#e9eef6'>합계</td><td class='end'><span id='pf_feed'>0</span></td><td class='auto'></td><td class='end'><span id='pf_amt'>0</span></td><td></td></tr>`;
   h+=`<tr><td class='rc tot' colspan='4' style='background:#eef6ee'>두당 평균 <span class='sub' style='font-weight:400'>(사육 <span id='pf_hc'>0</span>두)</span></td><td class='end'><span id='pf_phfeed'>0</span></td><td class='auto'></td><td class='end'><span id='pf_phamt'>0</span></td><td></td></tr>`;
   $("feedTbl").innerHTML=h;
@@ -1025,7 +1045,7 @@ function renderFeedSurvey(){
     pfInit();
     const mk=(sect)=> (M.perFeed[sect]||[]).map(ft=>{ let feed=0,amt=0; CATS.forEach(c=>{ const ln=ft.lines[c.id]||{}; const f=Math.round((+(ln.kg||0))*endOf(M,c.id)*days); feed+=f; amt+=f*(+(ln.price||0)); }); return {jong:sp,saryo:ft.type,gubun:ft.gubun||"구입",feed:feed,price:feed>0?Math.round(amt/feed):0,amt:amt}; }).filter(r=>r.feed>0||r.amt>0);
     box.innerHTML=feedSurveyTable("📋 농후사료 및 TMR 조사표","(농후사료·TMR)",mk("conc"),CONC_CODE);
-    if(boxR) boxR.innerHTML=feedSurveyTable("🌾 조사료 조사표","(조사료)",mk("rough"),ROUGH_CODE);
+    if(boxR) boxR.innerHTML=(ROUGH_SPECIES.indexOf(KIND)>=0)?feedSurveyTable("🌾 조사료 조사표","(조사료)",mk("rough"),ROUGH_CODE):"";
     return;
   }
   if(M.feedBasis==="perhead"){
