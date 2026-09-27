@@ -604,7 +604,7 @@ function encStr(s){ try{ let o=""; for(let i=0;i<s.length;i++) o+=String.fromCha
 function decStr(s){ if(typeof s!=="string"||s.slice(0,5)!=="ENC1:") return s; try{ const raw=decodeURIComponent(escape(atob(s.slice(5)))); let o=""; for(let i=0;i<raw.length;i++) o+=String.fromCharCode(raw.charCodeAt(i)^CKEY.charCodeAt(i%CKEY.length)); return o; }catch(e){ return "{}"; } }
 function loadFarm(f){ try{ const raw=localStorage.getItem(storeKey(f)); if(!raw) return {}; return JSON.parse(decStr(raw)); }catch(e){ return {}; } }
 function saveFarm(f,obj){ try{ localStorage.setItem(storeKey(f),encStr(JSON.stringify(obj))); }catch(e){} }
-function mkMonth(){ const m={inv:{},herd:{},feedBasis:(CFG.feedDefault||"adult"),coef:Object.assign({},DEF_COEF),feedItems:defaultFeedItems(),ledgerRows:[],intake:{},intakeRough:[],pigDefaults:{}};
+function mkMonth(){ const m={inv:{},herd:{},feedBasis:(CFG.feedDefault||"adult"),coef:Object.assign({},DEF_COEF),feedItems:defaultFeedItems(),ledgerRows:[],intake:{},intakeRough:[],perFeed:{conc:[],rough:[]},pigDefaults:{}};
   CATS.forEach(c=>m.inv[c.id]={begin:0,birth:0,buy:0,in:0,out:0,sell:0,cull:0,dead:0,endChk:0});
   HERD.forEach(([k])=>m.herd[k]=0);
   return m; }
@@ -646,6 +646,11 @@ function loadMonth(){
   if(pk && store[pk] && store[pk].intake){
     const anyIntake=Object.keys(M.intake).some(k=>{ const d=M.intake[k]||{}; return d.kg||d.price||d.cnt||d.feed; });
     if(!anyIntake){ const src=store[pk].intake; M.intake={}; Object.keys(src).forEach(k=>{ const s=src[k]||{}; M.intake[k]={kg:s.kg||0,price:s.price||0,cnt:0,feed:0}; }); }
+  }
+  // 구분별 섭취량(소 축종): perFeed의 1일섭취량·단가·비고 이월(현재 달 미입력 시 전월 값 복사, 마리수는 매월 새로)
+  if(!CFG.intakeRows && pk && store[pk] && store[pk].perFeed){
+    const cur=M.perFeed, has = cur && [].concat(cur.conc||[],cur.rough||[]).some(ft=>Object.values(ft.lines||{}).some(l=>l&&(l.kg||l.price||l.note)));
+    if(!has){ try{ M.perFeed=JSON.parse(JSON.stringify(store[pk].perFeed)); }catch(e){} }
   }
   // 축종별 기본값(원장 등) 이월: 현재 달 미설정 시 전월 저장값 사용
   const DKEY=KIND+"Defaults";
@@ -783,6 +788,7 @@ function intakeKey(r,i){ return r.cat || ("i"+i); }
 function intakeRowByKey(k){ const rows=intakeRowsCfg(); for(let i=0;i<rows.length;i++){ if(intakeKey(rows[i],i)===k) return rows[i]; } return null; }
 function setIntakeVal(k,f,v){ const el=document.querySelector(`input[data-intake='${k}'][data-if='${f}']`); if(el && document.activeElement!==el) el.value=v; }
 function buildFeedPerhead(){
+  if(!CFG.intakeRows){ buildFeedPerheadCattle(); return; }   // 소 축종: 농후/조사료 × 사육구분
   const rows=intakeRowsCfg(); if(!M.intake) M.intake={};
   rows.forEach((r,i)=>{ const k=intakeKey(r,i); if(!M.intake[k]) M.intake[k]={kg:(r.kg||0),cnt:0,price:0,feed:0,won:0}; else if(M.intake[k].kg==null) M.intake[k].kg=(r.kg||0); });
   const subGroups=CFG.intakeSub||[];
@@ -822,6 +828,7 @@ function buildFeedPerhead(){
   $("feedTbl").innerHTML=h;
 }
 function recalcPerhead(){
+  if(!CFG.intakeRows){ recalcPerheadCattle(); return; }   // 소 축종
   const days=daysIn(year,month), rows=intakeRowsCfg(), subGroups=CFG.intakeSub||[]; if(!M.intake) M.intake={};
   let sKg=0,sCnt=0,sUse=0,sFeed=0,sAmt=0;
   const g={}; subGroups.forEach(x=>g[x]={cnt:0,use:0,feed:0,amt:0});
@@ -903,6 +910,99 @@ function roughSectionHtml(){
   h+=`<tr class='subt'><td class='psub tot' colspan='2'>조사료 소계</td><td class='auto'></td><td class='end'><span id='rsub_cnt'>0</span></td><td class='end redval'><span id='rsub_use'>0</span></td><td class='end redval'><span id='rsub_feed'>0</span></td><td class='end redval'><span id='rsub_avg'>0</span></td><td class='end redval'><span id='rsub_amt'>0</span></td><td></td></tr>`;
   return h;
 }
+/* ===== 구분별 섭취량(소 축종): 농후사료/조사료 × 사육구분 (사료 선택식·이월) ===== */
+const CONC_TYPES=Object.keys(CONC_CODE);    // 배합사료,강류,곡류,가공부산물,사료첨가제,기타,TMR
+const ROUGH_TYPES=Object.keys(ROUGH_CODE);  // 청예류,볏짚,건초,엔시레지,기타
+function pfId(){ return "pf"+Math.random().toString(36).slice(2,8); }
+function pfNewType(type){ const lines={}; CATS.forEach(c=>lines[c.id]={kg:0,price:0,note:""}); return {id:pfId(),type:type,lines:lines}; }
+function pfInit(){
+  if(!M.perFeed||typeof M.perFeed!=="object") M.perFeed={conc:[],rough:[]};
+  if(!Array.isArray(M.perFeed.conc)) M.perFeed.conc=[];
+  if(!Array.isArray(M.perFeed.rough)) M.perFeed.rough=[];
+  if(!M.perFeed.conc.length && !M.perFeed.rough.length){ M.perFeed.conc.push(pfNewType("배합사료")); M.perFeed.rough.push(pfNewType("볏짚")); }
+  ["conc","rough"].forEach(s=>M.perFeed[s].forEach(ft=>{ if(!ft.lines)ft.lines={}; CATS.forEach(c=>{ if(!ft.lines[c.id]) ft.lines[c.id]={kg:0,price:0,note:""}; }); }));
+}
+function pfSectionHtml(sect,title){
+  const list=M.perFeed[sect]||[], sc=(sect==="conc")?"c":"r", addLabel=(sect==="conc")?"농후사료":"조사료";
+  let h=`<tr><td class='rc' colspan='8' style='background:#eef3fb;color:#1a365d'>${title}</td></tr>`;
+  list.forEach(ft=>{
+    CATS.forEach((c,ci)=>{
+      const ln=ft.lines[c.id]||{kg:0,price:0,note:""};
+      h+="<tr>";
+      if(ci===0){ const CM=(sect==="conc")?CONC_CODE:ROUGH_CODE; const opts=(sect==="conc"?CONC_TYPES:ROUGH_TYPES).map(t=>`<option value='${t}'${t===ft.type?" selected":""}>${t}${CM[t]?" ("+CM[t]+")":""}</option>`).join("");
+        h+=`<td class='pgrp' rowspan='${CATS.length}' style='vertical-align:top;white-space:nowrap'><select data-pftype='${sect}:${ft.id}' style='max-width:126px;font-weight:700'>${opts}</select><br><button type='button' class='btn del' data-pfdel='${sect}:${ft.id}' style='padding:1px 6px;font-size:11px;margin-top:4px'>삭제</button></td>`; }
+      h+=`<td class='psub'>${c.label}</td>`;
+      h+=`<td class='ip'><input type='number' inputmode='decimal' min='0' step='0.01' data-pf='${sect}:${ft.id}:${c.id}' data-pff='kg' value='${ln.kg||0}'></td>`;
+      h+=`<td class='auto'><span id='pfcnt_${ft.id}_${c.id}'>0</span></td>`;
+      h+=`<td class='auto redval'><span id='pffeed_${ft.id}_${c.id}'>0</span></td>`;
+      h+=`<td class='ip'><input type='number' inputmode='numeric' min='0' data-pf='${sect}:${ft.id}:${c.id}' data-pff='price' value='${ln.price||0}'></td>`;
+      h+=`<td class='end'><span id='pfamt_${ft.id}_${c.id}'>0</span></td>`;
+      h+=`<td class='ip'><input type='text' data-pf='${sect}:${ft.id}:${c.id}' data-pff='note' value='${(ln.note||"").replace(/'/g,"&#39;").replace(/"/g,"&quot;")}' style='min-width:48px' placeholder='비고'></td>`;
+      h+="</tr>";
+    });
+    h+=`<tr class='subt'><td class='psub tot' colspan='2'>${ft.type} 소계</td><td class='end'><span id='pfsc_${ft.id}_avgkg'>0</span></td><td class='end'><span id='pfsc_${ft.id}_cnt'>0</span></td><td class='end redval'><span id='pfsc_${ft.id}_feed'>0</span></td><td class='end'><span id='pfsc_${ft.id}_avgprice'>0</span></td><td class='end redval'><span id='pfsc_${ft.id}_amt'>0</span></td><td></td></tr>`;
+  });
+  h+=`<tr><td colspan='8' style='text-align:left;padding:6px 4px'><button type='button' class='btn manage' data-pfadd='${sect}' style='padding:4px 10px;font-size:12px'>＋ ${addLabel} 추가</button></td></tr>`;
+  h+=`<tr class='subt'><td class='rc tot' colspan='4'>${addLabel} 소계</td><td class='end'><span id='pfsec_${sc}_feed'>0</span></td><td class='end'><span id='pfsec_${sc}_avgprice'>0</span></td><td class='end'><span id='pfsec_${sc}_amt'>0</span></td><td></td></tr>`;
+  return h;
+}
+function buildFeedPerheadCattle(){
+  pfInit();
+  let h="<tr><th class='rc'>사료명</th><th>사육구분</th><th>1일섭취량<br><span class='sub'>kg/두·일</span></th><th>마리수<br><span class='sub'>두</span></th><th>급여량<br><span class='sub'>kg</span></th><th>단가<br><span class='sub'>원/kg</span></th><th>금액<br><span class='sub'>원</span></th><th>비고</th></tr>";
+  h+=pfSectionHtml("conc","■ 농후사료");
+  h+=pfSectionHtml("rough","■ 조사료");
+  h+=`<tr><td class='rc tot' colspan='4' style='background:#e9eef6'>합계</td><td class='end'><span id='pf_feed'>0</span></td><td class='auto'></td><td class='end'><span id='pf_amt'>0</span></td><td></td></tr>`;
+  h+=`<tr><td class='rc tot' colspan='4' style='background:#eef6ee'>두당 평균 <span class='sub' style='font-weight:400'>(사육 <span id='pf_hc'>0</span>두)</span></td><td class='end'><span id='pf_phfeed'>0</span></td><td class='auto'></td><td class='end'><span id='pf_phamt'>0</span></td><td></td></tr>`;
+  $("feedTbl").innerHTML=h;
+}
+function recalcPerheadCattle(){
+  pfInit();
+  const days=daysIn(year,month); let TF=0,TA=0;
+  ["conc","rough"].forEach(sect=>{
+    let secFeed=0,secAmt=0;
+    (M.perFeed[sect]||[]).forEach(ft=>{
+      let tFeed=0,tCnt=0,tAmt=0;
+      CATS.forEach(c=>{ const ln=ft.lines[c.id]||{}; const cnt=endOf(M,c.id); const feed=Math.round((+(ln.kg||0))*cnt*days); const amt=feed*(+(ln.price||0));
+        if($("pfcnt_"+ft.id+"_"+c.id))$("pfcnt_"+ft.id+"_"+c.id).textContent=nf(cnt);
+        if($("pffeed_"+ft.id+"_"+c.id))$("pffeed_"+ft.id+"_"+c.id).textContent=nf(feed);
+        if($("pfamt_"+ft.id+"_"+c.id))$("pfamt_"+ft.id+"_"+c.id).textContent=nf(amt);
+        tFeed+=feed; tCnt+=cnt; tAmt+=amt;
+      });
+      if($("pfsc_"+ft.id+"_cnt"))$("pfsc_"+ft.id+"_cnt").textContent=nf(tCnt);
+      if($("pfsc_"+ft.id+"_feed"))$("pfsc_"+ft.id+"_feed").textContent=nf(tFeed);
+      if($("pfsc_"+ft.id+"_amt"))$("pfsc_"+ft.id+"_amt").textContent=nf(tAmt);
+      const avgKg=(tCnt*days>0)?tFeed/(tCnt*days):0, avgPrice=tFeed>0?tAmt/tFeed:0;   // 1일섭취 평균·평균단가
+      if($("pfsc_"+ft.id+"_avgkg"))$("pfsc_"+ft.id+"_avgkg").textContent=nf(Math.round(avgKg*100)/100);
+      if($("pfsc_"+ft.id+"_avgprice"))$("pfsc_"+ft.id+"_avgprice").textContent=nf(Math.round(avgPrice));
+      secFeed+=tFeed; secAmt+=tAmt;
+    });
+    const sc=(sect==="conc")?"c":"r";
+    if($("pfsec_"+sc+"_feed"))$("pfsec_"+sc+"_feed").textContent=nf(secFeed);
+    if($("pfsec_"+sc+"_avgprice"))$("pfsec_"+sc+"_avgprice").textContent=nf(secFeed>0?Math.round(secAmt/secFeed):0);
+    if($("pfsec_"+sc+"_amt"))$("pfsec_"+sc+"_amt").textContent=nf(secAmt);
+    TF+=secFeed; TA+=secAmt;
+  });
+  if($("pf_feed"))$("pf_feed").textContent=nf(TF);
+  if($("pf_amt"))$("pf_amt").textContent=nf(TA);
+  const hc=CATS.reduce((a,c)=>a+endOf(M,c.id),0);
+  if($("pf_hc"))$("pf_hc").textContent=nf(hc);
+  if($("pf_phfeed"))$("pf_phfeed").textContent=nf(hc>0?Math.round(TF/hc):0);
+  if($("pf_phamt"))$("pf_phamt").textContent=nf(hc>0?Math.round(TA/hc):0);
+  renderFeedSurvey();
+}
+function pfAddType(sect){
+  pfInit();
+  const types=(sect==="conc")?CONC_TYPES:ROUGH_TYPES, used=M.perFeed[sect].map(t=>t.type);
+  const next=types.find(t=>used.indexOf(t)<0);
+  if(!next){ alert("추가할 수 있는 "+(sect==="conc"?"농후사료":"조사료")+" 종류를 모두 넣었습니다."); return; }
+  M.perFeed[sect].push(pfNewType(next)); buildFeed(); recalcPerhead(); autosave();
+}
+function pfDelType(sect,ftid){
+  if(!M.perFeed||!M.perFeed[sect])return;
+  const ft=M.perFeed[sect].find(x=>x.id===ftid); if(!ft)return;
+  if(!confirm("'"+ft.type+"' 사료를 삭제할까요?"))return;
+  M.perFeed[sect]=M.perFeed[sect].filter(x=>x.id!==ftid); buildFeed(); recalcPerhead(); autosave();
+}
 const GUBUN_CODE={"구입":"1","자급(부산물)":"2","자가생산":"3"};   // 구입 구분
 function feedSurveyTable(title,note,rowsOut,codeMap){
   const days=daysIn(year,month), cm=codeMap||{}, gCode=GUBUN_CODE["구입"]||"";
@@ -917,6 +1017,13 @@ function feedSurveyTable(title,note,rowsOut,codeMap){
 function renderFeedSurvey(){
   const box=$("feedSurvey"), boxR=$("feedSurveyRough"); if(!box) return;
   const days=daysIn(year,month), sp=KLABEL+(CFG.spBuy?" ("+CFG.spBuy+")":"");
+  if(M.feedBasis==="perhead" && !CFG.intakeRows){   // 소 축종: 농후사료·조사료 조사표
+    pfInit();
+    const mk=(sect)=> (M.perFeed[sect]||[]).map(ft=>{ let feed=0,amt=0; CATS.forEach(c=>{ const ln=ft.lines[c.id]||{}; const f=Math.round((+(ln.kg||0))*endOf(M,c.id)*days); feed+=f; amt+=f*(+(ln.price||0)); }); return {jong:sp,saryo:ft.type,feed:feed,price:feed>0?Math.round(amt/feed):0,amt:amt}; }).filter(r=>r.feed>0||r.amt>0);
+    box.innerHTML=feedSurveyTable("📋 농후사료 및 TMR 조사표","(농후사료·TMR)",mk("conc"),CONC_CODE);
+    if(boxR) boxR.innerHTML=feedSurveyTable("🌾 조사료 조사표","(조사료)",mk("rough"),ROUGH_CODE);
+    return;
+  }
   if(M.feedBasis==="perhead"){
     const rows=intakeRowsCfg(), gAgg={}, gOrder=[], directRows=[];
     rows.forEach((r,i)=>{ const k=intakeKey(r,i), d=M.intake[k]||{};
@@ -1080,6 +1187,9 @@ document.addEventListener("input",e=>{
   else if(el.dataset.feednote){ const it=(M.feedItems||[]).find(x=>x.id===el.dataset.feednote); if(it){ it.note=el.value; autosave(); } }         // 비고(텍스트)
   else if(el.dataset.intakenote){ const k=el.dataset.intakenote; if(!M.intake)M.intake={}; if(!M.intake[k])M.intake[k]={}; M.intake[k].note=el.value; autosave(); }
   else if(el.dataset.roughnote){ const rg=(M.intakeRough||[]).find(x=>x.id===el.dataset.roughnote); if(rg){ rg.note=el.value; autosave(); } }
+  else if(el.dataset.pf){ const p=el.dataset.pf.split(":"), sect=p[0], ftid=p[1], cid=p[2], f=el.dataset.pff;   // 소 축종 농후/조사료 라인
+      const ft=((M.perFeed&&M.perFeed[sect])||[]).find(x=>x.id===ftid);
+      if(ft){ if(!ft.lines[cid])ft.lines[cid]={kg:0,price:0,note:""}; ft.lines[cid][f]=(f==="note")?el.value:(parseFloat(el.value)||0); if(f!=="note") recalcPerhead(); autosave(); } }
   else if(el.dataset.lrow){ ledgerSet(el); }
 });
 function ledgerSet(el){
@@ -1093,9 +1203,12 @@ function ledgerSet(el){
 document.addEventListener("change",e=>{
   if(e.target.name==="basis"){ M.feedBasis=e.target.value; buildFeed(); recalc(); autosave(); }
   else if(e.target.dataset.roughsel){ const rg=(M.intakeRough||[]).find(x=>x.id===e.target.dataset.roughsel); if(rg){ rg.type=e.target.value; autosave(); } }
+  else if(e.target.dataset.pftype){ const p=e.target.dataset.pftype.split(":"); const ft=((M.perFeed&&M.perFeed[p[0]])||[]).find(x=>x.id===p[1]); if(ft){ ft.type=e.target.value; buildFeed(); recalcPerhead(); autosave(); } }
   else if(e.target.dataset.lrow){ ledgerSet(e.target); }
 });
 document.addEventListener("click",e=>{
+  const pfa=e.target.closest("[data-pfadd]"); if(pfa){ pfAddType(pfa.dataset.pfadd); return; }
+  const pfd=e.target.closest("[data-pfdel]"); if(pfd){ const p=pfd.dataset.pfdel.split(":"); pfDelType(p[0],p[1]); return; }
   const ra=e.target.closest("#addRough"), rd=e.target.closest("[data-roughdel]");
   if(ra){ if(!M.intakeRough)M.intakeRough=[]; M.intakeRough.push({id:rgId(),type:Object.keys(ROUGH_CODE)[0],kg:0,cnt:Math.round(adultCount())||0,price:0}); buildFeed(); recalcPerhead(); autosave(); return; }
   if(rd){ const id=rd.getAttribute("data-roughdel"); M.intakeRough=(M.intakeRough||[]).filter(x=>x.id!==id); buildFeed(); recalcPerhead(); autosave(); return; }
