@@ -844,7 +844,7 @@ initVisit();
     try{ localStorage.setItem("dudang_trace_res",JSON.stringify(res)); }catch(e){}
     location.href=(req&&req.back)?req.back:"survey.html";
   };
-  document.getElementById("pickCancel").onclick=function(){ try{ localStorage.removeItem("dudang_trace_req"); }catch(e){} location.href=(req&&req.back)?req.back:"survey.html"; };
+  document.getElementById("pickCancel").onclick=function(){ /* req 유지→조사표에서 이전 농가·월 복원 */ location.href=(req&&req.back)?req.back:"survey.html"; };
 })();
 
 /* 시작 */
