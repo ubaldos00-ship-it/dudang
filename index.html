@@ -1,4 +1,4 @@
-<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결, 새로고침 위치유지+카운터 부분표시·재시도, 가축마리수(17시도 색칩·청단축·초기화), 축비 조사표 통합(survey.html·7축종 버튼→임베드), 전 페이지 구글+네이버 애널리틱스 · v27(2026-09-22): 홈 메뉴 '홈'=맨위로 스크롤, PC에서만 헤더+메뉴 고정+스크롤 시 자동 숨김/표시(모바일 미적용), 전 페이지 헤더 표준화(왼쪽 뒤로가기·오른쪽 홈: 조사도우미·현장도우미·조사용어·생산비분석·질병현장), 생산비분석 헤더 페이지폭 정렬, 가축질병 페이지 PC폭 확대(홈과 동일)·제목 '가축질병 및 마리수 현장정보'로 변경 · v65(2026-10-04 09:07 KST): (1)전 페이지 PWA 홈화면앱 메타 추가(apple-mobile-web-app-capable·mobile-web-app-capable·status-bar·title·apple-touch-icon·manifest 링크) → 아이폰 홈화면 추가 시 주소창 없이 앱으로 실행(재추가 필요). (2)모바일 '주요 업무 바로가기' 한 줄 3개+설명 숨겨 세로길이 축소(.cards.main). (3)소 이력조회·인공수정이력·오프라인 조사표를 현장도우미 아래 '개별 조사도구'(기본 닫힘 details)로 이동(소 개체 통합조회와 중복 정리) -->
+<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결, 새로고침 위치유지+카운터 부분표시·재시도, 가축마리수(17시도 색칩·청단축·초기화), 축비 조사표 통합(survey.html·7축종 버튼→임베드), 전 페이지 구글+네이버 애널리틱스 · v27(2026-09-22): 홈 메뉴 '홈'=맨위로 스크롤, PC에서만 헤더+메뉴 고정+스크롤 시 자동 숨김/표시(모바일 미적용), 전 페이지 헤더 표준화(왼쪽 뒤로가기·오른쪽 홈: 조사도우미·현장도우미·조사용어·생산비분석·질병현장), 생산비분석 헤더 페이지폭 정렬, 가축질병 페이지 PC폭 확대(홈과 동일)·제목 '가축질병 및 마리수 현장정보'로 변경 · v65(2026-10-04 09:07 KST): (1)전 페이지 PWA 홈화면앱 메타 추가(apple-mobile-web-app-capable·mobile-web-app-capable·status-bar·title·apple-touch-icon·manifest 링크) → 아이폰 홈화면 추가 시 주소창 없이 앱으로 실행(재추가 필요). (2)모바일 '주요 업무 바로가기' 한 줄 3개+설명 숨겨 세로길이 축소(.cards.main). (3)소 이력조회·인공수정이력·오프라인 조사표를 현장도우미 아래 '개별 조사도구'(기본 닫힘 details)로 이동(소 개체 통합조회와 중복 정리) · v65b(2026-10-04): 텐아르 지도/게임센터/PDF센터 링크 target="_blank" 제거(홈화면 앱에서 사파리 새창=주소창 대신 앱 내 이동), manifest scope "/"·start_url 절대경로로 변경(같은 오리진 /home/ 페이지도 앱 범위), SW HTML 네트워크 우선 -->
 <!-- 두당(頭當) 통합대시보드 · 1단계 뼈대 · 기존 기능(cattle/disease/생산비) 허브 -->
 <!doctype html>
 <html lang="ko">
@@ -134,9 +134,9 @@
   <a href="disease.html">가축질병현황</a>
   <a href="species.html">축종 배우기</a>
   <a href="chukbi.html">생산비 분석</a>
-  <a href="https://ubaldos00-ship-it.github.io/home/map_libre.html" target="_blank" rel="noopener">텐아르 지도</a>
-  <a href="https://ubaldos00-ship-it.github.io/home/game_center.html" target="_blank" rel="noopener">게임센터</a>
-  <a href="https://ubaldos00-ship-it.github.io/home/pdf/pdf_library.html" target="_blank" rel="noopener">PDF센터</a>
+  <a href="https://ubaldos00-ship-it.github.io/home/map_libre.html">텐아르 지도</a>
+  <a href="https://ubaldos00-ship-it.github.io/home/game_center.html">게임센터</a>
+  <a href="https://ubaldos00-ship-it.github.io/home/pdf/pdf_library.html">PDF센터</a>
 </div></nav>
 </div>
 
@@ -165,9 +165,9 @@
     <a class="card" href="disease.html"><div class="ico">🗺️</div><div class="t">가축질병현황<span class="badge">지도</span></div><div class="d">최근 가축전염병 발생현황</div></a>
     <a class="card" href="species.html"><div class="ico">📚</div><div class="t">축종 배우기</div><div class="d">7개 축종 생애·사육방법</div></a>
     <a class="card" href="chukbi.html"><div class="ico">📊</div><div class="t">생산비 분석<span class="badge">신규</span></div><div class="d">조사자료 월별·연간 분석·내검</div></a>
-    <a class="card" href="https://ubaldos00-ship-it.github.io/home/map_libre.html" target="_blank" rel="noopener"><div class="ico">🗺️</div><div class="t">텐아르 지도<span class="badge">텐아르</span></div><div class="d">작물재배 조사구·필지 지도(텐아르) · 새 창</div></a>
-    <a class="card" href="https://ubaldos00-ship-it.github.io/home/game_center.html" target="_blank" rel="noopener"><div class="ico">🎮</div><div class="t">게임센터<span class="badge">텐아르</span></div><div class="d">축산·조사 학습 미니게임 모음 · 새 창</div></a>
-    <a class="card" href="https://ubaldos00-ship-it.github.io/home/pdf/pdf_library.html" target="_blank" rel="noopener"><div class="ico">📄</div><div class="t">PDF센터<span class="badge">텐아르</span></div><div class="d">조사 관련 자료·서식 PDF 모음 · 새 창</div></a>
+    <a class="card" href="https://ubaldos00-ship-it.github.io/home/map_libre.html"><div class="ico">🗺️</div><div class="t">텐아르 지도<span class="badge">텐아르</span></div><div class="d">작물재배 조사구·필지 지도(텐아르)</div></a>
+    <a class="card" href="https://ubaldos00-ship-it.github.io/home/game_center.html"><div class="ico">🎮</div><div class="t">게임센터<span class="badge">텐아르</span></div><div class="d">축산·조사 학습 미니게임 모음</div></a>
+    <a class="card" href="https://ubaldos00-ship-it.github.io/home/pdf/pdf_library.html"><div class="ico">📄</div><div class="t">PDF센터<span class="badge">텐아르</span></div><div class="d">조사 관련 자료·서식 PDF 모음</div></a>
   </div>
 
   <!-- 최근 질병 -->
