@@ -1,10 +1,15 @@
-<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결, 새로고침 위치유지+카운터 부분표시·재시도, 가축마리수(17시도 색칩·청단축·초기화), 축비 조사표 통합(survey.html·7축종 버튼→임베드), 전 페이지 구글+네이버 애널리틱스 · v27(2026-09-22): 홈 메뉴 '홈'=맨위로 스크롤, PC에서만 헤더+메뉴 고정+스크롤 시 자동 숨김/표시(모바일 미적용), 전 페이지 헤더 표준화(왼쪽 뒤로가기·오른쪽 홈: 조사도우미·현장도우미·조사용어·생산비분석·질병현장), 생산비분석 헤더 페이지폭 정렬, 가축질병 페이지 PC폭 확대(홈과 동일)·제목 '가축질병 및 마리수 현장정보'로 변경 -->
+<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결, 새로고침 위치유지+카운터 부분표시·재시도, 가축마리수(17시도 색칩·청단축·초기화), 축비 조사표 통합(survey.html·7축종 버튼→임베드), 전 페이지 구글+네이버 애널리틱스 · v27(2026-09-22): 홈 메뉴 '홈'=맨위로 스크롤, PC에서만 헤더+메뉴 고정+스크롤 시 자동 숨김/표시(모바일 미적용), 전 페이지 헤더 표준화(왼쪽 뒤로가기·오른쪽 홈: 조사도우미·현장도우미·조사용어·생산비분석·질병현장), 생산비분석 헤더 페이지폭 정렬, 가축질병 페이지 PC폭 확대(홈과 동일)·제목 '가축질병 및 마리수 현장정보'로 변경 · v65(2026-10-04 09:07 KST): (1)전 페이지 PWA 홈화면앱 메타 추가(apple-mobile-web-app-capable·mobile-web-app-capable·status-bar·title·apple-touch-icon·manifest 링크) → 아이폰 홈화면 추가 시 주소창 없이 앱으로 실행(재추가 필요). (2)모바일 '주요 업무 바로가기' 한 줄 3개+설명 숨겨 세로길이 축소(.cards.main). (3)소 이력조회·인공수정이력·오프라인 조사표를 현장도우미 아래 '개별 조사도구'(기본 닫힘 details)로 이동(소 개체 통합조회와 중복 정리) -->
 <!-- 두당(頭當) 통합대시보드 · 1단계 뼈대 · 기존 기능(cattle/disease/생산비) 허브 -->
 <!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="두당">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>두당 頭當 · 가축동향·축산물생산비조사 현장지원 시스템</title>
 <!-- Google tag (gtag.js) · 두당 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYTDP9E5YL"></script>
@@ -80,8 +85,23 @@
   footer .build strong{color:var(--navy);}
   .note{font-size:12px;color:var(--warn);margin-top:6px;}
   /* 반응형 */
+  /* 개별 조사도구 아코디언(기본 닫힘) */
+  details.tools{margin-top:20px;}
+  details.tools>summary{list-style:none;cursor:pointer;font-size:17px;font-weight:800;color:#1a365d;padding:13px 15px;background:#eef3f9;border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:8px;}
+  details.tools>summary::-webkit-details-marker{display:none;}
+  details.tools>summary .ico{font-size:20px;}
+  details.tools>summary .tg{display:none;}
+  details.tools>summary::after{content:"열기 ▾";margin-left:auto;font-size:13px;font-weight:700;color:#2b6cb0;}
+  details.tools[open]>summary::after{content:"닫기 ▴";}
   @media(max-width:760px){
     .cards{grid-template-columns:repeat(2,1fr);}
+    /* 모바일: 주요업무 바로가기만 한 줄 3개 + 설명 숨겨 세로길이 축소 */
+    .cards.main{grid-template-columns:repeat(3,1fr);gap:8px;}
+    .cards.main .card{padding:11px 7px;text-align:center;border-radius:12px;}
+    .cards.main .card .ico{font-size:25px;}
+    .cards.main .card .t{font-size:12.5px;margin-top:5px;line-height:1.25;word-break:keep-all;}
+    .cards.main .card .d{display:none;}
+    .cards.main .card .badge{margin-left:0;margin-top:3px;font-size:10px;padding:0 5px;}
     .species{grid-template-columns:repeat(2,1fr);}
     .recent{grid-template-columns:1fr;}
     nav.top{display:none;}
@@ -136,10 +156,8 @@
 
   <!-- 메인 바로가기 -->
   <h3 class="sec">주요 업무 바로가기</h3>
-  <div class="cards">
+  <div class="cards main">
     <a class="card" href="terms.html"><div class="ico">🔎</div><div class="t">조사용어</div><div class="d">현장 축산·조사용어 검색</div></a>
-    <a class="card" href="cattle.html"><div class="ico">🐂</div><div class="t">소 이력조회 및 계산</div><div class="d">이력번호 조회 + 개월수·생체중·판매 자동계산 · <span style="color:#c05621">추후 「소 개체 통합조회」로 대체 예정</span></div></a>
-    <a class="card" href="insemination.html"><div class="ico">🐄</div><div class="t">인공수정이력 조회<span class="badge">신규</span></div><div class="d">개체번호로 인공수정 이력·종모우·수정간격 조회 · <span style="color:#c05621">추후 「소 개체 통합조회」로 대체 예정</span></div></a>
     <a class="card" href="cattle_all.html"><div class="ico">🐮</div><div class="t">소 개체 통합조회<span class="badge">신규</span></div><div class="d">개체번호 한 번으로 소이력(기본)+인공수정이력 한 화면</div></a>
     <a class="card" href="survey.html"><div class="ico">📋</div><div class="t">축비 조사표<span class="badge">신규</span></div><div class="d">축종 선택(번식우·비육우·육우·젖소·비육돈·산란계·육계) → 마리수·구입판매·사료비</div></a>
     <a class="card" href="cattle_price.html"><div class="ico">💹</div><div class="t">소 산지가격 조회<span class="badge">신규</span></div><div class="d">송아지·큰소 산지가격과 농가수취가격 조회</div></a>
@@ -150,7 +168,6 @@
     <a class="card" href="https://ubaldos00-ship-it.github.io/home/map_libre.html" target="_blank" rel="noopener"><div class="ico">🗺️</div><div class="t">텐아르 지도<span class="badge">텐아르</span></div><div class="d">작물재배 조사구·필지 지도(텐아르) · 새 창</div></a>
     <a class="card" href="https://ubaldos00-ship-it.github.io/home/game_center.html" target="_blank" rel="noopener"><div class="ico">🎮</div><div class="t">게임센터<span class="badge">텐아르</span></div><div class="d">축산·조사 학습 미니게임 모음 · 새 창</div></a>
     <a class="card" href="https://ubaldos00-ship-it.github.io/home/pdf/pdf_library.html" target="_blank" rel="noopener"><div class="ico">📄</div><div class="t">PDF센터<span class="badge">텐아르</span></div><div class="d">조사 관련 자료·서식 PDF 모음 · 새 창</div></a>
-    <a class="card" href="두당_오프라인_전체.zip" download="두당_오프라인_전체.zip"><div class="ico">📦</div><div class="t">오프라인 조사표/분석<span class="badge">받기</span></div><div class="d">인터넷 없는 PC용 · 축비조사표+생산비분석 전체 내려받기(압축 풀고 실행)</div></a>
   </div>
 
   <!-- 최근 질병 -->
@@ -172,6 +189,16 @@
   <!-- 현장도우미 -->
   <h3 class="sec">현장도우미</h3>
   <a class="card" href="field.html" style="display:block"><div class="ico">🧭</div><div class="t">농가 방문 전 3분 브리핑</div><div class="d">축종 핵심·생애·용어·조사 체크포인트를 한 화면에 (모바일 최적)</div></a>
+
+  <!-- 개별 조사도구 (기본 닫힘 → 선택 시 열림) -->
+  <details class="tools">
+    <summary><span class="ico">🧰</span> 개별 조사도구 <span class="tg">열기 ▾</span></summary>
+    <div class="cards" style="margin-top:12px">
+      <a class="card" href="cattle.html"><div class="ico">🐂</div><div class="t">소 이력조회 및 계산</div><div class="d">이력번호 조회 + 개월수·생체중·판매 자동계산 · <span style="color:#c05621">「소 개체 통합조회」로 대체 예정</span></div></a>
+      <a class="card" href="insemination.html"><div class="ico">🐄</div><div class="t">인공수정이력 조회<span class="badge">신규</span></div><div class="d">개체번호로 인공수정 이력·종모우·수정간격 조회 · <span style="color:#c05621">「소 개체 통합조회」로 대체 예정</span></div></a>
+      <a class="card" href="두당_오프라인_전체.zip" download="두당_오프라인_전체.zip"><div class="ico">📦</div><div class="t">오프라인 조사표/분석<span class="badge">받기</span></div><div class="d">인터넷 없는 PC용 · 축비조사표+생산비분석 전체 내려받기(압축 풀고 실행)</div></a>
+    </div>
+  </details>
 </main>
 
 <footer>
