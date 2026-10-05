@@ -1,4 +1,4 @@
-<!-- cattle_price.html · 소 산지가격 조회 · 참고자료(강제수정 기준 아님) · 데이터: 두당→AWS Lambda→표준JSON. API 미설정 시 '연동 준비 중' 표시(임의값 미표시) -->
+<!-- cattle_price.html · 소 산지가격 조회 · 참고자료(강제수정 기준 아님) · 데이터: 두당→AWS Lambda→표준JSON. API 미설정 시 '연동 준비 중' 표시(임의값 미표시) · v71(2026-10-05 07:12 KST): 농가수취가격 카드에 1kg당 단가 표기(≈천원가×1000÷600 원/kg, 생체중×단가=판매금액 산정용), 가축시장 탭은 미표기 · v75(2026-10-06 06:28 KST): 농가수취가격 카드 아래에 '📊 1kg당 단가' 요약 블록 추가(한우평균·거세우·비거세우·육우평균 4종을 한 번에, 생체중×단가=판매금액 산정용, renderKgSummary). 조사표 가격조회 팝업용 embed 모드(?embed=1→html.embed, 헤더 숨김) 추가 -->
 <!doctype html>
 <html lang="ko">
 <head>
@@ -30,6 +30,7 @@
   header h1{font-size:18px;margin:0;line-height:1.2;}
   .hsub{font-size:12px;color:#cfe0f2;margin-top:2px;}
   .home{color:#bcd4ef;font-size:14px;font-weight:600;white-space:nowrap;}
+  html.embed #appHeader{display:none!important;} html.embed main{padding-top:10px;}
   main{max-width:900px;margin:0 auto;padding:14px 14px 40px;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.03);}
   /* 참고 안내 배너 */
@@ -60,6 +61,18 @@
   .pcard .pname{font-size:13.5px;font-weight:700;color:var(--navy);min-height:38px;}
   .pcard .pprice{font-size:22px;font-weight:800;margin-top:4px;color:var(--text);}
   .pcard .pprice .unit{font-size:11px;color:var(--muted);font-weight:600;margin-left:3px;}
+  .pcard .pperkg{font-size:14px;font-weight:800;margin-top:3px;color:#2b6cb0;}
+  .pcard .pperkg .unit{font-size:10.5px;color:var(--muted);font-weight:600;margin-left:2px;}
+  /* 1kg당 단가 요약(카드 아래) */
+  .kgsum{margin-top:14px;padding:12px 14px;background:#f0f6ff;border:1px solid #cfe0f5;border-radius:12px;}
+  .kgsum .kgtit{font-size:14px;font-weight:800;color:#1a365d;margin-bottom:8px;}
+  .kgsum .kgtit .kgsub{font-size:11.5px;font-weight:600;color:var(--muted);margin-left:4px;}
+  .kgsum .kgrow{display:flex;justify-content:space-between;align-items:baseline;padding:7px 2px;border-top:1px dashed #d6e3f3;}
+  .kgsum .kgrow:first-of-type{border-top:none;}
+  .kgsum .kgnm{font-size:14px;font-weight:700;color:var(--navy);}
+  .kgsum .kgval{font-size:17px;font-weight:800;color:#2b6cb0;}
+  .kgsum .kgval .u{font-size:11px;color:var(--muted);font-weight:600;margin-left:2px;}
+  .kgsum .kgval .na{font-size:13px;color:var(--muted);font-weight:600;}
   .pcard .pchg{font-size:13px;font-weight:700;margin-top:4px;}
   .pcard .pchg.up{color:var(--up);} .pcard .pchg.dn{color:var(--dn);} .pcard .pchg.flat{color:var(--muted);}
   .pcard .pna{font-size:15px;color:var(--muted);font-weight:700;margin-top:4px;}
@@ -95,6 +108,7 @@
 <meta name="theme-color" content="#1a365d">
 </head>
 <body>
+<script>/* 팝업(iframe) 임베드 모드: 헤더 숨김 */try{if(new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embed');}catch(e){}</script>
 <header id="appHeader"><div class="hrow">
   <a class="back" href="#" onclick="if(history.length>1){history.back();}else{location.href='index.html';}return false;" aria-label="뒤로">←</a>
   <div class="htxt">
@@ -136,8 +150,9 @@
 
   <!-- 탭2: 농가수취가격 -->
   <section id="panel-receipt" class="card" hidden>
-    <div class="hsub" style="color:var(--muted);margin-bottom:8px">💰 농가수취가격 · 단위 천원/마리 <span style="color:var(--muted)">(경락가격을 생체 600㎏으로 환산한 참고가격)</span></div>
+    <div class="hsub" style="color:var(--muted);margin-bottom:8px">💰 농가수취가격 · 단위 천원/마리 · <b style="color:#2b6cb0">1kg당 단가</b> 함께 표기 <span style="color:var(--muted)">(600㎏ 환산가, 생체중×단가=판매금액 산정용)</span></div>
     <div class="pgrid" id="gridReceipt"></div>
+    <div class="kgsum" id="receiptKgSummary"></div>
     <div class="note" style="font-size:12px;color:var(--warn);margin-top:10px">※ 농가수취가격은 <b>도체 경락가격</b>을 생체 600㎏ 기준으로 환산한 참고가격입니다. 가축시장에서 살아 있는 소가 실제 거래된 가격이 아닙니다.</div>
   </section>
 
@@ -324,18 +339,30 @@ function chgHtml(price,prev){
   if(d<0) return `<div class='pchg dn'>▼ ${nf(Math.abs(d))} (${rt})</div>`;
   return `<div class='pchg flat'>- 0 (0.0%)</div>`;
 }
-function cardHtml(nm,item){
+function cardHtml(nm,item,showKg){
   if(!item || item.price==null){
     return `<div class='pcard empty'><div class='pname'>${nm}</div><div class='pna'>자료 없음</div></div>`;
   }
-  return `<div class='pcard'><div class='pname'>${nm}</div><div class='pprice'>${nf(item.price)}<span class='unit'>천원/마리</span></div>${chgHtml(item.price,item.previousPrice)}</div>`;
+  const kg = showKg ? `<div class='pperkg'>≈ ${nf(Math.round(item.price*1000/600))}<span class='unit'>원/kg</span></div>` : "";   // 600㎏ 환산가 → 1kg당 단가(생체중×단가=판매금액 산정용)
+  return `<div class='pcard'><div class='pname'>${nm}</div><div class='pprice'>${nf(item.price)}<span class='unit'>천원/마리</span></div>${kg}${chgHtml(item.price,item.previousPrice)}</div>`;
+}
+// 농가수취가격 4종(한우평균·거세우·비거세우·육우평균)의 1kg당 단가를 카드 아래 한 번에 요약
+function renderKgSummary(prices){
+  const box=$("receiptKgSummary"); if(!box) return;
+  const rows=ITEMS.receipt.map(([key,nm])=>{
+    const it=prices&&prices[key];
+    const per=(it&&it.price!=null)?(nf(Math.round(it.price*1000/600))+"<span class='u'>원/kg</span>"):"<span class='na'>자료 없음</span>";
+    return `<div class='kgrow'><span class='kgnm'>${nm.replace(' 600㎏','')}</span><span class='kgval'>${per}</span></div>`;
+  }).join("");
+  box.innerHTML="<div class='kgtit'>📊 1kg당 단가 <span class='kgsub'>(생체중 × 단가 = 판매금액 산정용)</span></div>"+rows;
 }
 function render(data){
   const prices=(data&&data.prices)||{};
   ["market","receipt"].forEach(grp=>{
     const g=$(grp==="market"?"gridMarket":"gridReceipt");
-    g.innerHTML=ITEMS[grp].map(([key,nm])=>cardHtml(nm, prices[key])).join("");
+    g.innerHTML=ITEMS[grp].map(([key,nm])=>cardHtml(nm, prices[key], grp==="receipt")).join("");
   });
+  renderKgSummary(prices);
   $("basisDate").textContent=(data&&(data.dataDate||data.requestedDate))||curDate||"—";
   $("updatedAt").textContent=(data&&data.updatedAt)?("· 발표 "+fmtTime2(data.updatedAt)):"";
   if($("datePick").value!==curDate) $("datePick").value=curDate;
