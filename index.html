@@ -1,4 +1,4 @@
-<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결, 새로고침 위치유지+카운터 부분표시·재시도, 가축마리수(17시도 색칩·청단축·초기화), 축비 조사표 통합(survey.html·7축종 버튼→임베드), 전 페이지 구글+네이버 애널리틱스 · v27(2026-09-22): 홈 메뉴 '홈'=맨위로 스크롤, PC에서만 헤더+메뉴 고정+스크롤 시 자동 숨김/표시(모바일 미적용), 전 페이지 헤더 표준화(왼쪽 뒤로가기·오른쪽 홈: 조사도우미·현장도우미·조사용어·생산비분석·질병현장), 생산비분석 헤더 페이지폭 정렬, 가축질병 페이지 PC폭 확대(홈과 동일)·제목 '가축질병 및 마리수 현장정보'로 변경 · v65(2026-10-04 09:07 KST): (1)전 페이지 PWA 홈화면앱 메타 추가(apple-mobile-web-app-capable·mobile-web-app-capable·status-bar·title·apple-touch-icon·manifest 링크) → 아이폰 홈화면 추가 시 주소창 없이 앱으로 실행(재추가 필요). (2)모바일 '주요 업무 바로가기' 한 줄 3개+설명 숨겨 세로길이 축소(.cards.main). (3)소 이력조회·인공수정이력·오프라인 조사표를 현장도우미 아래 '개별 조사도구'(기본 닫힘 details)로 이동(소 개체 통합조회와 중복 정리) · v65b(2026-10-04): 텐아르 지도/게임센터/PDF센터 링크 target="_blank" 제거(홈화면 앱에서 사파리 새창=주소창 대신 앱 내 이동), manifest scope "/"·start_url 절대경로로 변경(같은 오리진 /home/ 페이지도 앱 범위), SW HTML 네트워크 우선 -->
+<!-- index.html · 저장: 2026-09-17 KST · GA(G-PYTDP9E5YL)+방문자카운터(실시간/오늘/누적/조회수·최초빌드 2026.9.17 by Mr.Hyun), 축종 빠른학습 삭제(축종배우기로 통합), 카운터 GAS_URL 연결, 새로고침 위치유지+카운터 부분표시·재시도, 가축마리수(17시도 색칩·청단축·초기화), 축비 조사표 통합(survey.html·7축종 버튼→임베드), 전 페이지 구글+네이버 애널리틱스 · v27(2026-09-22): 홈 메뉴 '홈'=맨위로 스크롤, PC에서만 헤더+메뉴 고정+스크롤 시 자동 숨김/표시(모바일 미적용), 전 페이지 헤더 표준화(왼쪽 뒤로가기·오른쪽 홈: 조사도우미·현장도우미·조사용어·생산비분석·질병현장), 생산비분석 헤더 페이지폭 정렬, 가축질병 페이지 PC폭 확대(홈과 동일)·제목 '가축질병 및 마리수 현장정보'로 변경 · v65(2026-10-04): PWA 홈화면앱 + 모바일 레이아웃 + 산지가격 갱신 [아이폰 홈화면 앱 동작 확인 완료]. (1)전 페이지에 홈화면앱 메타(apple-mobile-web-app-capable·mobile-web-app-capable·status-bar black-translucent·title 두당·apple-touch-icon·manifest 링크) → 홈화면 추가 시 주소창 없이 앱으로 실행. (2)모바일 '주요 업무 바로가기' 한 줄 3개+설명 숨겨 세로 축소(.cards.main). (3)소 이력조회·인공수정이력·오프라인 조사표를 현장도우미 아래 '개별 조사도구'(기본 닫힘 details)로 이동(소 개체 통합조회와 중복 정리). (4)지도/게임센터/PDF센터 링크 target="_blank" 제거 + manifest scope "/"·start_url 절대경로 → 같은 오리진 /home/(텐아르) 페이지도 앱 안에서 열림(주소창 없음). (5)SW HTML 네트워크 우선(최신 페이지 항상 반영). ※설정/링크 변경 반영은 '설정>Safari>웹사이트 데이터 삭제 후 홈화면 재추가' 필요. 산지가격 prices.json 2026-10-02까지 갱신(다봄 공식자료) · v74(2026-10-06 06:15 KST): '개별 조사도구'에 두당·텐아르 QR 공유 추가 — '📱 두당·텐아르 QR코드 공유' 버튼→팝업(모달)에 두당(파랑 테두리·원주소 github.io/dudang·단축 m.site.naver.com/2hXNA)·텐아르(노랑 테두리·원주소 github.io/home·단축 m.site.naver.com/26ZBJ) QR 2개(오프라인 동작 위해 PNG data URI 내장, segno 생성)+각 '주소 공유·복사'(navigator.share→클립보드→prompt 폴백), ✕·배경클릭·Esc 닫기. 두당 설명 '가축동향조사, 축산물생산비조사 현장지원' -->
 <!-- 두당(頭當) 통합대시보드 · 1단계 뼈대 · 기존 기능(cattle/disease/생산비) 허브 -->
 <!doctype html>
 <html lang="ko">
@@ -93,6 +93,35 @@
   details.tools>summary .tg{display:none;}
   details.tools>summary::after{content:"열기 ▾";margin-left:auto;font-size:13px;font-weight:700;color:#2b6cb0;}
   details.tools[open]>summary::after{content:"닫기 ▴";}
+  /* 두당·텐아르 주소·QR */
+  .qrwrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+  .qrbox{display:flex;gap:14px;align-items:center;padding:14px;background:#f7faff;border:1px solid var(--line);border-radius:12px;}
+  .qrbox .qrimg{width:120px;height:120px;flex:0 0 auto;border:4px solid #2b6cb0;border-radius:10px;background:#fff;}
+  .qrbox.tenar{background:#fffdf4;}
+  .qrbox.tenar .qrimg{border-color:#e0a000;}
+  .qrbox .qrtxt{min-width:0;}
+  .qrbox .qrt{font-size:15px;font-weight:800;color:#1a365d;}
+  .qrbox.tenar .qrt{color:#8a5a00;}
+  .qrbox .qrd{font-size:12px;color:#4a5568;margin:3px 0 8px;}
+  .qrbox .qrlink{display:block;font-size:12.5px;font-weight:700;color:#2b6cb0;text-decoration:none;word-break:break-all;margin-top:3px;}
+  .qrbox .qrlink.short{color:#2f855a;}
+  .qrbox .qrlink .lab{color:#718096;font-weight:600;}
+  @media(max-width:760px){ .qrwrap{grid-template-columns:1fr;} .qrbox{flex-direction:column;text-align:center;} }
+  /* QR 공유 버튼 */
+  .qrShareRow{margin-top:12px;text-align:center;}
+  .qrShareBtn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#2b6cb0,#2f855a);border:none;border-radius:999px;cursor:pointer;box-shadow:0 2px 8px rgba(43,108,176,.25);}
+  .qrShareBtn:active{transform:translateY(1px);}
+  .qrShareBtn .ic{font-size:18px;}
+  /* QR 공유 팝업 */
+  .qr-modal{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:16px;}
+  .qr-modal[hidden]{display:none;}
+  .qr-modal-bd{background:#fff;border-radius:16px;max-width:680px;width:100%;max-height:90vh;overflow:auto;padding:16px 16px 18px;box-shadow:0 12px 40px rgba(0,0,0,.3);}
+  .qr-modal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .qr-modal-h b{font-size:17px;color:#1a365d;}
+  .qr-modal-h .qrx{border:none;background:#eef3f9;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;color:#4a5568;}
+  .qr-modal-note{font-size:12.5px;color:#718096;text-align:center;margin-top:10px;}
+  .qrsh{display:inline-block;margin-top:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#fff;background:#2b6cb0;border:none;border-radius:8px;cursor:pointer;}
+  .qrsh.tenar{background:#e0a000;}
   @media(max-width:760px){
     .cards{grid-template-columns:repeat(2,1fr);}
     /* 모바일: 주요업무 바로가기만 한 줄 3개 + 설명 숨겨 세로길이 축소 */
@@ -198,7 +227,40 @@
       <a class="card" href="insemination.html"><div class="ico">🐄</div><div class="t">인공수정이력 조회<span class="badge">신규</span></div><div class="d">개체번호로 인공수정 이력·종모우·수정간격 조회 · <span style="color:#c05621">「소 개체 통합조회」로 대체 예정</span></div></a>
       <a class="card" href="두당_오프라인_전체.zip" download="두당_오프라인_전체.zip"><div class="ico">📦</div><div class="t">오프라인 조사표/분석<span class="badge">받기</span></div><div class="d">인터넷 없는 PC용 · 축비조사표+생산비분석 전체 내려받기(압축 풀고 실행)</div></a>
     </div>
+    <div class="qrShareRow">
+      <button type="button" class="qrShareBtn" onclick="openQR()"><span class="ic">📱</span> 두당·텐아르 QR코드 공유</button>
+    </div>
   </details>
+
+  <!-- QR 공유 팝업 -->
+  <div id="qrModal" class="qr-modal" hidden onclick="if(event.target===this)closeQR()">
+    <div class="qr-modal-bd" role="dialog" aria-modal="true" aria-label="QR코드 공유">
+      <div class="qr-modal-h"><b>📱 QR코드 공유</b><button type="button" class="qrx" onclick="closeQR()" aria-label="닫기">✕</button></div>
+      <div class="qrwrap">
+        <div class="qrbox">
+          <img class="qrimg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASgAAAEoAQMAAADRyf5aAAAABlBMVEURERH////YdsArAAABgUlEQVR42u2ay27DMAwEF/3/f2ZRRdylKDoIit66tgMEtk4DPoayEZ8c8Cqv+u0qvI74uda57iP0JL7wyfEfViHBLl76VXTm1Xit6FrhtGNqQ+QT8xp55RVgjJnXO147HRHMSvN6rF+74GduRrh+zbyyP96n++PAqzkIS1i5b16V16sXIssX6F40MfM64gsiRm6i6Pjq8YUjulj7t1OY11W/UCoX1C+ZlOZ19MeUe1UsEKJ9YshHpl5pmZzAzevqj3T6w1TVPc2rz0MaiEAPA3PTvJrfixpjqoqFeTW/B8ft5HQIhnm1fNwOBhGTuprX5KuZe5Ku8t+8+vyYMUXtKjuu5nXvfyGKuSrc7Pczr+LymsD10sO8Oi9oeqRUqICZV/MvaWrkBkX2S8fX4F8qYeKnlDSvK77SvxRklDDH19AfgzsUUZQ/GZpXn7fLVwG9fpnXA6+jNYYGSvN6iC/Ur3I4d5vXXL8KO74wst8/98fQ90w4WqR5jf7lLwe96s9XfQOsBjv3nsF5SwAAAABJRU5ErkJggg==" alt="두당 바로가기 QR코드" width="140" height="140">
+          <div class="qrtxt">
+            <div class="qrt">📱 두당(頭當)</div>
+            <div class="qrd">가축동향조사, 축산물생산비조사 현장지원</div>
+            <a class="qrlink" href="https://ubaldos00-ship-it.github.io/dudang/"><span class="lab">원주소 </span>ubaldos00-ship-it.github.io/dudang</a>
+            <a class="qrlink short" href="https://m.site.naver.com/2hXNA"><span class="lab">단축 </span>m.site.naver.com/2hXNA</a>
+            <button type="button" class="qrsh" onclick="shareURL('두당','https://ubaldos00-ship-it.github.io/dudang/')">🔗 주소 공유·복사</button>
+          </div>
+        </div>
+        <div class="qrbox tenar">
+          <img class="qrimg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQgAAAEIAQMAAACZOPi8AAAABlBMVEURERH////YdsArAAABDklEQVR42u2ZzQrEQAiDw77/O7swNf6wh973m2kpReYUNImqeDu6N9g39JzI7wmqovHR2/mnGzJo50dGY0SBeDx5cRBwoKJcPCJrJtG4eBgHcwgWjwiTx2RULH9YX/aD1Zcf9d0yTeQPC4ustLIAQ+vFBOLXVgTKp/anLbXtVpH14uIY3GFu4fFpftSFY+uO9WORbizzgs4fVRwJhHODyx827DFTBsof7ddV3Armj5g8YnOmyhWiH4uRKrvlpdaLYtSJQmD+6D5/mPeyp9z+thFpDUbPP5pMxpQMPF/feZJ8Ap6futWfIzM0HmXZq8FF7180+7kSX/Z+TnMrRfUfpS81FipGYc/X737/3tjnCw8HNrbO88qIAAAAAElFTkSuQmCC" alt="텐아르 바로가기 QR코드" width="140" height="140">
+          <div class="qrtxt">
+            <div class="qrt">🌾 텐아르(TEN-AR)</div>
+            <div class="qrd">농작물생산조사 현장지원</div>
+            <a class="qrlink" href="https://ubaldos00-ship-it.github.io/home/"><span class="lab">원주소 </span>ubaldos00-ship-it.github.io/home</a>
+            <a class="qrlink short" href="https://m.site.naver.com/26ZBJ"><span class="lab">단축 </span>m.site.naver.com/26ZBJ</a>
+            <button type="button" class="qrsh tenar" onclick="shareURL('텐아르','https://ubaldos00-ship-it.github.io/home/')">🔗 주소 공유·복사</button>
+          </div>
+        </div>
+      </div>
+      <div class="qr-modal-note">QR을 스캔하거나 ‘주소 공유·복사’로 전달하세요.</div>
+    </div>
+  </div>
 </main>
 
 <footer>
@@ -218,6 +280,17 @@
   document.getElementById('qbtn').onclick=()=>goSearch(document.getElementById('q').value);
   document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')goSearch(document.getElementById('q').value);});
   document.querySelectorAll('.search .tags span').forEach(s=>s.onclick=()=>goSearch(s.textContent));
+  // QR 공유 팝업
+  function openQR(){ var m=document.getElementById('qrModal'); if(m){ m.hidden=false; document.body.style.overflow='hidden'; } }
+  function closeQR(){ var m=document.getElementById('qrModal'); if(m){ m.hidden=true; document.body.style.overflow=''; } }
+  window.openQR=openQR; window.closeQR=closeQR;
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var m=document.getElementById('qrModal'); if(m&&!m.hidden) closeQR(); } });
+  window.shareURL=async function(title,url){
+    try{ if(navigator.share){ await navigator.share({title:'두당·텐아르 — '+title, url:url}); return; } }
+    catch(e){ if(e&&e.name==='AbortError') return; }
+    try{ await navigator.clipboard.writeText(url); alert(title+' 주소를 복사했습니다.\n'+url); }
+    catch(e){ try{ prompt(title+' 주소 복사:', url); }catch(_){ alert(url); } }
+  };
 </script>
 <script>
   // 처음 열기=맨 위 / 뒤로가기=이전 위치 복원
