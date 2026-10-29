@@ -1,0 +1,336 @@
+<!-- gachuk.html · 가축동향조사표(돼지 1차) · 저장: 2026-10-30 06:49 KST · v83[신규]: 돼지 가축동향조사표 — 농가기본정보·사육마릿수(월령/성별 자동합계)·생산/폐사·분만/임신모돈, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 전분기 자동표시·증감률, 돼지 관계 내검(두당생산 11~14·폐사·임신↔분만·모돈회전율·후보돈≤6~8암컷), localStorage 암호화(XOR+b64, 축비와 동일 방식), 인쇄/PDF·Excel(SheetJS)·CSV. 축비조사표(survey.html) 무변경 별도 모듈. 닭·오리는 추후 -->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="두당">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+<title>가축동향조사표 · 두당 頭當</title>
+<style>
+  :root{--navy:#1a365d;--navy2:#2b4a74;--line:#d9e1ec;--muted:#6b7a90;--warn:#c05621;--ok:#2f855a;--err:#c53030;--att:#b7791f;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#1c2b3a;background:#f4f6f9;font-size:14px;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:11px 16px;position:sticky;top:0;z-index:30;}
+  .hrow{display:flex;align-items:center;gap:10px;max-width:1180px;margin:0 auto;}
+  header .back{color:#fff;text-decoration:none;font-size:20px;font-weight:700;}
+  header h1{font-size:19px;margin:0;font-weight:800;}
+  header .hsub{font-size:12.5px;color:#cfe0f2;margin-top:2px;}
+  header .home{margin-left:auto;color:#fff;text-decoration:none;font-size:14px;font-weight:600;white-space:nowrap;}
+  main{max-width:1180px;margin:0 auto;padding:14px 16px 60px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(20,40,70,.05);}
+  .lb{font-size:16px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .lb .num{background:var(--navy);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .chip{padding:9px 16px;border:1.5px solid var(--line);background:#fff;border-radius:999px;font-size:14px;font-weight:700;cursor:pointer;color:var(--navy);}
+  .chip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .chip.soon{opacity:.5;cursor:not-allowed;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+  .fld{display:flex;flex-direction:column;gap:3px;}
+  .fld label{font-size:12px;color:var(--muted);font-weight:600;}
+  input,select{font-size:14px;padding:8px 9px;border:1px solid #cbd5e0;border-radius:8px;width:100%;background:#fff;color:#1c2b3a;}
+  input:focus,select:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 2px #cfe0f7;}
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap;}
+  th,td{border:1px solid var(--line);padding:5px 7px;text-align:center;}
+  th{background:#eef3fb;color:var(--navy);font-weight:700;font-size:12px;}
+  td.hd{background:#f6f9fd;font-weight:700;color:var(--navy);text-align:left;white-space:nowrap;}
+  td.auto{background:#f3f7f3;font-weight:800;color:#1c6b3a;}
+  tr.cur td{background:#fffdf4;}
+  tr.cur td.auto{background:#eef6ee;}
+  td input{width:72px;text-align:right;padding:5px 6px;font-size:13px;}
+  td input:read-only,td input[readonly]{background:#f2f4f7;color:#52627a;border-color:#e2e8f0;}
+  .btn{padding:9px 13px;border:1px solid #cbd5e0;background:#fff;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;color:var(--navy);}
+  .btn.p{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .btn.g{background:var(--ok);color:#fff;border-color:var(--ok);}
+  .btn.o{background:var(--warn);color:#fff;border-color:var(--warn);}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .sub{font-size:11.5px;color:var(--muted);}
+  .note{font-size:12px;color:var(--warn);margin-top:8px;}
+  /* 내검 */
+  .chk{border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13.5px;line-height:1.5;border:1px solid;}
+  .chk .t{font-weight:800;}
+  .chk.err{background:#fff5f5;border-color:#feb2b2;color:#9b2c2c;}
+  .chk.att{background:#fffaf0;border-color:#fbd38d;color:#975a16;}
+  .chk.info{background:#ebf8ff;border-color:#90cdf4;color:#2c5282;}
+  .chk.good{background:#f0fff4;border-color:#9ae6b4;color:#276749;}
+  .chk a{color:inherit;font-weight:700;cursor:pointer;text-decoration:underline;}
+  #toast{position:fixed;left:50%;top:14%;transform:translateX(-50%);background:#173a5e;color:#fff;padding:12px 20px;border-radius:11px;font-weight:800;z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;max-width:88%;text-align:center;}
+  .mlist{display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto;}
+  .mrow{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;}
+  @media print{
+    header,.noprint{display:none!important;}
+    body{background:#fff;font-size:11px;}
+    .card{box-shadow:none;border:none;padding:0;margin:0 0 10px;}
+    main{padding:0;max-width:none;}
+    table{font-size:10px;}
+    th,td{padding:3px 4px;}
+  }
+</style>
+</head>
+<body>
+<header><div class="hrow">
+  <a class="back" href="#" onclick="leave();return false" aria-label="뒤로">←</a>
+  <div>
+    <h1>📋 가축동향조사표</h1>
+    <div class="hsub" id="hSub">돼지 · 농가 미선택</div>
+  </div>
+  <a class="home" href="index.html">🏠 두당홈</a>
+</div></header>
+
+<main>
+  <!-- 축종 선택 -->
+  <div class="card noprint">
+    <div class="chips">
+      <button class="chip on" data-sp="pig">🐖 돼지</button>
+      <button class="chip soon" data-sp="chicken" title="추후 개발">🐔 닭 (준비중)</button>
+      <button class="chip soon" data-sp="duck" title="추후 개발">🦆 오리 (준비중)</button>
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">
+      <div class="fld"><label>조사연도</label><input id="year" type="number" min="2020" max="2100" value="2026"></div>
+      <div class="fld"><label>조사월(입력 대상)</label><select id="period">
+        <option value="prev12">전년 12월</option><option value="m3">3월</option><option value="m6" selected>6월</option><option value="m9">9월</option><option value="m12">12월</option></select></div>
+      <div class="fld" style="grid-column:span 2"><label>농장명(조사대장번호로 식별 권장)</label><input id="farm" placeholder="예) 행복농장" autocomplete="off"></div>
+    </div>
+    <div class="btnrow" style="margin-top:10px">
+      <button class="btn g" id="btnSave">💾 저장</button>
+      <select id="loadList" style="max-width:220px"><option value="">— 저장 농가·연도 불러오기 —</option></select>
+      <button class="btn" id="btnLoad">📂 불러오기</button>
+      <button class="btn" id="btnDel">🗑 삭제</button>
+      <button class="btn o" id="btnInspect">🔍 내검</button>
+      <button class="btn p" id="btnPrint">🖨 인쇄/PDF</button>
+      <button class="btn" id="btnXlsx">📊 Excel</button>
+      <button class="btn" id="btnCsv">📄 CSV</button>
+    </div>
+  </div>
+
+  <!-- 농가 기본정보 -->
+  <div class="card">
+    <div class="lb"><span class="num">1</span>농가 기본정보</div>
+    <div class="grid">
+      <div class="fld"><label>조사대장번호</label><input data-b="ledgerNo" placeholder="대장번호"></div>
+      <div class="fld"><label>시도</label><input data-b="sido"></div>
+      <div class="fld"><label>시군구</label><input data-b="sigungu"></div>
+      <div class="fld"><label>읍면동</label><input data-b="emd"></div>
+      <div class="fld" style="grid-column:span 2"><label>농장주소</label><input data-b="addr"></div>
+      <div class="fld"><label>경영주명</label><input data-b="owner"></div>
+      <div class="fld"><label>경영주 연락처</label><input data-b="ownerTel" inputmode="tel"></div>
+      <div class="fld"><label>관리인명</label><input data-b="mgr"></div>
+      <div class="fld"><label>관리인 연락처</label><input data-b="mgrTel" inputmode="tel"></div>
+      <div class="fld"><label>조사방법</label><select data-b="method">
+        <option value="">선택</option><option value="01">면접(01)</option><option value="03">전화(03)</option><option value="04">E-mail(04)</option><option value="05">FAX(05)</option><option value="06">기타(06)</option><option value="07">SASI(07)</option></select></div>
+      <div class="fld"><label>변동사항</label><select data-b="change">
+        <option value="">선택</option><option value="01">유축(01)</option><option value="05">휴업(05)</option><option value="06">전출(06)</option><option value="07">폐업(07)</option><option value="08">기타(08)</option><option value="09">합산조사(09)</option></select></div>
+      <div class="fld" style="grid-column:span 2"><label>비고</label><input data-b="note"></div>
+    </div>
+  </div>
+
+  <!-- 사육마릿수 -->
+  <div class="card">
+    <div class="lb"><span class="num">2</span>사육마릿수 (월령·성별) <span class="sub">단위: 두 · 현재 조사월만 입력(노랑), 과거는 저장자료 조회</span></div>
+    <div class="tbl-scroll"><table id="headTbl"></table></div>
+    <div class="note">※ 합계 = 2개월미만+2~4+4~6+6~8(수+암)+8개월이상(수+암). <b>후보돈은 6~8개월 암컷의 "그 중" 값이므로 합계에 다시 더하지 않습니다.</b></div>
+  </div>
+
+  <!-- 생산·폐사 / 분만·임신 -->
+  <div class="card">
+    <div class="lb"><span class="num">3</span>과거 3개월 생산·폐사 / 분만·임신 모돈 <span class="sub">단위: 두</span></div>
+    <div class="tbl-scroll"><table id="prodTbl"></table></div>
+    <div class="note">※ 임신모돈 계 = 1개월전+2개월전+3개월전. 과거 3개월: 3월조사=전년12·1·2월 / 6월=3·4·5월 / 9월=6·7·8월 / 12월=9·10·11월.</div>
+  </div>
+
+  <!-- 내검 -->
+  <div class="card noprint">
+    <div class="lb"><span class="num">4</span>자동 내검 <span class="sub">돼지 관계 중심 · 임계값은 소속기관 기준으로 조정 가능</span></div>
+    <div id="chkBox"><div class="sub">🔍 내검 버튼을 누르거나 값을 입력하면 자동으로 검토합니다.</div></div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ===== 두당 공통: 암호화 저장(XOR+b64, 축비와 동일 방식) ===== */
+const CKEY="dudang!cache$2026#key";
+function encStr(s){ try{ let o=""; for(let i=0;i<s.length;i++) o+=String.fromCharCode(s.charCodeAt(i)^CKEY.charCodeAt(i%CKEY.length)); return "ENC1:"+btoa(unescape(encodeURIComponent(o))); }catch(e){ return s; } }
+function decStr(s){ if(typeof s!=="string"||s.slice(0,5)!=="ENC1:") return s; try{ const raw=decodeURIComponent(escape(atob(s.slice(5)))); let o=""; for(let i=0;i<raw.length;i++) o+=String.fromCharCode(raw.charCodeAt(i)^CKEY.charCodeAt(i%CKEY.length)); return o; }catch(e){ return "{}"; } }
+const $=id=>document.getElementById(id);
+const nf=v=>(v||v===0)?Number(v).toLocaleString():"";
+function toast(m,ms){ const t=$("toast"); t.textContent=m; t.style.opacity="1"; clearTimeout(t._t); t._t=setTimeout(()=>t.style.opacity="0",ms||2200); }
+function leave(){ if(history.length>1) history.back(); else location.href="index.html"; }
+
+/* ===== 설정: 돼지 내검 임계값(소속기관 기준으로 조정) ===== */
+const PIG_RULE={ litterMin:11, litterMax:14, deadRate:0.15, pregFarrowLo:0.7, pregFarrowHi:1.3, turnLo:0.3, turnHi:0.9, qoqPct:30 };
+
+/* ===== 돼지 조사표 정의 ===== */
+const SP="pig";
+const PERIODS=[["prev12","전년 12월"],["m3","3월 조사"],["m6","6월 조사"],["m9","9월 조사"],["m12","12월 조사"]];
+const prevOf={prev12:null,m3:"prev12",m6:"m3",m9:"m6",m12:"m9"};
+// 사육마릿수 열(합계 제외 입력항목)
+const HCOLS=[
+ ["u2","2개월 미만<br><span class='sub'>포유+이유</span>",true],
+ ["g24","2~4개월<br><span class='sub'>육성</span>",true],
+ ["b46","4~6개월<br><span class='sub'>비육</span>",true],
+ ["m68","6~8개월<br>수컷",true],
+ ["f68","6~8개월<br>암컷",true],
+ ["cand","└그중 후보돈<br><span class='sub'>(합계 제외)</span>",false],
+ ["boar","8개월↑ 수컷<br><span class='sub'>종돈</span>",true],
+ ["sow","8개월↑ 암컷<br><span class='sub'>모돈</span>",true]
+];
+const SUMKEYS=HCOLS.filter(c=>c[2]).map(c=>c[0]);   // 합계 대상(후보돈 제외)
+const PCOLS=[["prod","생산<br><span class='sub'>과거3개월</span>"],["dead","폐사<br><span class='sub'>과거3개월</span>"],["farrow","분만모돈<br><span class='sub'>과거3개월</span>"],["preg1","임신 1개월전"],["preg2","임신 2개월전"],["preg3","임신 3개월전"],["pregTot","임신 계<br><span class='sub'>자동</span>"]];
+
+/* ===== 모델 ===== */
+let M=blankModel();
+function blankModel(){ const d={}; PERIODS.forEach(([k])=>d[k]=blankRow()); return {species:SP, base:{}, data:d, status:"작성중"}; }
+function blankRow(){ const r={}; HCOLS.forEach(c=>r[c[0]]=null); ["prod","dead","farrow","preg1","preg2","preg3"].forEach(k=>r[k]=null); return r; }
+function cur(){ return $("period").value; }
+function storeKey(f){ return "dudang_gachuk_"+SP+"_"+(f||"_default"); }
+function yr(){ return ($("year").value||"").trim(); }
+
+/* 값 읽기(미입력=null 보존, 0은 0) */
+function gv(r,k){ const v=r?r[k]:null; return (v===null||v===undefined||v==="")?null:+v; }
+function rowTotal(r){ let s=0,any=false; SUMKEYS.forEach(k=>{ const v=gv(r,k); if(v!==null){s+=v;any=true;} }); return any?s:null; }
+function pregTot(r){ let s=0,any=false; ["preg1","preg2","preg3"].forEach(k=>{ const v=gv(r,k); if(v!==null){s+=v;any=true;} }); return any?s:null; }
+
+/* ===== 테이블 렌더 ===== */
+function buildTables(){
+  const c=cur();
+  // 사육마릿수
+  let h="<tr><th>조사시기</th>"+HCOLS.map(x=>`<th>${x[1]}</th>`).join("")+"<th>합계<br><span class='sub'>자동</span></th></tr>";
+  PERIODS.forEach(([pk,plabel])=>{ const r=M.data[pk]||{}; const isCur=(pk===c);
+    h+=`<tr class='${isCur?"cur":""}'><td class='hd'>${plabel}${isCur?" ✎":""}</td>`;
+    HCOLS.forEach(x=>{ const v=(r[x[0]]==null?"":r[x[0]]);
+      h+=`<td><input type='number' inputmode='numeric' min='0' data-pk='${pk}' data-f='${x[0]}' value='${v}' ${isCur?"":"readonly"}></td>`; });
+    h+=`<td class='auto' id='tot_${pk}'>${rowTotal(r)==null?"":nf(rowTotal(r))}</td></tr>`;
+  });
+  $("headTbl").innerHTML=h;
+  // 생산/폐사/분만/임신
+  let p="<tr><th>조사시기</th>"+PCOLS.map(x=>`<th>${x[1]}</th>`).join("")+"</tr>";
+  PERIODS.forEach(([pk,plabel])=>{ const r=M.data[pk]||{}; const isCur=(pk===c);
+    p+=`<tr class='${isCur?"cur":""}'><td class='hd'>${plabel}${isCur?" ✎":""}</td>`;
+    PCOLS.forEach(x=>{ if(x[0]==="pregTot"){ p+=`<td class='auto' id='pregtot_${pk}'>${pregTot(r)==null?"":nf(pregTot(r))}</td>`; return; }
+      const v=(r[x[0]]==null?"":r[x[0]]);
+      p+=`<td><input type='number' inputmode='numeric' min='0' data-pk='${pk}' data-f='${x[0]}' value='${v}' ${isCur?"":"readonly"}></td>`; });
+    p+="</tr>";
+  });
+  $("prodTbl").innerHTML=p;
+  bindBase();
+}
+function recalc(){
+  PERIODS.forEach(([pk])=>{ const r=M.data[pk]||{}; const t=$("tot_"+pk); if(t) t.textContent=rowTotal(r)==null?"":nf(rowTotal(r)); const pt=$("pregtot_"+pk); if(pt) pt.textContent=pregTot(r)==null?"":nf(pregTot(r)); });
+}
+
+/* 기본정보 바인딩 */
+function bindBase(){ document.querySelectorAll("[data-b]").forEach(el=>{ el.value=(M.base[el.dataset.b]||""); }); }
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset && el.dataset.pk && el.dataset.f){ const r=M.data[el.dataset.pk]; if(r){ r[el.dataset.f]=(el.value===""?null:+el.value); recalc(); scheduleInspect(); } }
+  else if(el.dataset && el.dataset.b){ M.base[el.dataset.b]=el.value; }
+});
+document.addEventListener("change",e=>{ if(e.target.dataset && e.target.dataset.b) M.base[e.target.dataset.b]=e.target.value; });
+
+/* ===== 자동 내검 ===== */
+let _inspT=null; function scheduleInspect(){ clearTimeout(_inspT); _inspT=setTimeout(inspect,400); }
+function inspect(){
+  const c=cur(), r=M.data[c]||{}, pk=prevOf[c], pr=pk?M.data[pk]:null;
+  const msgs=[];
+  const add=(lv,t,body,focus)=>msgs.push({lv,t,body,focus});
+  // 1) 입력 오류: 음수
+  HCOLS.concat(PCOLS.filter(x=>x[0]!=="pregTot")).forEach(x=>{ const v=r[x[0]]; if(v!==null&&v<0) add("err","음수 입력",`'${x[1].replace(/<[^>]+>/g,' ').trim()}' 값이 음수입니다.`,{pk:c,f:x[0]}); });
+  // 2) 관계: 후보돈 ≤ 6~8 암컷
+  const f68=gv(r,"f68"), cand=gv(r,"cand"), sow=gv(r,"sow"), prod=gv(r,"prod"), dead=gv(r,"dead"), farrow=gv(r,"farrow");
+  if(cand!==null && f68!==null && cand>f68) add("err","후보돈 초과",`후보돈(${nf(cand)})이 6~8개월 암컷(${nf(f68)})보다 많습니다. 후보돈은 6~8개월 암컷에 포함됩니다.`,{pk:c,f:"cand"});
+  // 3) 두당 생산마릿수(한배새끼) = 생산 ÷ 분만모돈 (적정 11~14)
+  if(prod!==null && farrow!==null){
+    if(farrow===0 && prod>0) add("att","분만모돈 확인",`생산(${nf(prod)}두)이 있는데 분만한 모돈이 0입니다. 분만모돈을 확인하세요.`,{pk:c,f:"farrow"});
+    else if(farrow>0){ const litter=prod/farrow;
+      if(litter<PIG_RULE.litterMin||litter>PIG_RULE.litterMax) add("att","두당 생산마릿수 확인",`분만모돈당 생산 = <b>${(Math.round(litter*10)/10)}두</b> (생산 ${nf(prod)} ÷ 분만모돈 ${nf(farrow)}). 보통 ${PIG_RULE.litterMin}~${PIG_RULE.litterMax}두입니다 — 값을 확인하세요.`,{pk:c,f:"prod"});
+      else add("good","두당 생산마릿수 적정",`분만모돈당 생산 ${(Math.round(litter*10)/10)}두 (정상 ${PIG_RULE.litterMin}~${PIG_RULE.litterMax}).`);
+    }
+  }
+  // 4) 폐사 과다
+  if(dead!==null && prod!==null && prod>0){ const dr=dead/prod;
+    if(dr>PIG_RULE.deadRate) add("att","폐사 과다 확인",`폐사(${nf(dead)})가 생산(${nf(prod)}) 대비 <b>${Math.round(dr*100)}%</b>로 높습니다(기준 ${Math.round(PIG_RULE.deadRate*100)}% 초과). 질병·사고 여부를 확인하세요.`,{pk:c,f:"dead"});
+  }
+  // 5) 전분기 임신모돈 → 이번 분만모돈 적정성 (임신기간 약 분기)
+  if(pr){ const pregPrev=pregTot(pr);
+    if(pregPrev!==null && pregPrev>0 && farrow!==null){ const ratio=farrow/pregPrev;
+      if(ratio<PIG_RULE.pregFarrowLo||ratio>PIG_RULE.pregFarrowHi) add("att","임신↔분만 관계 확인",`이번 분만모돈(${nf(farrow)})이 전분기 임신모돈 계(${nf(pregPrev)}) 대비 <b>${Math.round(ratio*100)}%</b>입니다(정상 ${Math.round(PIG_RULE.pregFarrowLo*100)}~${Math.round(PIG_RULE.pregFarrowHi*100)}%). 임신·분만 수를 확인하세요.`,{pk:c,f:"farrow"});
+    }
+  }
+  // 6) 모돈 회전율 = 분만모돈 ÷ 전체모돈 (분기)
+  if(sow!==null && sow>0 && farrow!==null){ const turn=farrow/sow;
+    add("info","모돈 회전율(분기)",`분만모돈 ÷ 전체모돈 = <b>${Math.round(turn*100)}%</b> (분만 ${nf(farrow)} ÷ 모돈 ${nf(sow)}).`);
+    if(turn<PIG_RULE.turnLo||turn>PIG_RULE.turnHi) add("att","모돈 회전율 확인",`모돈 회전율 ${Math.round(turn*100)}%가 통상 범위(${Math.round(PIG_RULE.turnLo*100)}~${Math.round(PIG_RULE.turnHi*100)}%)를 벗어납니다. 분만·모돈 수를 확인하세요.`,{pk:c,f:"farrow"});
+  }
+  if(sow!==null && sow===0 && ((farrow||0)>0||(pregTot(r)||0)>0)) add("att","모돈 수 확인",`8개월↑ 암컷(모돈)이 0인데 분만/임신 모돈이 입력되어 있습니다.`,{pk:c,f:"sow"});
+  // 7) 전분기 대비 전체 사육마릿수 증감
+  if(pr){ const t=rowTotal(r), pt=rowTotal(pr);
+    if(t!==null && pt!==null && pt>0){ const q=(t-pt)/pt*100;
+      const line=`전분기 대비 전체 사육마릿수 ${q>=0?"+":""}${Math.round(q*10)/10}% (${nf(pt)} → ${nf(t)}두).`;
+      if(Math.abs(q)>=PIG_RULE.qoqPct) add("att","전분기 대비 급변 주의",line+` 입식·출하·규모변동 사유를 확인하세요.`);
+      else add("info","전분기 대비 증감",line);
+    }
+  }
+  // 렌더
+  const box=$("chkBox");
+  if(!msgs.length){ box.innerHTML="<div class='chk good'><span class='t'>✅ 검토 완료</span> — 발견된 오류·주의 항목이 없습니다.</div>"; return; }
+  const ord={err:0,att:1,info:2,good:3}, ic={err:"🔴 오류",att:"🟠 확인 필요",info:"🟡 정보",good:"🟢 정상"};
+  msgs.sort((a,b)=>ord[a.lv]-ord[b.lv]);
+  box.innerHTML=msgs.map((m,i)=>`<div class='chk ${m.lv}'><span class='t'>${ic[m.lv]} ${m.t}</span> ${m.body}${m.focus?` <a data-fi='${i}'>▶ 입력칸으로</a>`:""}</div>`).join("");
+  box.querySelectorAll("[data-fi]").forEach(a=>a.onclick=()=>{ const m=msgs[+a.dataset.fi]; const el=document.querySelector(`input[data-pk='${m.focus.pk}'][data-f='${m.focus.f}']`); if(el){ el.scrollIntoView({block:"center"}); el.focus(); } });
+}
+
+/* ===== 저장/불러오기(암호화) ===== */
+function loadStore(f){ try{ const raw=localStorage.getItem(storeKey(f)); if(!raw) return {}; return JSON.parse(decStr(raw)); }catch(e){ return {}; } }
+function saveStore(f,obj){ try{ localStorage.setItem(storeKey(f),encStr(JSON.stringify(obj))); }catch(e){} }
+function collectBase(){ const b={}; document.querySelectorAll("[data-b]").forEach(el=>b[el.dataset.b]=el.value); M.base=b; }
+function doSave(){ const f=$("farm").value.trim(); if(!f){ alert("농장명을 입력하세요."); return; } collectBase();
+  const store=loadStore(f); const y=yr(); M.species=SP; store[y]=JSON.parse(JSON.stringify(M)); saveStore(f,store); refreshList(); toast("저장되었습니다(암호화)"); }
+function doLoad(f,y){ const store=loadStore(f); const rec=store[y]; if(!rec){ return false; }
+  M=Object.assign(blankModel(), rec); if(!M.data)M.data=blankModel().data; PERIODS.forEach(([k])=>{ if(!M.data[k])M.data[k]=blankRow(); });
+  $("farm").value=f; $("year").value=y; buildTables(); recalc(); inspect(); hsub(); return true; }
+function refreshList(){ const sel=$("loadList"); const keep=sel.value; let opts="<option value=''>— 저장 농가·연도 불러오기 —</option>";
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.indexOf("dudang_gachuk_"+SP+"_")===0){ const f=k.slice(("dudang_gachuk_"+SP+"_").length); const store=loadStore(f); Object.keys(store).sort().forEach(y=>{ opts+=`<option value='${encodeURIComponent(f)}|${y}'>${f} · ${y}년</option>`; }); } } }catch(e){}
+  sel.innerHTML=opts; sel.value=keep; }
+function hsub(){ $("hSub").textContent=`돼지 · ${$("farm").value.trim()||"농가 미선택"} · ${yr()}년 ${PERIODS.find(p=>p[0]===cur())[1]}`; }
+
+/* ===== Excel / CSV ===== */
+function buildAOA(){ const aoa=[]; aoa.push(["가축동향조사표(돼지)",$("farm").value.trim(),yr()+"년"]);
+  aoa.push([]); aoa.push(["[농가기본정보]"]);
+  [["조사대장번호","ledgerNo"],["시도","sido"],["시군구","sigungu"],["읍면동","emd"],["농장주소","addr"],["경영주명","owner"],["경영주연락처","ownerTel"],["관리인명","mgr"],["관리인연락처","mgrTel"],["조사방법","method"],["변동사항","change"],["비고","note"]].forEach(([l,k])=>aoa.push([l,M.base[k]||""]));
+  aoa.push([]); aoa.push(["[사육마릿수]"]);
+  aoa.push(["조사시기",...HCOLS.map(x=>x[1].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim()),"합계"]);
+  PERIODS.forEach(([pk,pl])=>{ const r=M.data[pk]||{}; aoa.push([pl,...HCOLS.map(x=>r[x[0]]==null?"":r[x[0]]),rowTotal(r)==null?"":rowTotal(r)]); });
+  aoa.push([]); aoa.push(["[생산·폐사 / 분만·임신]"]);
+  aoa.push(["조사시기",...PCOLS.map(x=>x[1].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim())]);
+  PERIODS.forEach(([pk,pl])=>{ const r=M.data[pk]||{}; aoa.push([pl,...PCOLS.map(x=>x[0]==="pregTot"?(pregTot(r)==null?"":pregTot(r)):(r[x[0]]==null?"":r[x[0]]))]); });
+  return aoa; }
+function doXlsx(){ collectBase(); const ws=XLSX.utils.aoa_to_sheet(buildAOA()); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"돼지"); XLSX.writeFile(wb,`가축동향_돼지_${$("farm").value.trim()||"농가"}_${yr()}.xlsx`); }
+function doCsv(){ collectBase(); const aoa=buildAOA(); const csv="﻿"+aoa.map(row=>row.map(c=>{ const s=(c==null?"":String(c)); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }).join(",")).join("\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=`가축동향_돼지_${$("farm").value.trim()||"농가"}_${yr()}.csv`; a.click(); }
+
+/* ===== 이벤트 ===== */
+$("btnSave").onclick=doSave;
+$("btnLoad").onclick=()=>{ const v=$("loadList").value; if(!v){ alert("불러올 농가·연도를 선택하세요."); return; } const [f,y]=v.split("|"); if(doLoad(decodeURIComponent(f),y)) toast("불러왔습니다"); };
+$("btnDel").onclick=()=>{ const v=$("loadList").value; if(!v){ alert("삭제할 농가·연도를 선택하세요."); return; } const [fe,y]=v.split("|"); const f=decodeURIComponent(fe); if(!confirm(`${f} · ${y}년 자료를 삭제할까요?`))return; const store=loadStore(f); delete store[y]; if(Object.keys(store).length) saveStore(f,store); else localStorage.removeItem(storeKey(f)); refreshList(); toast("삭제되었습니다"); };
+$("btnInspect").onclick=()=>{ inspect(); toast("내검 완료"); document.querySelector("#chkBox").scrollIntoView({block:"center"}); };
+$("btnPrint").onclick=()=>{ collectBase(); window.print(); };
+$("btnXlsx").onclick=doXlsx;
+$("btnCsv").onclick=doCsv;
+$("year").onchange=()=>{ hsub(); };
+$("period").onchange=()=>{ buildTables(); recalc(); inspect(); hsub(); };
+document.querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{ if(ch.classList.contains("soon")){ toast("닭·오리는 준비 중입니다(돼지부터 개발)"); return; } });
+
+/* ===== 초기 ===== */
+buildTables(); recalc(); refreshList(); hsub();
+window.addEventListener("pagehide",()=>{ const f=$("farm").value.trim(); if(f){ collectBase(); const store=loadStore(f); store[yr()]=JSON.parse(JSON.stringify(M)); saveStore(f,store); } });
+</script>
+</body>
+</html>
