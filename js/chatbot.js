@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-10-31 00:07 KST · v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-10-31 03:39 KST · v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -9,9 +9,9 @@
 (function () {
   "use strict";
 
-  // ── 환경설정 (AWS API Gateway/Lambda Function URL 배포 후 아래 주소만 입력) ──
-  // 예: "https://xxxxx.lambda-url.ap-northeast-2.on.aws/"  (POST /chat)
-  var RELAY_URL = "";                 // ★ 비우면 '연동 준비 중'(목 모드). AWS 배포 후 함수 URL 입력.
+  // ── 환경설정 (AWS Lambda Function URL 배포 후 아래 주소만 입력) ──
+  // 배포 방법: aws_dudang_ai/README_AWS_배포가이드.md 참고. 예: "https://xxxxx.lambda-url.ap-northeast-2.on.aws/"
+  var RELAY_URL = "https://qx67d6axk27bv7enlvtveqe5fm0dhask.lambda-url.ap-northeast-2.on.aws/";                 // ★ 비우면 '연동 준비 중'(목 모드). AWS 배포 후 함수 URL 입력 → 실제 OpenAI 답변.
   var MAX_CHARS = 500;                // 질문 최대 길이(시나리오 10.2)
   var REQUEST_TIMEOUT_MS = 30000;     // 응답 타임아웃
 
@@ -100,6 +100,7 @@
     }
 
     addMsg("me", text);
+    var priorHist = history.slice(-8);          // 이전 맥락(현재 질문 제외) — 서버에서 현재 질문을 뒤에 붙임
     history.push({ role: "user", content: text });
     qEl.value = ""; updateCnt(); autoGrow();
 
@@ -113,7 +114,7 @@
     fetch(RELAY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, history: history.slice(-8) }),
+      body: JSON.stringify({ message: text, history: priorHist }),
       signal: ctrl.signal
     })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
