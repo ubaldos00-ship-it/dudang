@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-10-31 03:39 KST · v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-10-31 04:45 KST · v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -137,12 +137,17 @@
 
   function buildMeta(sources) {
     if (!sources || !sources.length) return "";
-    var links = { terms: ["📚 두당 축산용어 사전", "terms.html"], helper: ["📋 두당 조사도우미", "helper.html"], price: ["📊 소 산지가격", "cattle_price.html"] };
-    var html = "";
+    var links = {
+      terms: ["📚 두당 축산용어 사전", "terms.html"],
+      helper: ["📋 두당 조사도우미", "helper.html"],
+      price: ["📊 소 산지가격", "cattle_price.html"],
+      codes: ["🔢 조사표 부호(생산비조사)", "helper.html"]
+    };
+    var html = "", seen = {};
     sources.forEach(function (s) {
       var k = (typeof s === "string") ? s : s.type;
       var l = links[k];
-      if (l) html += "<a href='" + l[1] + "'>" + l[0] + " ›</a> &nbsp; ";
+      if (l && !seen[l[0]]) { seen[l[0]] = 1; html += "<a href='" + l[1] + "'>" + l[0] + " ›</a> &nbsp; "; }
     });
     return html ? "참고자료: " + html : "";
   }
