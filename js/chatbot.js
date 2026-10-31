@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-01 00:00 KST · v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-01 00:21 KST · v94[A단계 조사표 작성모드]: [일반질문/조사표 작성] 토글, 조사표 질문→서버가 구조화JSON+프로그램 재계산→표 답변(부호·구분·수량·금액·실금액·연계·신뢰도). 데이터 survey_schema.json. v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -28,6 +28,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var logEl, qEl, sendEl, cntEl, statusEl, introEl, suggEl, micEl;
   var busy = false;
+  var surveyMode = false;   // 조사표 작성 모드(A단계)
 
   // ── 대화 기록: '기기 내(브라우저)'에만 '대화별'로 저장. 서버 저장 안 함.
   //    목록·날짜/시간·복사 지원. 새 대화를 눌러도 이전 대화는 기록에 남음. 조사표(dudang_*) 자료는 읽지 않음(별도 키).
@@ -207,7 +208,7 @@
       return fetch(RELAY_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, history: priorHist, idToken: idToken || undefined }),
+        body: JSON.stringify({ message: text, history: priorHist, idToken: idToken || undefined, mode: surveyMode ? "survey" : undefined }),
         signal: ctrl.signal
       });
     })
@@ -217,6 +218,11 @@
         if (!res.ok) { showServerError(res.status, res.j); return; }
         var j = res.j || {};
         if (j.blocked) { addMsg("err", j.message || "개인정보가 포함되어 서버에서 전송이 차단되었습니다. 식별정보를 빼고 다시 질문해 주세요."); return; }
+        if (j.mode === "survey") {   // 조사표 작성 모드 답변(표)
+          if (j.structured) renderSurveyAnswer(j.structured);
+          else addMsg("ai", j.answer || "조사표 형식으로 정리하지 못했습니다. 축종·거래유형·금액 등을 좀 더 구체적으로 말씀해 주세요.");
+          return;
+        }
         var ans = j.answer || j.message || "답변을 받지 못했습니다.";
         addMsg("ai", ans, buildMeta(j.sources));
       })
@@ -226,6 +232,45 @@
         else addMsg("err", "AI 서버에 연결하지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.");
       })
       .then(function () { busy = false; sendEl.disabled = false; });
+  }
+
+  // ── 조사표 작성(A단계) 답변 렌더 ──
+  function confBadge(c) {
+    var m = { high: ["확실", "#2e7a4e"], medium: ["보통", "#b7791f"], low: ["불명확", "#c53030"] };
+    var x = m[c] || m.medium;
+    return "<span class='confbadge' style='background:" + x[1] + "'>신뢰도 " + x[0] + "</span>";
+  }
+  function surveyToText(st) {
+    var L = ["[" + (st.form || "조사표") + "] 일계부 입력 안내"];
+    (st.fields || []).forEach(function (f) { L.push("· " + f.label + ": " + f.value); });
+    if (st.net) L.push("· " + st.net.label + ": " + st.net.value + " (" + st.net.formula + ")");
+    if (st.related && st.related.length) L.push("연계 확인: " + st.related.join(" / "));
+    if (st.unknown && st.unknown.length) L.push("확인 필요: " + st.unknown.join(", "));
+    L.push("신뢰도: " + st.confidence);
+    return L.join("\n");
+  }
+  function renderSurveyAnswer(st) {
+    hideIntro();
+    var rows = (st.fields || []).map(function (f) { return "<tr><th>" + esc(f.label) + "</th><td>" + esc(f.value) + "</td></tr>"; }).join("");
+    if (st.net) rows += "<tr class='netrow'><th>" + esc(st.net.label) + "</th><td>" + esc(st.net.value) + "</td></tr>";
+    var calcHtml = st.net ? "<div class='scalc'>계산: " + esc(st.net.formula) + "</div>" : "";
+    var relHtml = (st.related && st.related.length) ? "<div class='srel'>🔗 연계 확인<br>" + st.related.map(esc).join("<br>") + "</div>" : "";
+    var unkHtml = (st.unknown && st.unknown.length) ? "<div class='sunk'>⚠️ 확인 필요: " + st.unknown.map(esc).join(", ") + "</div>" : "";
+    var noteHtml = st.note ? "<div class='snote'>" + esc(st.note) + "</div>" : "";
+    var html = "<div class='scard'>" +
+      "<div class='shead'>" + esc(st.form || "조사표 입력 안내") + " " + confBadge(st.confidence) + "</div>" +
+      "<table class='stable'>" + rows + "</table>" + calcHtml + relHtml + unkHtml + noteHtml +
+      "<div class='snote'>※ 작성 안내입니다. 실제 입력은 일계부 화면에서 확인 후 진행하세요. (부호는 조사표 부호표 조회, 계산은 프로그램이 재확인)</div>" +
+      "</div>";
+    var div = document.createElement("div"); div.className = "msg ai";
+    div.innerHTML = "<div class='av'>🐮</div><div class='bubble'>" + html + "</div>";
+    var txt = surveyToText(st);
+    var cr = document.createElement("div"); cr.className = "copyrow";
+    var cb = document.createElement("button"); cb.className = "copybtn"; cb.type = "button"; cb.textContent = "📋 복사";
+    cb.onclick = function () { copyText(txt); };
+    cr.appendChild(cb); div.querySelector(".bubble").appendChild(cr);
+    logEl.appendChild(div); scrollDown();
+    recordMsg("ai", txt, "");   // 기록엔 텍스트로 저장
   }
 
   function buildMeta(sources) {
@@ -280,6 +325,17 @@
     logEl.innerHTML = "";
     if (introEl) introEl.style.display = "";
     qEl.value = ""; updateCnt(); autoGrow(); qEl.focus();
+  }
+
+  // ── 모드 전환(일반 질문 / 조사표 작성) ──
+  function setMode(survey) {
+    surveyMode = !!survey;
+    var mc = $("modeChat"), ms = $("modeSurvey");
+    if (mc) mc.classList.toggle("on", !surveyMode);
+    if (ms) ms.classList.toggle("on", surveyMode);
+    qEl.placeholder = surveyMode
+      ? "조사내용을 말하듯 적으세요. 예: 번식우 암송아지 6개월 190kg, 30일 450만원 판매, 비용 10만원"
+      : "축산조사·용어·가격 등을 질문하세요 (개인정보 제외)";
   }
 
   // ── 음성 입력: 녹음 → 서버(Whisper) 전사 → 텍스트 입력 (iOS·안드로이드 공통) ──
@@ -369,6 +425,10 @@
     statusEl.textContent = RELAY_URL ? "AI 서버 연결됨" : "연동 준비 중 — 화면/개인정보 차단은 동작합니다";
     restoreActive();  // 이 기기에 저장된 '현재 대화' 복원
     initVoice();      // 음성 입력(지원 시)
+
+    // 모드 토글
+    var mc = $("modeChat"); if (mc) mc.onclick = function () { setMode(false); };
+    var ms = $("modeSurvey"); if (ms) ms.onclick = function () { setMode(true); };
 
     // 대화 기록 모달
     var bh = $("btnHistory"); if (bh) bh.onclick = openHist;
