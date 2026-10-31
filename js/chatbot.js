@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-10-31 23:02 KST · v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-01 00:00 KST · v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -27,27 +27,39 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var logEl, qEl, sendEl, cntEl, statusEl, introEl, suggEl, micEl;
-  var history = [];      // {role:'user'|'assistant', content} — AI 맥락용.
   var busy = false;
 
-  // ── 대화 기록: '기기 내(브라우저) 로컬'에만 저장. 서버 저장은 하지 않음(개인정보 보호).
-  //    새 대화를 누르면 삭제. 다른 기기·다른 사람은 볼 수 없음. 조사표(dudang_*) 자료는 읽지 않음(별도 키).
-  var STORE_KEY = "dudangAI_chatHistory";
-  var renderedLog = [];   // 화면 복원용 [{role:'me'|'ai', text, meta}]
+  // ── 대화 기록: '기기 내(브라우저)'에만 '대화별'로 저장. 서버 저장 안 함.
+  //    목록·날짜/시간·복사 지원. 새 대화를 눌러도 이전 대화는 기록에 남음. 조사표(dudang_*) 자료는 읽지 않음(별도 키).
+  var SESS_KEY = "dudangAI_sessions";   // [{id, ts(생성), upd(갱신), title, msgs:[{role:'me'|'ai', text, meta}]}]
+  var ACT_KEY = "dudangAI_active";
+  var MAX_SESS = 40;
   var _restoring = false;
-  function saveLocal() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify({ r: renderedLog.slice(-60), h: history.slice(-20) })); } catch (e) {}
+  var activeId = "";
+  function loadSessions() { try { var a = JSON.parse(localStorage.getItem(SESS_KEY) || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function saveSessions(a) { try { localStorage.setItem(SESS_KEY, JSON.stringify(a.slice(0, MAX_SESS))); } catch (e) {} }
+  function saveActive() { try { localStorage.setItem(ACT_KEY, activeId || ""); } catch (e) {} }
+  function getActive() { if (!activeId) return null; var a = loadSessions(); for (var i = 0; i < a.length; i++) if (a[i].id === activeId) return a[i]; return null; }
+  function recordMsg(role, text, meta) {
+    if (_restoring || (role !== "me" && role !== "ai")) return;
+    var a = loadSessions(), s = null, i;
+    for (i = 0; i < a.length; i++) if (a[i].id === activeId) { s = a[i]; break; }
+    if (!s) { s = { id: "s" + Date.now() + Math.random().toString(16).slice(2, 6), ts: Date.now(), upd: Date.now(), title: "", msgs: [] }; activeId = s.id; saveActive(); }
+    else a = a.filter(function (x) { return x.id !== s.id; });
+    s.msgs.push({ role: role, text: text, meta: meta || "" });
+    if (role === "me" && !s.title) s.title = text.replace(/\s+/g, " ").trim().slice(0, 40);
+    s.upd = Date.now();
+    a.unshift(s);
+    saveSessions(a);
   }
-  function clearLocal() { try { localStorage.removeItem(STORE_KEY); } catch (e) {} }
-  function restoreLocal() {
-    var raw; try { raw = localStorage.getItem(STORE_KEY); } catch (e) { return; }
-    if (!raw) return;
-    var obj; try { obj = JSON.parse(raw); } catch (e) { return; }
-    if (!obj || !obj.r || !obj.r.length) return;
+  function activeHistory() { var s = getActive(); if (!s) return []; return s.msgs.map(function (m) { return { role: m.role === "me" ? "user" : "assistant", content: m.text }; }); }
+  function restoreActive() {
+    try { activeId = localStorage.getItem(ACT_KEY) || ""; } catch (e) { activeId = ""; }
+    var s = getActive();
+    if (!s || !s.msgs.length) return;
     _restoring = true;
-    obj.r.forEach(function (m) { addMsg(m.role, m.text, m.meta || ""); });
+    s.msgs.forEach(function (m) { addMsg(m.role, m.text, m.meta || ""); });
     _restoring = false;
-    history = Array.isArray(obj.h) ? obj.h : [];
   }
 
   // ── 1차 개인정보 검사 (구조적 식별자 정규식) ──
@@ -88,9 +100,67 @@
     div.innerHTML = "<div class='av'>" + av + "</div><div class='bubble'>" + esc(text).replace(/\n/g, "<br>") +
       (metaHtml ? "<div class='meta'>" + metaHtml + "</div>" : "") + "</div>";
     logEl.appendChild(div);
+    if (role === "ai") {   // AI 답변에 '복사' 버튼
+      var bub = div.querySelector(".bubble");
+      var cr = document.createElement("div"); cr.className = "copyrow";
+      var cb = document.createElement("button"); cb.className = "copybtn"; cb.type = "button"; cb.textContent = "📋 복사";
+      cb.onclick = function () { copyText(text); };
+      cr.appendChild(cb); bub.appendChild(cr);
+    }
     scrollDown();
-    if (!_restoring && (role === "me" || role === "ai")) { renderedLog.push({ role: role, text: text, meta: metaHtml || "" }); saveLocal(); }
+    recordMsg(role, text, metaHtml);
     return div;
+  }
+
+  // ── 복사 / 토스트 ──
+  function showToast(msg) {
+    var el = $("toast"); if (!el) return;
+    el.textContent = msg; el.classList.remove("hidden");
+    clearTimeout(showToast._t); showToast._t = setTimeout(function () { el.classList.add("hidden"); }, 1800);
+  }
+  function copyText(t) {
+    var done = function () { showToast("복사되었습니다"); };
+    var fallback = function () {
+      try { var ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); done(); }
+      catch (e) { showToast("복사하지 못했습니다"); }
+    };
+    try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done).catch(fallback); else fallback(); }
+    catch (e) { fallback(); }
+  }
+
+  // ── 대화 기록 모달 ──
+  function fmtTime(ms) { try { var d = new Date(ms), p = function (n) { return (n < 10 ? "0" : "") + n; }; return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()); } catch (e) { return ""; } }
+  function sessionText(s) { return s.msgs.map(function (m) { return (m.role === "me" ? "나: " : "두당AI: ") + m.text; }).join("\n\n"); }
+  function openHist() { renderHist(); $("histModal").classList.remove("hidden"); }
+  function closeHist() { $("histModal").classList.add("hidden"); }
+  function renderHist() {
+    var a = loadSessions().filter(function (s) { return s.msgs && s.msgs.length; });
+    var box = $("histList");
+    if (!a.length) { box.innerHTML = "<div class='histempty'>저장된 대화가 없습니다.</div>"; return; }
+    box.innerHTML = "";
+    a.forEach(function (s) {
+      var item = document.createElement("div"); item.className = "histitem" + (s.id === activeId ? " cur" : "");
+      item.innerHTML = "<div class='ht'>" + esc(s.title || "(제목 없음)") + "</div>" +
+        "<div class='hd'>" + fmtTime(s.upd || s.ts) + " · " + s.msgs.length + "개 메시지" + (s.id === activeId ? " · 현재 대화" : "") + "</div>" +
+        "<div class='ha'><button data-a='open'>열기</button><button data-a='copy'>📋 복사</button><button class='del' data-a='del'>삭제</button></div>";
+      item.querySelector("[data-a='open']").onclick = function () { openSession(s.id); };
+      item.querySelector("[data-a='copy']").onclick = function () { copyText(sessionText(s)); };
+      item.querySelector("[data-a='del']").onclick = function () { if (confirm("이 대화를 삭제할까요?")) deleteSession(s.id); };
+      box.appendChild(item);
+    });
+  }
+  function openSession(id) {
+    activeId = id; saveActive();
+    logEl.innerHTML = "";
+    var s = getActive();
+    if (s && s.msgs.length) { _restoring = true; s.msgs.forEach(function (m) { addMsg(m.role, m.text, m.meta || ""); }); _restoring = false; if (introEl) introEl.style.display = "none"; }
+    else if (introEl) introEl.style.display = "";
+    closeHist();
+  }
+  function deleteSession(id) {
+    saveSessions(loadSessions().filter(function (s) { return s.id !== id; }));
+    if (id === activeId) { activeId = ""; saveActive(); logEl.innerHTML = ""; if (introEl) introEl.style.display = ""; }
+    renderHist();
   }
   function addTyping() {
     hideIntro();
@@ -120,9 +190,8 @@
       return;
     }
 
-    addMsg("me", text);
-    var priorHist = history.slice(-8);          // 이전 맥락(현재 질문 제외) — 서버에서 현재 질문을 뒤에 붙임
-    history.push({ role: "user", content: text });
+    var priorHist = activeHistory().slice(-8);   // 이전 맥락(현재 질문 제외) — 서버에서 현재 질문을 뒤에 붙임
+    addMsg("me", text);                          // 현재 질문 저장(기록)
     qEl.value = ""; updateCnt(); autoGrow();
 
     if (!RELAY_URL) { mockAnswer(text); return; }   // 목 모드(AWS 연결 전)
@@ -150,8 +219,6 @@
         if (j.blocked) { addMsg("err", j.message || "개인정보가 포함되어 서버에서 전송이 차단되었습니다. 식별정보를 빼고 다시 질문해 주세요."); return; }
         var ans = j.answer || j.message || "답변을 받지 못했습니다.";
         addMsg("ai", ans, buildMeta(j.sources));
-        history.push({ role: "assistant", content: ans });
-        saveLocal();
       })
       .catch(function (e) {
         clearTimeout(timer); typing.remove();
@@ -206,12 +273,10 @@
     cntEl.textContent = n + "/" + MAX_CHARS;
     cntEl.classList.toggle("over", n > MAX_CHARS);
   }
-  function autoGrow() { qEl.style.height = "auto"; qEl.style.height = Math.min(qEl.scrollHeight, 120) + "px"; }
+  function autoGrow() { qEl.style.height = "auto"; qEl.style.height = Math.min(qEl.scrollHeight, 160) + "px"; }
 
   function newChat() {
-    history = [];
-    renderedLog = [];
-    clearLocal();               // 저장된 지난 대화 삭제
+    activeId = ""; saveActive();   // 이전 대화는 기록에 남기고, 새 빈 대화 시작
     logEl.innerHTML = "";
     if (introEl) introEl.style.display = "";
     qEl.value = ""; updateCnt(); autoGrow(); qEl.focus();
@@ -233,7 +298,7 @@
     micEl.hidden = false;
 
     var mediaRec = null, chunks = [], stream = null, recording = false, mimeType = "";
-    function reset() { recording = false; micEl.classList.remove("rec"); micEl.textContent = "🎤"; }
+    function reset() { recording = false; micEl.classList.remove("rec"); }   // 아이콘은 SVG 고정, 상태는 class로만 표시
     function stopStream() { if (stream) { try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} stream = null; } }
 
     micEl.onclick = async function () {
@@ -279,7 +344,7 @@
         setTimeout(function () { if ((statusEl.textContent || "").indexOf("🎤") === 0) setStatus(RELAY_URL ? "AI 서버 연결됨" : ""); }, 4000);
       };
 
-      try { mediaRec.start(); recording = true; micEl.classList.add("rec"); micEl.textContent = "⏺"; setStatus("🎤 녹음 중… 다시 누르면 변환합니다."); }
+      try { mediaRec.start(); recording = true; micEl.classList.add("rec"); setStatus("🎤 녹음 중… 다시 누르면 변환합니다."); }
       catch (e) { stopStream(); reset(); setStatus("녹음을 시작하지 못했습니다."); }
     };
   }
@@ -302,8 +367,13 @@
     renderSuggestions();
     updateCnt();
     statusEl.textContent = RELAY_URL ? "AI 서버 연결됨" : "연동 준비 중 — 화면/개인정보 차단은 동작합니다";
-    restoreLocal();   // 이 기기에 저장된 지난 대화 복원
+    restoreActive();  // 이 기기에 저장된 '현재 대화' 복원
     initVoice();      // 음성 입력(지원 시)
+
+    // 대화 기록 모달
+    var bh = $("btnHistory"); if (bh) bh.onclick = openHist;
+    var hc = $("histClose"); if (hc) hc.onclick = closeHist;
+    var hm = $("histModal"); if (hm) hm.addEventListener("click", function (e) { if (e.target === hm) closeHist(); });
 
     sendEl.onclick = function () { doSend(); };
     $("btnNew").onclick = newChat;
