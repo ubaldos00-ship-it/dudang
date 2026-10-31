@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-10-31 22:42 KST · v91[관리버튼·음성·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-10-31 23:02 KST · v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -217,28 +217,70 @@
     qEl.value = ""; updateCnt(); autoGrow(); qEl.focus();
   }
 
-  // ── 음성 입력(지원 브라우저에서만 버튼 표시) ──
+  // ── 음성 입력: 녹음 → 서버(Whisper) 전사 → 텍스트 입력 (iOS·안드로이드 공통) ──
+  function setStatus(t) { if (statusEl) statusEl.textContent = t; }
+  function blobToBase64(blob) {
+    return new Promise(function (res, rej) {
+      var fr = new FileReader();
+      fr.onload = function () { var s = String(fr.result); var i = s.indexOf(","); res(i >= 0 ? s.slice(i + 1) : s); };
+      fr.onerror = rej; fr.readAsDataURL(blob);
+    });
+  }
   function initVoice() {
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR || !micEl) return;   // 미지원 → 버튼 숨김 유지
+    if (!micEl) return;
+    var hasMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+    if (!hasMedia || !RELAY_URL) { micEl.hidden = true; return; }   // 녹음/전송 불가 환경 → 버튼 숨김
     micEl.hidden = false;
-    var rec; try { rec = new SR(); } catch (e) { return; }
-    rec.lang = "ko-KR"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
-    var recording = false, baseText = "";
-    rec.onresult = function (e) {
-      var txt = "";
-      for (var i = e.resultIndex; i < e.results.length; i++) txt += e.results[i][0].transcript;
-      qEl.value = (baseText ? baseText + " " : "") + txt;
-      if (qEl.value.length > MAX_CHARS) qEl.value = qEl.value.slice(0, MAX_CHARS);
-      updateCnt(); autoGrow();
-    };
-    var stop = function () { recording = false; micEl.classList.remove("rec"); micEl.textContent = "🎤"; };
-    rec.onend = stop; rec.onerror = stop;
-    micEl.onclick = function () {
-      if (recording) { try { rec.stop(); } catch (e) {} return; }
-      baseText = (qEl.value || "").trim();
-      try { rec.start(); recording = true; micEl.classList.add("rec"); micEl.textContent = "⏺"; qEl.focus(); }
-      catch (e) { stop(); }
+
+    var mediaRec = null, chunks = [], stream = null, recording = false, mimeType = "";
+    function reset() { recording = false; micEl.classList.remove("rec"); micEl.textContent = "🎤"; }
+    function stopStream() { if (stream) { try { stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {} stream = null; } }
+
+    micEl.onclick = async function () {
+      if (recording) { try { mediaRec.stop(); } catch (e) {} return; }   // 녹음 중 → 종료(전사 시작)
+      try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+      catch (e) { setStatus("🎤 마이크 권한이 필요합니다. 브라우저/설정에서 마이크를 허용해 주세요."); return; }
+
+      chunks = []; mimeType = "";
+      ["audio/webm", "audio/mp4", "audio/mpeg", "audio/wav"].some(function (m) {
+        if (window.MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) { mimeType = m; return true; } return false;
+      });
+      try { mediaRec = mimeType ? new MediaRecorder(stream, { mimeType: mimeType }) : new MediaRecorder(stream); }
+      catch (e) { try { mediaRec = new MediaRecorder(stream); } catch (_) { stopStream(); setStatus("이 브라우저는 음성 입력을 지원하지 않습니다."); return; } }
+      mimeType = mediaRec.mimeType || mimeType || "audio/mp4";
+
+      mediaRec.ondataavailable = function (ev) { if (ev.data && ev.data.size) chunks.push(ev.data); };
+      mediaRec.onstop = async function () {
+        stopStream(); reset();
+        var blob = new Blob(chunks, { type: mimeType });
+        if (!blob.size) { setStatus("녹음된 소리가 없습니다. 다시 시도해 주세요."); return; }
+        micEl.disabled = true; setStatus("🎤 음성을 텍스트로 변환 중…");
+        try {
+          var b64 = await blobToBase64(blob);
+          var idToken = (window.__dudangAuth && window.__dudangAuth.getToken) ? await window.__dudangAuth.getToken() : null;
+          var r = await fetch(RELAY_URL, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ audio: b64, mime: mimeType, idToken: idToken || undefined })
+          });
+          var j = await r.json().catch(function () { return {}; });
+          if (!r.ok) { setStatus(j.message || "음성 변환에 실패했습니다. 다시 시도해 주세요."); }
+          else {
+            var t = (j.text || "").trim();
+            if (!t) setStatus("음성을 인식하지 못했습니다. 다시 또렷하게 말씀해 주세요.");
+            else {
+              qEl.value = (qEl.value ? qEl.value.trim() + " " : "") + t;
+              if (qEl.value.length > MAX_CHARS) qEl.value = qEl.value.slice(0, MAX_CHARS);
+              updateCnt(); autoGrow(); qEl.focus();
+              setStatus("🎤 음성 입력 완료 — 내용을 확인하고 전송하세요.");
+            }
+          }
+        } catch (e) { setStatus("음성 변환 중 오류가 발생했습니다. 다시 시도해 주세요."); }
+        micEl.disabled = false;
+        setTimeout(function () { if ((statusEl.textContent || "").indexOf("🎤") === 0) setStatus(RELAY_URL ? "AI 서버 연결됨" : ""); }, 4000);
+      };
+
+      try { mediaRec.start(); recording = true; micEl.classList.add("rec"); micEl.textContent = "⏺"; setStatus("🎤 녹음 중… 다시 누르면 변환합니다."); }
+      catch (e) { stopStream(); reset(); setStatus("녹음을 시작하지 못했습니다."); }
     };
   }
 
