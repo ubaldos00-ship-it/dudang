@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-10-31 05:18 KST · v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-10-31 22:42 KST · v91[관리버튼·음성·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -26,9 +26,29 @@
   ];
 
   var $ = function (id) { return document.getElementById(id); };
-  var logEl, qEl, sendEl, cntEl, statusEl, introEl, suggEl;
-  var history = [];      // {role:'user'|'assistant', content} — 메모리에만. 새 대화 시 비움.
+  var logEl, qEl, sendEl, cntEl, statusEl, introEl, suggEl, micEl;
+  var history = [];      // {role:'user'|'assistant', content} — AI 맥락용.
   var busy = false;
+
+  // ── 대화 기록: '기기 내(브라우저) 로컬'에만 저장. 서버 저장은 하지 않음(개인정보 보호).
+  //    새 대화를 누르면 삭제. 다른 기기·다른 사람은 볼 수 없음. 조사표(dudang_*) 자료는 읽지 않음(별도 키).
+  var STORE_KEY = "dudangAI_chatHistory";
+  var renderedLog = [];   // 화면 복원용 [{role:'me'|'ai', text, meta}]
+  var _restoring = false;
+  function saveLocal() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify({ r: renderedLog.slice(-60), h: history.slice(-20) })); } catch (e) {}
+  }
+  function clearLocal() { try { localStorage.removeItem(STORE_KEY); } catch (e) {} }
+  function restoreLocal() {
+    var raw; try { raw = localStorage.getItem(STORE_KEY); } catch (e) { return; }
+    if (!raw) return;
+    var obj; try { obj = JSON.parse(raw); } catch (e) { return; }
+    if (!obj || !obj.r || !obj.r.length) return;
+    _restoring = true;
+    obj.r.forEach(function (m) { addMsg(m.role, m.text, m.meta || ""); });
+    _restoring = false;
+    history = Array.isArray(obj.h) ? obj.h : [];
+  }
 
   // ── 1차 개인정보 검사 (구조적 식별자 정규식) ──
   // ※ 정규식만으로 모든 개인정보를 잡을 수 없으므로 AWS Lambda에서 2차 검사·차단을 반드시 수행합니다.
@@ -69,6 +89,7 @@
       (metaHtml ? "<div class='meta'>" + metaHtml + "</div>" : "") + "</div>";
     logEl.appendChild(div);
     scrollDown();
+    if (!_restoring && (role === "me" || role === "ai")) { renderedLog.push({ role: role, text: text, meta: metaHtml || "" }); saveLocal(); }
     return div;
   }
   function addTyping() {
@@ -130,6 +151,7 @@
         var ans = j.answer || j.message || "답변을 받지 못했습니다.";
         addMsg("ai", ans, buildMeta(j.sources));
         history.push({ role: "assistant", content: ans });
+        saveLocal();
       })
       .catch(function (e) {
         clearTimeout(timer); typing.remove();
@@ -188,9 +210,36 @@
 
   function newChat() {
     history = [];
+    renderedLog = [];
+    clearLocal();               // 저장된 지난 대화 삭제
     logEl.innerHTML = "";
     if (introEl) introEl.style.display = "";
     qEl.value = ""; updateCnt(); autoGrow(); qEl.focus();
+  }
+
+  // ── 음성 입력(지원 브라우저에서만 버튼 표시) ──
+  function initVoice() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR || !micEl) return;   // 미지원 → 버튼 숨김 유지
+    micEl.hidden = false;
+    var rec; try { rec = new SR(); } catch (e) { return; }
+    rec.lang = "ko-KR"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+    var recording = false, baseText = "";
+    rec.onresult = function (e) {
+      var txt = "";
+      for (var i = e.resultIndex; i < e.results.length; i++) txt += e.results[i][0].transcript;
+      qEl.value = (baseText ? baseText + " " : "") + txt;
+      if (qEl.value.length > MAX_CHARS) qEl.value = qEl.value.slice(0, MAX_CHARS);
+      updateCnt(); autoGrow();
+    };
+    var stop = function () { recording = false; micEl.classList.remove("rec"); micEl.textContent = "🎤"; };
+    rec.onend = stop; rec.onerror = stop;
+    micEl.onclick = function () {
+      if (recording) { try { rec.stop(); } catch (e) {} return; }
+      baseText = (qEl.value || "").trim();
+      try { rec.start(); recording = true; micEl.classList.add("rec"); micEl.textContent = "⏺"; qEl.focus(); }
+      catch (e) { stop(); }
+    };
   }
 
   function renderSuggestions() {
@@ -206,11 +255,13 @@
   // ── 초기화 ──
   function init() {
     logEl = $("log"); qEl = $("q"); sendEl = $("send"); cntEl = $("cnt");
-    statusEl = $("status"); introEl = $("intro"); suggEl = $("sugg");
+    statusEl = $("status"); introEl = $("intro"); suggEl = $("sugg"); micEl = $("mic");
 
     renderSuggestions();
     updateCnt();
     statusEl.textContent = RELAY_URL ? "AI 서버 연결됨" : "연동 준비 중 — 화면/개인정보 차단은 동작합니다";
+    restoreLocal();   // 이 기기에 저장된 지난 대화 복원
+    initVoice();      // 음성 입력(지원 시)
 
     sendEl.onclick = function () { doSend(); };
     $("btnNew").onclick = newChat;
