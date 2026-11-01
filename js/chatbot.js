@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-01 00:21 KST · v95[스크롤·A단계보강]: scrollDown이 <main>을 스크롤(새 답변시 항상 맨아래 이동, requestAnimationFrame). v94[A단계 조사표 작성모드]: [일반질문/조사표 작성] 토글, 조사표 질문→서버가 구조화JSON+프로그램 재계산→표 답변(부호·구분·수량·금액·실금액·연계·신뢰도). 데이터 survey_schema.json. v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-01 00:21 KST · v96[통계·체중 조회]: [📊 통계·체중] 모드 추가(chatMode chat/survey/stats), mode:stats 전송→서버가 데이터에서 조회(숫자 서버조회)·KOSIS 원문 링크. v95[스크롤·A단계보강]: scrollDown이 <main>을 스크롤(새 답변시 항상 맨아래 이동, requestAnimationFrame). v94[A단계 조사표 작성모드]: [일반질문/조사표 작성] 토글, 조사표 질문→서버가 구조화JSON+프로그램 재계산→표 답변(부호·구분·수량·금액·실금액·연계·신뢰도). 데이터 survey_schema.json. v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -28,7 +28,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var logEl, qEl, sendEl, cntEl, statusEl, introEl, suggEl, micEl;
   var busy = false;
-  var surveyMode = false;   // 조사표 작성 모드(A단계)
+  var chatMode = "chat";    // chat | survey(조사표 작성) | stats(통계·체중)
 
   // ── 대화 기록: '기기 내(브라우저)'에만 '대화별'로 저장. 서버 저장 안 함.
   //    목록·날짜/시간·복사 지원. 새 대화를 눌러도 이전 대화는 기록에 남음. 조사표(dudang_*) 자료는 읽지 않음(별도 키).
@@ -217,7 +217,7 @@
       return fetch(RELAY_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, history: priorHist, idToken: idToken || undefined, mode: surveyMode ? "survey" : undefined }),
+        body: JSON.stringify({ message: text, history: priorHist, idToken: idToken || undefined, mode: chatMode !== "chat" ? chatMode : undefined }),
         signal: ctrl.signal
       });
     })
@@ -230,6 +230,11 @@
         if (j.mode === "survey") {   // 조사표 작성 모드 답변(표)
           if (j.structured) renderSurveyAnswer(j.structured);
           else addMsg("ai", j.answer || "조사표 형식으로 정리하지 못했습니다. 축종·거래유형·금액 등을 좀 더 구체적으로 말씀해 주세요.");
+          return;
+        }
+        if (j.mode === "stats") {   // 공표통계·참고체중 조회 답변
+          var smeta = (j.source && j.source.source_url) ? "<a href='" + esc(j.source.source_url) + "' target='_blank' rel='noopener'>📄 KOSIS 원문 ›</a>" : "";
+          addMsg("ai", j.text || "조회 결과가 없습니다.", smeta);
           return;
         }
         var ans = j.answer || j.message || "답변을 받지 못했습니다.";
@@ -341,14 +346,15 @@
   }
 
   // ── 모드 전환(일반 질문 / 조사표 작성) ──
-  function setMode(survey) {
-    surveyMode = !!survey;
-    var mc = $("modeChat"), ms = $("modeSurvey");
-    if (mc) mc.classList.toggle("on", !surveyMode);
-    if (ms) ms.classList.toggle("on", surveyMode);
-    qEl.placeholder = surveyMode
+  function setMode(name) {
+    chatMode = name;
+    var btn = { chat: $("modeChat"), survey: $("modeSurvey"), stats: $("modeStats") };
+    Object.keys(btn).forEach(function (k) { if (btn[k]) btn[k].classList.toggle("on", k === name); });
+    qEl.placeholder = name === "survey"
       ? "조사내용을 말하듯 적으세요. 예: 번식우 암송아지 6개월 190kg, 30일 450만원 판매, 비용 10만원"
-      : "축산조사·용어·가격 등을 질문하세요 (개인정보 제외)";
+      : name === "stats"
+        ? "예: 2025년 송아지 생산비 / 비육우 소득 작년 대비 / 번식우 6개월 참고체중"
+        : "축산조사·용어·가격 등을 질문하세요 (개인정보 제외)";
   }
 
   // ── 음성 입력: 녹음 → 서버(Whisper) 전사 → 텍스트 입력 (iOS·안드로이드 공통) ──
@@ -440,8 +446,9 @@
     initVoice();      // 음성 입력(지원 시)
 
     // 모드 토글
-    var mc = $("modeChat"); if (mc) mc.onclick = function () { setMode(false); };
-    var ms = $("modeSurvey"); if (ms) ms.onclick = function () { setMode(true); };
+    var mc = $("modeChat"); if (mc) mc.onclick = function () { setMode("chat"); };
+    var ms = $("modeSurvey"); if (ms) ms.onclick = function () { setMode("survey"); };
+    var mst = $("modeStats"); if (mst) mst.onclick = function () { setMode("stats"); };
 
     // 대화 기록 모달
     var bh = $("btnHistory"); if (bh) bh.onclick = openHist;
