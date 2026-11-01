@@ -1,4 +1,4 @@
-<!-- chatbot.html · 두당 AI 챗봇(축산조사 전문 AI 도우미) · 저장: 2026-10-31 00:07 KST · v85[신규·2단계 화면]: 기존 두당 무변경 독립 모듈. chatbot.css/js 분리. AWS 연결 전에도 동작(목 모드). 상단(로고·설명·뒤로·새대화)/중앙(질문·답변·로딩·오류·관련자료·가격기준일)/하단(입력·전송·추천질문·개인정보 주의). 클라이언트 개인정보 차단(전화·주민·사업자·이력번호). 조사표 localStorage(dudang_*) 미접근. RELAY_URL 비면 '연동 준비 중'. v86: 3단계 연결준비(aws_dudang_ai Lambda+OpenAI, README 배포가이드). v87: 3단계 연결완료 — RELAY_URL에 실제 함수 URL 입력(ap-northeast-2), OpenAI 실답변 연결·AWS 검증완료. v88: 홈화면 앱(PWA) 모드 상태바 헤더 가림 수정(viewport-fit=cover 제거). v89: 조사표 부호 참고링크. v90: 접근제어 — 구글 로그인 + 승인(텐아르 tenar-chat-1674c·tenarChatUsers 공용) 게이트. Lambda ID토큰 서버검증. v91: 관리자(role=admin) 로그인 시 '👤 관리' 버튼→두당 사용자관리(members.html, 텐아르와 동기화). 🎤 음성입력(지원 브라우저). 대화 기기내 로컬저장(서버저장 안함·새대화 삭제). v92: 음성 녹음→서버(Whisper)전사. v93: 로그인 문구(빠른승인 ubaldos@naver.com)·텐아르문구 제거, 마이크 SVG아이콘·입력창 자동확장, 대화 기록(🕘 대화별 로컬저장·목록·날짜시간·복사/열기/삭제), AI답변 복사버튼. v94: A단계 '조사표 작성' 모드 토글+표 답변(일계부 작성안내, Lambda v7 구조화JSON·프로그램 재계산). v95: 자동스크롤 수정(main). Lambda v8 프롬프트 강화. v96: 📊 통계·체중 모드(공표통계 조회·연도비교·참고체중, Lambda v9 서버조회·data/stats). -->
+<!-- chatbot.html · 두당 AI 챗봇(축산조사 전문 AI 도우미) · 저장: 2026-10-31 00:07 KST · v85[신규·2단계 화면]: 기존 두당 무변경 독립 모듈. chatbot.css/js 분리. AWS 연결 전에도 동작(목 모드). 상단(로고·설명·뒤로·새대화)/중앙(질문·답변·로딩·오류·관련자료·가격기준일)/하단(입력·전송·추천질문·개인정보 주의). 클라이언트 개인정보 차단(전화·주민·사업자·이력번호). 조사표 localStorage(dudang_*) 미접근. RELAY_URL 비면 '연동 준비 중'. v86: 3단계 연결준비(aws_dudang_ai Lambda+OpenAI, README 배포가이드). v87: 3단계 연결완료 — RELAY_URL에 실제 함수 URL 입력(ap-northeast-2), OpenAI 실답변 연결·AWS 검증완료. v88: 홈화면 앱(PWA) 모드 상태바 헤더 가림 수정(viewport-fit=cover 제거). v89: 조사표 부호 참고링크. v90: 접근제어 — 구글 로그인 + 승인(텐아르 tenar-chat-1674c·tenarChatUsers 공용) 게이트. Lambda ID토큰 서버검증. v91: 관리자(role=admin) 로그인 시 '👤 관리' 버튼→두당 사용자관리(members.html, 텐아르와 동기화). 🎤 음성입력(지원 브라우저). 대화 기기내 로컬저장(서버저장 안함·새대화 삭제). v92: 음성 녹음→서버(Whisper)전사. v93: 로그인 문구(빠른승인 ubaldos@naver.com)·텐아르문구 제거, 마이크 SVG아이콘·입력창 자동확장, 대화 기록(🕘 대화별 로컬저장·목록·날짜시간·복사/열기/삭제), AI답변 복사버튼. v94: A단계 '조사표 작성' 모드 토글+표 답변(일계부 작성안내, Lambda v7 구조화JSON·프로그램 재계산). v95: 자동스크롤 수정(main). Lambda v8 프롬프트 강화. v96: 📊 통계·체중 모드(공표통계 조회·연도비교·참고체중, Lambda v9 서버조회·data/stats). v98: embed 모드(?embed=1→헤더숨김) — 모든 페이지 플로팅 위젯(js/ai_widget.js)이 chatbot.html?embed=1을 iframe 팝업으로 띄움. [📝 조사표에 입력]은 위젯 안에서 부모창에 postMessage(조사표 반영). 내 질문에도 복사버튼(chatbot.js). -->
 <!doctype html>
 <html lang="ko">
 <head>
@@ -34,6 +34,9 @@ header .acts #btnLogout{background:rgba(255,255,255,.14)}
 header .acts #btnAdmin,header .acts #btnHistory{color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:8px;padding:7px 9px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
 header .acts{gap:5px}
 header .acts a,header .acts button{padding:7px 9px}
+/* 플로팅 위젯(iframe) 임베드: 자체 헤더 숨김(팝업에 제목바가 따로 있음) */
+body.embed header{display:none!important}
+body.embed main{padding-top:10px}
 /* 음성 입력 버튼(v93: 심플 마이크 아이콘) */
 #mic{flex:0 0 auto;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:#fff;color:#718096;border:1px solid #cbd5e0;border-radius:11px;cursor:pointer;padding:0}
 #mic svg{display:block}
@@ -85,6 +88,7 @@ header .acts a,header .acts button{padding:7px 9px}
 </style>
 </head>
 <body>
+<script>if(/[?&]embed=1/.test(location.search)){document.body.classList.add("embed");}</script>
 <header><div class="hrow">
   <a class="back" href="index.html" aria-label="뒤로">←</a>
   <div class="tt"><h1>💬 두당 AI</h1><div class="hsub">축산조사 전문 AI 도우미</div></div>
