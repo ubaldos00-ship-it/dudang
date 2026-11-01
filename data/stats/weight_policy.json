@@ -1,0 +1,22 @@
+{
+  "version": "2026-11-01.2",
+  "source": "한우연구소",
+  "reference_year": 2013,
+  "source_verification": "user_confirmed",
+  "priority": [
+    "existing_age_price",
+    "existing_weight_reference",
+    "institute_exact_month_reference"
+  ],
+  "default_band": "중간",
+  "interpolation": false,
+  "extrapolation": false,
+  "blocked_reference_ids": [
+    "w2:C26",
+    "w3:C40",
+    "w4:D18"
+  ],
+  "display_label": "한우연구소 2013년 참고체중",
+  "price_label": "참고체중과 별도 단가로 계산한 참고금액; 해당 월령 공표가격 아님",
+  "original_publication_url": null
+}

@@ -1,0 +1,124 @@
+{
+  "version": "2024.1",
+  "source": "2024 농축산물생산비조사(축산) 일계부(항목·부호·입력란·계산 기준) · 2021 지침서(작성규칙 참고)",
+  "year": 2024,
+  "principle": "부호는 codes.json을 조회해 사용(AI가 기억 금지). 계산은 프로그램이 재계산(AI 계산값과 다르면 프로그램값 사용). 모르는 값은 생성 금지.",
+  "forms": [
+    {
+      "id": "livestock_status", "no": 1, "name": "① 대·소동물 사육현황", "unit": "마리",
+      "desc": "축종·구분별 월초 두수와 월중 증가/감소, 월말 두수. 월중 사육현황(방목·종부·분만 등) 포함.",
+      "fields": [
+        {"key":"구분","type":"select","note":"번식우/비육우/육우/젖소/비육돈 등 + 세부(송아지 암/수, 육성우 등)"},
+        {"key":"부호","type":"code","codes_ref":"codes.json:animal_inventory","note":"축종 내 행번호 01~08, 99=합계"},
+        {"key":"월초","type":"int"},
+        {"key":"증가_분만","type":"int"},{"key":"증가_구입","type":"int"},{"key":"증가_편입","type":"int","eval":true},
+        {"key":"감소_편입","type":"int","eval":true},{"key":"감소_판매","type":"int"},{"key":"감소_도태","type":"int"},{"key":"감소_폐사","type":"int"},
+        {"key":"월말","type":"int","computed":true}
+      ],
+      "month_status": ["방목두수","방목일수","자연종부(회)","인공수정(회)","초임분만(두)","경산분만(두)","암컷비육(두)","착유우(두)","건유우(두)","모돈분만(월중,마리)"],
+      "calc": [{"target":"월말","formula":"월초 + (증가_분만+증가_구입+증가_편입) - (감소_편입+감소_판매+감소_도태+감소_폐사)"}],
+      "validation": [
+        {"rule":"월말 = 월초 + 증가합 - 감소합","level":"error"},
+        {"rule":"증가_편입(*)·감소_편입(*) 두수는 ② 구입·판매에서 반드시 평가. * 없는 칸은 평가하지 않음","level":"check"}
+      ],
+      "related": ["livestock_purchase_sale"], "codes_ref": "codes.json:animal_inventory"
+    },
+    {
+      "id": "livestock_purchase_sale", "no": 2, "name": "② 대·소동물 구입 및 판매", "unit": "마리, 원",
+      "desc": "대·소동물의 구입/편입 및 판매 내역. 한 행 = 한 거래(부호 3xx=구입, 6xx=판매).",
+      "transactions": {
+        "구입": {
+          "code_range":"310~381 (구입11/편입31). codes.json:animal_purchase",
+          "fields":["일자","품명","부호","구분","수량","체중","축령","금액A","구입시비용B","실구입또는평가금액"],
+          "calc":{"target":"실구입또는평가금액","formula":"금액A + 구입시비용B"}
+        },
+        "판매": {
+          "code_range":"610~681 (판매11/도태판매21/편입31/자가소비31). 비육우·육우: 거세·비육완료11·미거세21·거세·비육중도태12·미거세·비육중도태22. codes.json:animal_sale",
+          "fields":["일자","품명","부호","구분","수량","체중","축령","금액A","판매시비용B","실판매금액","구입당시일자","두당평균사육일수","두당평균일당증체량_g"],
+          "calc":{"target":"실판매금액","formula":"금액A - 판매시비용B"}
+        }
+      },
+      "units": {"수량":"두","체중":"kg","축령":"개월","금액A":"원","비용B":"원","증체량":"g"},
+      "validation": [
+        {"rule":"구입: 실구입/평가금액 = 금액A + 구입시비용B","level":"error"},
+        {"rule":"판매: 실판매금액 = 금액A - 판매시비용B","level":"error"},
+        {"rule":"이 거래 두수는 ① 사육현황의 해당 증감(구입/편입 또는 판매)에 반영","level":"check"}
+      ],
+      "related": ["livestock_status"], "codes_ref": "codes.json:animal_purchase, codes.json:animal_sale"
+    },
+    {
+      "id": "product_sales_income", "no": 3, "name": "③ 축산물 판매 수입", "unit": "마리수, ℓ, 개, 원/천원",
+      "desc": "축산물(원유·계란 등) 판매 수입.",
+      "subtables": [
+        {
+          "name":"1. 유대 판매수입(원유)", "unit":"마리수, ℓ, 원",
+          "fields":["일자","착유두수","총생산량ℓ","구분","등급_세균수","등급_체세포","유지방율%","수량ℓ","금액","자가소비량","송아지포유량","폐기량"],
+          "field_note":"구분: 정상납유량(1)/기타납유량(2)"
+        },
+        {
+          "name":"2. 계란 판매수입", "unit":"개, 천원",
+          "fields":["일자","구분(수량/금액)","왕란(68g+)","특란(60~67g)","대란(52~59g)","중란(44~51g)","소란(43g이하)","계A","판매시비용B","실판매액"],
+          "calc":{"target":"실판매액","formula":"계A - 판매시비용B","unit":"천원"}
+        }
+      ],
+      "validation": [{"rule":"실판매액 = 계(A) - 판매시비용(B)","level":"error"}],
+      "related": ["livestock_status"], "codes_ref": ""
+    },
+    {
+      "id": "byproduct_income", "no": 4, "name": "④ 축산부산물 판매 수입 및 자가소비", "unit": "원",
+      "desc": "축산부산물(구비/퇴비·분뇨·원피 등) 판매수입 및 자가소비. ※2024 일계부 세부 입력란은 확인 필요.",
+      "fields":["일자","부산물명","구분(판매/자가소비)","수량","단위","금액"],
+      "validation": [], "related": [], "codes_ref": "", "confirm": "세부 입력란 2024 양식 재확인 필요"
+    },
+    {
+      "id": "feed_concentrate", "no": 5.1, "name": "5-1. 사료비(농후사료 및 TMR)", "unit": "kg, 원",
+      "desc": "농후사료·TMR의 급여량·단가·평가액.",
+      "fields":["일자","축종명","축종부호","사료명","사료부호","구입구분","급여량kg","단가원","평가액원"],
+      "codes": {"축종부호":"codes.json:feed_concentrate(310~380)","사료부호":"배합10/강류11/곡류12/가공부산물13/첨가제14/기타15/TMR21","구입구분":"구입1/자급(부산물)2/자가생산3"},
+      "calc": [{"target":"평가액","formula":"급여량kg × 단가원","note":"급여량×단가 ≈ 평가액(검증)"}],
+      "validation": [{"rule":"급여량 × 단가 ≈ 평가액","level":"check"},{"rule":"농후/TMR/첨가제 구분, 조사료와 섞지 않음","level":"check"}],
+      "related": ["feedcrop_stock"], "codes_ref": "codes.json:feed_concentrate"
+    },
+    {
+      "id": "feed_roughage", "no": 5.2, "name": "5-2. 사료비(조사료)", "unit": "kg, 원",
+      "desc": "조사료(청예·볏짚·건초·사일리지 등)의 급여량·단가·평가액.",
+      "fields":["일자","조사료명","조사료부호","구입구분","작물구분","급여량kg","단가원","평가액원"],
+      "codes": {"조사료부호":"청예16/볏짚17/건초18/엔시레지19/기타20","작물구분":"codes.json:feed_roughage(10~90)","구입구분":"구입1/자급2/자가생산3"},
+      "calc": [{"target":"평가액","formula":"급여량kg × 단가원"}],
+      "validation": [{"rule":"급여량 × 단가 ≈ 평가액","level":"check"},{"rule":"자가생산 조사료도 평가액 계상","level":"check"}],
+      "related": ["feedcrop_stock"], "codes_ref": "codes.json:feed_roughage"
+    },
+    {
+      "id": "production_cost", "no": 6, "name": "⑥ 생산비 투입내역", "unit": "수량, 원",
+      "desc": "수도광열·방역치료·자동차·농구·영농시설·재료·종부료·이자·토지임차·분뇨처리·생산관리·세금·보험 등 지출.",
+      "fields":["일자","지출내용","부호","구분","부담비율_비육용_산란계%","부담비율_번식용_육성계%","수량","단위","단가원","평가액원"],
+      "codes": {"부호":"codes.json:production_cost(31~72)"},
+      "calc": [{"target":"평가액","formula":"수량 × 단가원","note":"부담비율 적용 시 사업부문별 배분"}],
+      "validation": [{"rule":"수량 × 단가 ≈ 평가액","level":"check"},{"rule":"비목(부호) 분류·사업부문 부담비율 확인","level":"check"}],
+      "related": [], "codes_ref": "codes.json:production_cost"
+    },
+    {
+      "id": "labor", "no": 7, "name": "⑦ 농업노동 투입내역", "unit": "시간",
+      "desc": "직접·간접 노동의 작업별 투입시간(가족/품앗이/고용/일손돕기, 남/여) 및 동력.",
+      "fields":["일자","영농작업명","부호","부담비율_비육용_산란계%","부담비율_번식용_육성계%","가족노동_남","가족노동_여","품앗이_남","품앗이_여","고용노동_남","고용노동_여","일손돕기_남","일손돕기_여","동력"],
+      "codes": {"부호":"codes.json:labor(직접10~17/간접21~26)"},
+      "validation": [{"rule":"작업 부호·부담비율 확인","level":"check"}],
+      "related": ["wage"], "codes_ref": "codes.json:labor"
+    },
+    {
+      "id": "feedcrop_stock", "no": 8, "name": "⑧ 사료작물 구입(생산) 및 이용량", "unit": "kg 등",
+      "desc": "사료작물(조사료)의 월초재고·월중 구입/생산·이용(급여/판매)·월말재고.",
+      "fields":["조사료구분","구입구분","작물구분","재배면적","전월재고A","전월재고단가","구입및생산B","구입생산단가","급여량C","판매등기타D","월말재고량"],
+      "codes": {"조사료구분":"청예16/볏짚17/건초18/엔시레지19/기타20","작물구분":"codes.json:feed_roughage(10~90)","구입구분":"구입1/자급2/자가생산3"},
+      "calc": [{"target":"월말재고량","formula":"전월재고A + 구입및생산B - 급여량C - 판매등기타D"}],
+      "validation": [{"rule":"월말재고 = 전월재고(A) + 구입·생산(B) - 급여량(C) - 판매등기타(D)","level":"error"}],
+      "related": ["feed_roughage"], "codes_ref": "codes.json:feed_crop"
+    },
+    {
+      "id": "wage", "no": 9, "name": "⑨ 사양관리 고용노임 지불현황", "unit": "원",
+      "desc": "사양관리 관련 고용노임 지불 내역. ※2024 일계부 세부 입력란은 확인 필요.",
+      "fields":["일자","지불내용","인원","노동시간","노임금액"],
+      "validation": [], "related": ["labor"], "codes_ref": "", "confirm": "세부 입력란 2024 양식 재확인 필요"
+    }
+  ]
+}
