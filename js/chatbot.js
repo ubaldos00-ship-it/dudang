@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-03 01:21 KST · v102[소이력 조회·개인정보보호]: 이력번호(12자리 또는 410+12) 감지 시 OpenAI로 안 보내고 축산물이력제 API(TRACE_URL, cattle.html과 동일)로만 조회→품종·성별·출생·도축·등급·도체중·이동 요약. 모든 탭 공통(doSend 최상단). 전화11·금액·주민13자리는 미감지. v99[B확장 ①사육현황]: [📝 조사표에 입력] 버튼을 ②구입판매 외 ①사육현황(livestock_status) handoff에도 표시. 서버 Lambda v11가 ① 증감종류(분만/구입/판매/도태/폐사)+두수 handoff 제공. +③ 축산물판매수입(product_sales_income, Lambda v12 계란/유대) 버튼도 표시. v98[플로팅 위젯·내질문 복사]: 모든 페이지 우측하단 🐮 AI 버튼(js/ai_widget.js)→팝업 iframe(chatbot.html?embed=1)로 어디서나 질문. EMBED 모드 감지(?embed=1 또는 iframe내)→[📝 조사표에 입력] 누르면 부모창에 postMessage(dudang-ai-handoff)→조사표 페이지면 그 자리서 미리보기, 아니면 survey.html 이동. 내가 질문한 메시지(me)에도 📋 복사 버튼 추가. v97[B-1 조사표 핸드오프]: 조사표(②) 답변에 [📝 조사표에 입력] 버튼(st.handoff 있을 때만) → handoff를 localStorage(dudang_ai_handoff)에 기록 후 survey.html 이동(조사표에서 미리보기·확인 후 ②원장 입력). 서버 Lambda v10가 survey 결과에 handoff 블록 제공. v96[통계·체중 조회]: [📊 통계·체중] 모드 추가(chatMode chat/survey/stats), mode:stats 전송→서버가 데이터에서 조회(숫자 서버조회)·KOSIS 원문 링크. v95[스크롤·A단계보강]: scrollDown이 <main>을 스크롤(새 답변시 항상 맨아래 이동, requestAnimationFrame). v94[A단계 조사표 작성모드]: [일반질문/조사표 작성] 토글, 조사표 질문→서버가 구조화JSON+프로그램 재계산→표 답변(부호·구분·수량·금액·실금액·연계·신뢰도). 데이터 survey_schema.json. v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-03 01:41 KST · v103[탭 합치기·소이력 전체정보]: (A)💬일반+📊통계 → '💬 질문'(통계·체중 포함) 1탭으로 통합, 질문탭에서 통계성 질의(looksLikeStats)면 자동 mode:stats, 아니면 일반. 조사표 탭은 분리. (B)소이력 조회를 전체필드로 확장 — 품종·성별·출생·신고/이동·구입일·구입개월령·사육개월수·도축일·출하개월수·육질등급·검사결과·도축장·주소·도체중량·도체율(품종성별자동)·추정생체중량(도체중÷도체율). 판매금액·조사표자동작성은 다음단계 안내. v102[소이력 조회·개인정보보호]: 이력번호(12자리 또는 410+12) 감지 시 OpenAI로 안 보내고 축산물이력제 API(TRACE_URL, cattle.html과 동일)로만 조회→품종·성별·출생·도축·등급·도체중·이동 요약. 모든 탭 공통(doSend 최상단). 전화11·금액·주민13자리는 미감지. v99[B확장 ①사육현황]: [📝 조사표에 입력] 버튼을 ②구입판매 외 ①사육현황(livestock_status) handoff에도 표시. 서버 Lambda v11가 ① 증감종류(분만/구입/판매/도태/폐사)+두수 handoff 제공. +③ 축산물판매수입(product_sales_income, Lambda v12 계란/유대) 버튼도 표시. v98[플로팅 위젯·내질문 복사]: 모든 페이지 우측하단 🐮 AI 버튼(js/ai_widget.js)→팝업 iframe(chatbot.html?embed=1)로 어디서나 질문. EMBED 모드 감지(?embed=1 또는 iframe내)→[📝 조사표에 입력] 누르면 부모창에 postMessage(dudang-ai-handoff)→조사표 페이지면 그 자리서 미리보기, 아니면 survey.html 이동. 내가 질문한 메시지(me)에도 📋 복사 버튼 추가. v97[B-1 조사표 핸드오프]: 조사표(②) 답변에 [📝 조사표에 입력] 버튼(st.handoff 있을 때만) → handoff를 localStorage(dudang_ai_handoff)에 기록 후 survey.html 이동(조사표에서 미리보기·확인 후 ②원장 입력). 서버 Lambda v10가 survey 결과에 handoff 블록 제공. v96[통계·체중 조회]: [📊 통계·체중] 모드 추가(chatMode chat/survey/stats), mode:stats 전송→서버가 데이터에서 조회(숫자 서버조회)·KOSIS 원문 링크. v95[스크롤·A단계보강]: scrollDown이 <main>을 스크롤(새 답변시 항상 맨아래 이동, requestAnimationFrame). v94[A단계 조사표 작성모드]: [일반질문/조사표 작성] 토글, 조사표 질문→서버가 구조화JSON+프로그램 재계산→표 답변(부호·구분·수량·금액·실금액·연계·신뢰도). 데이터 survey_schema.json. v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -223,13 +223,15 @@
     var ctrl = new AbortController();
     var timer = setTimeout(function () { ctrl.abort(); }, REQUEST_TIMEOUT_MS);
 
+    // 전송 모드 결정: 조사표=survey, 질문탭이면 통계성 질의는 stats 자동, 그 외 일반(undefined)
+    var sendMode = (chatMode === "survey") ? "survey" : (looksLikeStats(text) ? "stats" : undefined);
     // 로그인 토큰(있으면) 첨부 → 서버에서 승인 검증
     var tokP = (window.__dudangAuth && window.__dudangAuth.getToken) ? window.__dudangAuth.getToken() : Promise.resolve(null);
     tokP.then(function (idToken) {
       return fetch(RELAY_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, history: priorHist, idToken: idToken || undefined, mode: chatMode !== "chat" ? chatMode : undefined }),
+        body: JSON.stringify({ message: text, history: priorHist, idToken: idToken || undefined, mode: sendMode }),
         signal: ctrl.signal
       });
     })
@@ -262,23 +264,48 @@
 
   // ── 소 축산물이력제 조회 (이력번호는 정부 이력제 API로만, OpenAI 미전송) ──
   function traceYmd(s) { s = String(s == null ? "" : s); return /^\d{8}$/.test(s) ? (s.slice(0, 4) + "-" + s.slice(4, 6) + "-" + s.slice(6, 8)) : (s || "-"); }
+  function traceDate(s) { s = String(s || "").replace(/\D/g, ""); if (!/^\d{8}$/.test(s)) return null; return new Date(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)); }
+  function traceMonths(a, b) { if (!a || !b) return null; var m = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()); var dim = new Date(b.getFullYear(), b.getMonth(), 0).getDate(); m += (b.getDate() - a.getDate()) / dim; return m; }
+  // 도체율: 품종·성별 자동(한우 평균59.7·거세59.9·비거세59.1, 육우57.2, 그 외 60)
+  function traceDressRate(breed, sex) { var b = String(breed || ""), s = String(sex || ""); if (b.indexOf("육우") >= 0) return 57.2; if (b.indexOf("한우") >= 0) { if (s.indexOf("거세") >= 0 && s.indexOf("미거세") < 0 && s.indexOf("비거세") < 0) return 59.9; if (s.indexOf("미거세") >= 0 || s.indexOf("비거세") >= 0) return 59.1; if (s.indexOf("수") >= 0) return 59.1; if (s.indexOf("암") >= 0) return 59.7; return 59.7; } return 60; }
   function formatTrace(traceNo, data) {
     var byOpt = {}; (data.results || []).forEach(function (r) { byOpt[r.optionNo] = r; });
     var o1 = byOpt[1] && byOpt[1].items && byOpt[1].items[0];
     var o2 = (byOpt[2] && byOpt[2].items) || [];
     var o3 = byOpt[3] && byOpt[3].items && byOpt[3].items[0];
     if (!o1) return "개체 기본정보가 없습니다. 이력(개체식별)번호를 확인해 주세요. (" + traceNo + ")";
-    var L = ["🐄 소 이력 조회 (이력번호 " + traceNo + ")"];
-    L.push("· 품종/성별: " + (o1.lsTypeNm || "-") + " / " + (o1.sexNm || "-"));
-    L.push("· 출생일: " + traceYmd(o1.birthYmd));
-    if (o3) {
-      L.push("· 도축일: " + traceYmd(o3.butcheryYmd) + (o3.butcheryPlaceNm ? " (" + o3.butcheryPlaceNm + ")" : ""));
-      L.push("· 등급: " + (o3.gradeNm || "-") + " · 도체중량: " + (o3.weight ? (o3.weight + "kg") : "-") + (o3.inspectPassYn ? (" · 검사 " + o3.inspectPassYn) : ""));
-    } else {
-      L.push("· 도축정보: 없음(미도축 또는 미등록)");
-    }
-    L.push("· 이동이력: " + o2.length + "건");
-    L.push("※ 축산물이력제(정부) 자료입니다. 이력번호·조회결과는 생성AI(OpenAI)로 전송되지 않습니다.");
+    var breed = o1.lsTypeNm || "", sex = o1.sexNm || "";
+    var birth = o1.birthYmd || null, butchery = o3 ? o3.butcheryYmd : null;
+    // 구입일 = 도축일 이전 마지막 '양수' 신고일
+    var yangsu = o2.filter(function (x) { return x.regType === "양수" && /^\d{8}$/.test(String(x.regYmd || "")); })
+      .filter(function (x) { return !butchery || String(x.regYmd) <= String(butchery); })
+      .map(function (x) { return String(x.regYmd); }).sort();
+    var buy = yangsu.length ? yangsu[yangsu.length - 1] : null;
+    var bD = traceDate(birth), buyD = traceDate(buy), butD = traceDate(butchery);
+    var rM = function (v) { return (v == null || isNaN(v)) ? null : Math.round(v); };
+    var buyMonth = rM(traceMonths(bD, buyD)), raiseMonth = rM(traceMonths(buyD, butD)), shipMonth = rM(traceMonths(bD, butD));
+    var weight = (o3 && o3.weight) ? Number(o3.weight) : null;
+    var rate = traceDressRate(breed, sex);
+    var live = (weight && rate) ? Math.round(weight / (rate / 100)) : null;
+    var moves = o2.filter(function (x) { return /^\d{8}$/.test(String(x.regYmd || "")); })
+      .map(function (x) { return (x.regType || "신고") + " " + traceYmd(x.regYmd); });
+    var L = [];
+    L.push("🐄 소 이력 조회 — 기본정보 (이력번호 " + traceNo + ")");
+    L.push("· 품종: " + (breed || "-") + "  · 성별: " + (sex || "-"));
+    L.push("· 출생일: " + traceYmd(birth));
+    if (moves.length) L.push("· 신고/이동: " + moves.join(" · "));
+    L.push("· 구입일: " + (buy ? traceYmd(buy) : "-") + (buyMonth != null ? ("  · 구입개월령 " + buyMonth + "개월") : ""));
+    L.push("· 사육개월수: " + (raiseMonth != null ? (raiseMonth + "개월") : "-"));
+    L.push("");
+    L.push("〔출하·도축〕");
+    L.push("· 도축일: " + traceYmd(butchery) + (shipMonth != null ? ("  · 출하개월수 " + shipMonth + "개월") : ""));
+    L.push("· 육질등급: " + ((o3 && o3.gradeNm) || "-") + "  · 검사결과: " + ((o3 && o3.inspectPassYn) || "-"));
+    L.push("· 도축장: " + ((o3 && o3.butcheryPlaceNm) || "-"));
+    if (o3 && o3.butcheryPlaceAddr) L.push("· 도축장 주소: " + o3.butcheryPlaceAddr);
+    L.push("· 도체중량: " + (weight != null ? (weight + "kg") : "-") + "  · 도체율: " + rate + "%  · 추정생체중량: " + (live != null ? (live + "kg") : "-"));
+    L.push("");
+    L.push("※ 축산물이력제(정부) 자료 · 생성AI(OpenAI)에 전송되지 않았습니다. 도체율은 품종·성별 기준 추정치입니다.");
+    L.push("💡 '판매금액 ○○원, 판매비용 ○○원'을 알려주시면 실판매금액까지 정리하고, 축비조사표 ② 자동작성도 도와드립니다.(준비 중)");
     return L.join("\n");
   }
   function doTraceLookup(text, traceNo) {
@@ -415,14 +442,20 @@
 
   // ── 모드 전환(일반 질문 / 조사표 작성) ──
   function setMode(name) {
+    if (name === "stats") name = "chat";   // 통계탭은 질문탭에 통합(자동 라우팅)
     chatMode = name;
-    var btn = { chat: $("modeChat"), survey: $("modeSurvey"), stats: $("modeStats") };
+    var btn = { chat: $("modeChat"), survey: $("modeSurvey") };
     Object.keys(btn).forEach(function (k) { if (btn[k]) btn[k].classList.toggle("on", k === name); });
     qEl.placeholder = name === "survey"
       ? "조사내용을 말하듯 적으세요. 예: 번식우 암송아지 6개월 190kg, 30일 450만원 판매, 비용 10만원"
-      : name === "stats"
-        ? "예: 2025년 송아지 생산비 / 비육우 소득 작년 대비 / 번식우 6개월 참고체중"
-        : "축산조사·용어·가격 등을 질문하세요 (개인정보 제외)";
+      : "용어·가격·통계·참고체중·소이력(이력번호)까지 질문하세요 (개인정보 제외). 예: 2025년 송아지 생산비 / 번식우 6개월 참고체중";
+  }
+  // 질문(일반) 탭에서 통계·체중 질의인지 자동 판별 → mode:stats로 서버 전송(아니면 일반 답변)
+  function looksLikeStats(t) {
+    var s = String(t || "").replace(/\s/g, "");
+    if (/생산비|경영비|비용합계|사료비|노동비|감가상각|소득|순수익|총수입|사료급여량|급여량|노동시간|노동력투하|참고체중|공표통계|통계자료|작년대비|전년대비|어떤자료|무슨자료|자료있|자료가있|조회가능|항목목록|뭐조회|뭐물어|무엇을물어/.test(s)) return true;
+    if (/\d+개월/.test(s) && /체중|생체중|무게/.test(s)) return true;   // 'N개월 체중' = 참고체중
+    return false;
   }
 
   // ── 음성 입력: 녹음 → 서버(Whisper) 전사 → 텍스트 입력 (iOS·안드로이드 공통) ──
