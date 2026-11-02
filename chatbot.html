@@ -176,7 +176,7 @@ body.embed main{padding-top:10px}
     </div>
     <div id="fileChips" class="filechips" hidden></div>
     <div class="inrow">
-      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.pdf" multiple hidden>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.pdf,.jpg,.jpeg,.png,.webp" multiple hidden>
       <button id="btnAttach" type="button" title="파일 첨부(엑셀·CSV)" aria-label="파일 첨부">📎</button>
       <textarea id="q" rows="1" placeholder="축산조사·용어·가격 등을 질문하세요 (개인정보 제외)" autocomplete="off"></textarea>
       <button id="mic" type="button" title="음성 입력" aria-label="음성 입력" hidden><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" fill="currentColor"/><path d="M6 11a1 1 0 0 1 2 0 4 4 0 0 0 8 0 1 1 0 0 1 2 0 6 6 0 0 1-5 5.92V20a1 1 0 0 1-2 0v-3.08A6 6 0 0 1 6 11Z" fill="currentColor"/></svg></button>
@@ -201,6 +201,7 @@ body.embed main{padding-top:10px}
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
 <script>try{if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";}catch(e){}</script>
 <script src="js/chatbot.js"></script>
 <script type="module">
