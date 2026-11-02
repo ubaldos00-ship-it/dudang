@@ -37,6 +37,23 @@ header .acts a,header .acts button{padding:7px 9px}
 /* 플로팅 위젯(iframe) 임베드: 자체 헤더 숨김(팝업에 제목바가 따로 있음) */
 body.embed header{display:none!important}
 body.embed main{padding-top:10px}
+/* 파일 첨부·분석 */
+#btnAttach{flex:0 0 auto;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:#fff;color:#2b6cb0;border:1px solid #cbd5e0;border-radius:11px;cursor:pointer;font-size:20px;padding:0}
+#btnAttach:active{background:#eef3fb}
+.filechips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px}
+.fchip{display:flex;align-items:center;gap:7px;background:#eef3fb;border:1px solid #cbd9ee;border-radius:10px;padding:5px 8px;font-size:12px;max-width:100%}
+.fchip img{width:30px;height:30px;object-fit:cover;border-radius:6px;flex:0 0 auto}
+.fchip .fi{min-width:0}
+.fchip .fn{font-weight:700;color:#1a365d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.fchip .fm{color:#718096;font-size:11px}
+.fchip .fx{background:none;border:0;color:#c53030;font-size:15px;cursor:pointer;flex:0 0 auto;padding:0 2px}
+.fanote{font-size:11.5px;color:#2b6cb0;margin-bottom:6px}
+.fatable{border-collapse:collapse;font-size:12px;width:100%;margin:6px 0}
+.fatable th,.fatable td{border:1px solid #e2e8f0;padding:3px 6px;text-align:right;white-space:nowrap}
+.fatable th{background:#f0f4fa;color:#1a365d;font-weight:700}
+.fatable td.k{text-align:left}
+.fa-scroll{overflow:auto;max-width:100%;max-height:300px;border-radius:8px;border:1px solid #e2e8f0}
+.fa-stat{background:#f7f9fc;border:1px solid #e2e8f0;border-radius:8px;padding:7px 10px;font-size:12px;margin-top:6px;line-height:1.6}
 /* 음성 입력 버튼(v93: 심플 마이크 아이콘) */
 #mic{flex:0 0 auto;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:#fff;color:#718096;border:1px solid #cbd5e0;border-radius:11px;cursor:pointer;padding:0}
 #mic svg{display:block}
@@ -157,7 +174,10 @@ body.embed main{padding-top:10px}
       <button id="modeChat" class="modebtn on" type="button">💬 질문 (통계·체중 포함)</button>
       <button id="modeSurvey" class="modebtn" type="button">📋 조사표</button>
     </div>
+    <div id="fileChips" class="filechips" hidden></div>
     <div class="inrow">
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple hidden>
+      <button id="btnAttach" type="button" title="파일 첨부(엑셀·CSV)" aria-label="파일 첨부">📎</button>
       <textarea id="q" rows="1" placeholder="축산조사·용어·가격 등을 질문하세요 (개인정보 제외)" autocomplete="off"></textarea>
       <button id="mic" type="button" title="음성 입력" aria-label="음성 입력" hidden><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" fill="currentColor"/><path d="M6 11a1 1 0 0 1 2 0 4 4 0 0 0 8 0 1 1 0 0 1 2 0 6 6 0 0 1-5 5.92V20a1 1 0 0 1-2 0v-3.08A6 6 0 0 1 6 11Z" fill="currentColor"/></svg></button>
       <button id="send" type="button">전송</button>
@@ -179,6 +199,7 @@ body.embed main{padding-top:10px}
 </div>
 <div id="toast" class="toast hidden"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="js/chatbot.js"></script>
 <script type="module">
 // 로그인·승인 게이트 (텐아르와 동일 Firebase 프로젝트·회원컬렉션 재사용 — 텐아르 무변경)

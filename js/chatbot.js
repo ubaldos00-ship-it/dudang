@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-03 02:10 KST · v105[통계 라우팅 키워드]: 질문탭 통계 자동라우팅에 '공표자료·코시스·kosis' 추가(대소문자무관). (신규 페이지 chukbi_stats.html 축비공표자료 조회는 index 카드) v104[소이력 판매정리·조사표 자동작성]: 소이력 조회결과 기억(lastTrace). 이후 '판매금액 ○○, 판매비용 ○○ (구입금액·구입체중)' 입력하면 실판매금액·실구입·두당평균사육일수·일당증체량(=(추정생체중−구입체중)÷사육일수) 정리 + [📝 조사표 ②에 입력] 버튼. 핸드오프는 축종힌트(육우→beef/한우→비육우)·사육구분힌트(출하개월)·구입당시(buy) 포함→survey.html ② 비육완료 both 행 자동(사육일수·일당증체 자동계산). 금액파서 억/만/콤마. v103[탭 합치기·소이력 전체정보]: (A)💬일반+📊통계 → '💬 질문'(통계·체중 포함) 1탭으로 통합, 질문탭에서 통계성 질의(looksLikeStats)면 자동 mode:stats, 아니면 일반. 조사표 탭은 분리. (B)소이력 조회를 전체필드로 확장 — 품종·성별·출생·신고/이동·구입일·구입개월령·사육개월수·도축일·출하개월수·육질등급·검사결과·도축장·주소·도체중량·도체율(품종성별자동)·추정생체중량(도체중÷도체율). 판매금액·조사표자동작성은 다음단계 안내. v102[소이력 조회·개인정보보호]: 이력번호(12자리 또는 410+12) 감지 시 OpenAI로 안 보내고 축산물이력제 API(TRACE_URL, cattle.html과 동일)로만 조회→품종·성별·출생·도축·등급·도체중·이동 요약. 모든 탭 공통(doSend 최상단). 전화11·금액·주민13자리는 미감지. v99[B확장 ①사육현황]: [📝 조사표에 입력] 버튼을 ②구입판매 외 ①사육현황(livestock_status) handoff에도 표시. 서버 Lambda v11가 ① 증감종류(분만/구입/판매/도태/폐사)+두수 handoff 제공. +③ 축산물판매수입(product_sales_income, Lambda v12 계란/유대) 버튼도 표시. v98[플로팅 위젯·내질문 복사]: 모든 페이지 우측하단 🐮 AI 버튼(js/ai_widget.js)→팝업 iframe(chatbot.html?embed=1)로 어디서나 질문. EMBED 모드 감지(?embed=1 또는 iframe내)→[📝 조사표에 입력] 누르면 부모창에 postMessage(dudang-ai-handoff)→조사표 페이지면 그 자리서 미리보기, 아니면 survey.html 이동. 내가 질문한 메시지(me)에도 📋 복사 버튼 추가. v97[B-1 조사표 핸드오프]: 조사표(②) 답변에 [📝 조사표에 입력] 버튼(st.handoff 있을 때만) → handoff를 localStorage(dudang_ai_handoff)에 기록 후 survey.html 이동(조사표에서 미리보기·확인 후 ②원장 입력). 서버 Lambda v10가 survey 결과에 handoff 블록 제공. v96[통계·체중 조회]: [📊 통계·체중] 모드 추가(chatMode chat/survey/stats), mode:stats 전송→서버가 데이터에서 조회(숫자 서버조회)·KOSIS 원문 링크. v95[스크롤·A단계보강]: scrollDown이 <main>을 스크롤(새 답변시 항상 맨아래 이동, requestAnimationFrame). v94[A단계 조사표 작성모드]: [일반질문/조사표 작성] 토글, 조사표 질문→서버가 구조화JSON+프로그램 재계산→표 답변(부호·구분·수량·금액·실금액·연계·신뢰도). 데이터 survey_schema.json. v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-03 02:49 KST · v106[파일분석 1차·브라우저내 처리]: 📎 첨부(엑셀xlsx/xls·CSV, 최대3개·10MB)→SheetJS로 브라우저 안에서만 분석(파일·숫자를 OpenAI 등 외부로 전송 안 함). 시트별 표 미리보기+열별 합계/평균/건수/누락·중복행·단위추출, xlsx/CSV 다운로드(집계시트 포함). 첨부 있으면 doSend가 analyzeFiles로 분기(OpenAI 미경유). PDF·이미지 OCR은 다음 단계. v105[통계 라우팅 키워드]: 질문탭 통계 자동라우팅에 '공표자료·코시스·kosis' 추가(대소문자무관). (신규 페이지 chukbi_stats.html 축비공표자료 조회는 index 카드) v104[소이력 판매정리·조사표 자동작성]: 소이력 조회결과 기억(lastTrace). 이후 '판매금액 ○○, 판매비용 ○○ (구입금액·구입체중)' 입력하면 실판매금액·실구입·두당평균사육일수·일당증체량(=(추정생체중−구입체중)÷사육일수) 정리 + [📝 조사표 ②에 입력] 버튼. 핸드오프는 축종힌트(육우→beef/한우→비육우)·사육구분힌트(출하개월)·구입당시(buy) 포함→survey.html ② 비육완료 both 행 자동(사육일수·일당증체 자동계산). 금액파서 억/만/콤마. v103[탭 합치기·소이력 전체정보]: (A)💬일반+📊통계 → '💬 질문'(통계·체중 포함) 1탭으로 통합, 질문탭에서 통계성 질의(looksLikeStats)면 자동 mode:stats, 아니면 일반. 조사표 탭은 분리. (B)소이력 조회를 전체필드로 확장 — 품종·성별·출생·신고/이동·구입일·구입개월령·사육개월수·도축일·출하개월수·육질등급·검사결과·도축장·주소·도체중량·도체율(품종성별자동)·추정생체중량(도체중÷도체율). 판매금액·조사표자동작성은 다음단계 안내. v102[소이력 조회·개인정보보호]: 이력번호(12자리 또는 410+12) 감지 시 OpenAI로 안 보내고 축산물이력제 API(TRACE_URL, cattle.html과 동일)로만 조회→품종·성별·출생·도축·등급·도체중·이동 요약. 모든 탭 공통(doSend 최상단). 전화11·금액·주민13자리는 미감지. v99[B확장 ①사육현황]: [📝 조사표에 입력] 버튼을 ②구입판매 외 ①사육현황(livestock_status) handoff에도 표시. 서버 Lambda v11가 ① 증감종류(분만/구입/판매/도태/폐사)+두수 handoff 제공. +③ 축산물판매수입(product_sales_income, Lambda v12 계란/유대) 버튼도 표시. v98[플로팅 위젯·내질문 복사]: 모든 페이지 우측하단 🐮 AI 버튼(js/ai_widget.js)→팝업 iframe(chatbot.html?embed=1)로 어디서나 질문. EMBED 모드 감지(?embed=1 또는 iframe내)→[📝 조사표에 입력] 누르면 부모창에 postMessage(dudang-ai-handoff)→조사표 페이지면 그 자리서 미리보기, 아니면 survey.html 이동. 내가 질문한 메시지(me)에도 📋 복사 버튼 추가. v97[B-1 조사표 핸드오프]: 조사표(②) 답변에 [📝 조사표에 입력] 버튼(st.handoff 있을 때만) → handoff를 localStorage(dudang_ai_handoff)에 기록 후 survey.html 이동(조사표에서 미리보기·확인 후 ②원장 입력). 서버 Lambda v10가 survey 결과에 handoff 블록 제공. v96[통계·체중 조회]: [📊 통계·체중] 모드 추가(chatMode chat/survey/stats), mode:stats 전송→서버가 데이터에서 조회(숫자 서버조회)·KOSIS 원문 링크. v95[스크롤·A단계보강]: scrollDown이 <main>을 스크롤(새 답변시 항상 맨아래 이동, requestAnimationFrame). v94[A단계 조사표 작성모드]: [일반질문/조사표 작성] 토글, 조사표 질문→서버가 구조화JSON+프로그램 재계산→표 답변(부호·구분·수량·금액·실금액·연계·신뢰도). 데이터 survey_schema.json. v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -188,6 +188,8 @@
   // ── 전송 ──
   function doSend(text) {
     if (busy) return;
+    // 📎 첨부파일이 있으면 브라우저 안에서 분석(OpenAI 등 외부로 전송하지 않음)
+    if (attached.length) { analyzeFiles(); return; }
     text = (text || qEl.value || "").trim();
     if (!text) return;
     if (text.length > MAX_CHARS) { addMsg("err", "질문이 너무 깁니다. " + MAX_CHARS + "자 이내로 줄여 주세요. (현재 " + text.length + "자)"); return; }
@@ -414,6 +416,158 @@
       .catch(function () { typing.remove(); addMsg("err", "축산물이력제 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."); })
       .then(function () { busy = false; sendEl.disabled = false; });
   }
+
+  // ── 📎 파일분석 (브라우저 안에서만 처리 · 파일/숫자를 OpenAI 등 외부로 보내지 않음) ──
+  var attached = [];   // [{file, name, type, size, url(이미지)}]
+  var MAX_FILES = 3, MAX_BYTES = 10 * 1024 * 1024;
+  function fsize(n) { if (n < 1024) return n + " B"; if (n < 1048576) return (n / 1024).toFixed(0) + " KB"; return (n / 1048576).toFixed(1) + " MB"; }
+  function fkind(name) { var e = (name.split(".").pop() || "").toLowerCase(); if (e === "xlsx" || e === "xls") return "엑셀"; if (e === "csv") return "CSV"; if (e === "pdf") return "PDF"; if (/^(jpg|jpeg|png|webp)$/.test(e)) return "이미지"; return e.toUpperCase(); }
+  function renderChips() {
+    var box = $("fileChips"); if (!box) return;
+    if (!attached.length) { box.hidden = true; box.innerHTML = ""; return; }
+    box.hidden = false;
+    box.innerHTML = attached.map(function (a, i) {
+      var pv = a.url ? ("<img src='" + a.url + "' alt=''>") : "";
+      return "<div class='fchip'>" + pv + "<div class='fi'><div class='fn'>" + esc(a.name) + "</div><div class='fm'>" + fkind(a.name) + " · " + fsize(a.size) + "</div></div><button class='fx' type='button' data-fi='" + i + "' title='삭제'>✕</button></div>";
+    }).join("");
+    box.querySelectorAll("[data-fi]").forEach(function (b) { b.onclick = function () { var i = +b.dataset.fi; if (attached[i] && attached[i].url) { try { URL.revokeObjectURL(attached[i].url); } catch (e) {} } attached.splice(i, 1); renderChips(); }; });
+  }
+  function addFiles(list) {
+    for (var i = 0; i < list.length; i++) {
+      if (attached.length >= MAX_FILES) { showToast("파일은 최대 " + MAX_FILES + "개까지"); break; }
+      var f = list[i];
+      if (f.size > MAX_BYTES) { addMsg("err", "'" + f.name + "'은 10MB를 초과합니다."); continue; }
+      var e = (f.name.split(".").pop() || "").toLowerCase();
+      if (["xlsx", "xls", "csv"].indexOf(e) < 0) { addMsg("err", "'" + f.name + "'은 아직 지원하지 않는 형식입니다. (현재 엑셀·CSV 지원, PDF·이미지는 준비 중)"); continue; }
+      attached.push({ file: f, name: f.name, type: f.type, size: f.size, url: null });
+    }
+    renderChips();
+  }
+  function pnum(x) { x = String(x == null ? "" : x).replace(/,/g, "").replace(/\s/g, "").trim(); if (x === "" || x === "-") return null; var n = parseFloat(x); return isNaN(n) ? null : n; }
+  function guessUnit(h) { var s = String(h || ""); var par = s.match(/\(([^)]{1,6})\)/); var cand = par ? par[1] : s; var m = cand.match(/천원|백만원|원|kg|㎏|그램|두수|마리|두|%|퍼센트|ℓ|리터|톤|㎡|평|개월|시간|일/); return m ? m[0] : ""; }
+  function fnum(n) { return (n == null || isNaN(n)) ? "-" : Number(Math.round(n * 100) / 100).toLocaleString("ko-KR"); }
+  function analyzeSheet(aoa) {
+    // 첫 비어있지 않은 행을 머리글로
+    var hi = 0; while (hi < aoa.length && (aoa[hi] || []).every(function (c) { return String(c == null ? "" : c).trim() === ""; })) hi++;
+    var headers = (aoa[hi] || []).map(function (c, j) { var t = String(c == null ? "" : c).trim(); return t || ("열" + (j + 1)); });
+    var rows = aoa.slice(hi + 1).filter(function (r) { return (r || []).some(function (c) { return String(c == null ? "" : c).trim() !== ""; }); });
+    var cols = headers.map(function (h, j) {
+      var vals = rows.map(function (r) { return (r || [])[j]; });
+      var nums = vals.map(pnum).filter(function (v) { return v != null; });
+      var empty = vals.filter(function (v) { return String(v == null ? "" : v).trim() === ""; }).length;
+      var isNum = nums.length >= Math.max(2, Math.ceil(vals.length * 0.5));
+      var sum = nums.reduce(function (a, b) { return a + b; }, 0);
+      return { name: h, unit: guessUnit(h), isNum: isNum, count: nums.length, empty: empty, sum: isNum ? sum : null, avg: (isNum && nums.length) ? sum / nums.length : null, min: isNum && nums.length ? Math.min.apply(null, nums) : null, max: isNum && nums.length ? Math.max.apply(null, nums) : null };
+    });
+    // 중복행(동일 전체행) 수
+    var seen = {}, dup = 0; rows.forEach(function (r) { var k = (r || []).join("\u0001"); if (seen[k]) dup++; else seen[k] = 1; });
+    return { headers: headers, rows: rows, cols: cols, dup: dup };
+  }
+  function analyzeWorkbook(name, buf) {
+    var wb = XLSX.read(buf, { type: "array", cellDates: false });
+    var sheets = wb.SheetNames.map(function (sn) {
+      var aoa = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: "", raw: true, blankrows: false });
+      return { name: sn, a: analyzeSheet(aoa) };
+    });
+    return { name: name, sheets: sheets, wb: wb };
+  }
+  function sheetTableHtml(a) {
+    var maxR = 15, maxC = Math.min(a.headers.length, 14);
+    var h = "<div class='fa-scroll'><table class='fatable'><tr>";
+    for (var j = 0; j < maxC; j++) h += "<th>" + esc(a.headers[j]) + (a.cols[j].unit ? "" : "") + "</th>";
+    if (a.headers.length > maxC) h += "<th>…</th>";
+    h += "</tr>";
+    for (var i = 0; i < Math.min(a.rows.length, maxR); i++) {
+      h += "<tr>";
+      for (var c = 0; c < maxC; c++) { var v = (a.rows[i] || [])[c]; var num = pnum(v); h += "<td class='" + (num == null ? "k" : "") + "'>" + esc(num == null ? String(v == null ? "" : v) : fnum(num)) + "</td>"; }
+      if (a.headers.length > maxC) h += "<td>…</td>";
+      h += "</tr>";
+    }
+    h += "</table></div>";
+    if (a.rows.length > maxR) h += "<div class='fm' style='font-size:11px;color:#718096'>… 외 " + (a.rows.length - maxR) + "행 (다운로드하면 전체 포함)</div>";
+    return h;
+  }
+  function statHtml(a) {
+    var numCols = a.cols.filter(function (c) { return c.isNum; });
+    var lines = numCols.slice(0, 20).map(function (c) { return "· <b>" + esc(c.name) + "</b>" + ((c.unit && String(c.name).indexOf(c.unit) < 0) ? ("(" + c.unit + ")") : "") + ": 합계 " + fnum(c.sum) + " · 평균 " + fnum(c.avg) + " · 건수 " + c.count + (c.empty ? (" · 누락 " + c.empty) : ""); });
+    var warn = [];
+    var anyEmpty = a.cols.reduce(function (s, c) { return s + c.empty; }, 0);
+    if (anyEmpty) warn.push("빈칸(누락) " + anyEmpty + "곳");
+    if (a.dup) warn.push("중복행 " + a.dup + "개");
+    return "<div class='fa-stat'>" + (lines.length ? ("📊 숫자 열 집계<br>" + lines.join("<br>")) : "숫자 열이 없습니다.") + (warn.length ? ("<br>⚠️ 확인 필요: " + warn.join(" · ")) : "") + "</div>";
+  }
+  var _lastAnalysis = [];
+  function renderAnalysis(res) {
+    var div = document.createElement("div"); div.className = "msg ai";
+    var html = "<div class='av'>📎</div><div class='bubble'>";
+    html += "<b>" + esc(res.name) + "</b> 분석 결과 <span class='fanote'>· 브라우저 안에서만 처리(외부 전송 없음)</span>";
+    res.sheets.forEach(function (s) {
+      html += "<div style='margin-top:8px'><b>[" + esc(s.name) + "]</b> " + s.a.rows.length + "행 × " + s.a.headers.length + "열</div>";
+      html += sheetTableHtml(s.a) + statHtml(s.a);
+    });
+    html += "<div class='fanote' style='margin-top:8px'>※ 합계·평균은 파일의 실제 값으로 계산했습니다. 원본에 없는 값은 만들지 않습니다.</div>";
+    html += "</div>";
+    div.innerHTML = html;
+    var bubble = div.querySelector(".bubble");
+    var cr = document.createElement("div"); cr.className = "copyrow";
+    ["엑셀(xlsx)", "CSV"].forEach(function (fmt) {
+      var b = document.createElement("button"); b.className = "copybtn"; b.type = "button"; b.textContent = "⬇ " + fmt + " 다운로드";
+      b.onclick = function () { downloadResult(res, fmt.indexOf("CSV") >= 0 ? "csv" : "xlsx"); };
+      cr.appendChild(b);
+    });
+    bubble.appendChild(cr);
+    logEl.appendChild(div); scrollDown();
+  }
+  function downloadResult(res, fmt) {
+    try {
+      var out = XLSX.utils.book_new();
+      res.sheets.forEach(function (s, idx) {
+        var aoa = [s.a.headers].concat(s.a.rows);
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+        XLSX.utils.book_append_sheet(out, ws, (s.name || ("Sheet" + (idx + 1))).slice(0, 28));
+        // 집계 시트
+        var stat = [["열", "단위", "합계", "평균", "건수", "누락", "최소", "최대"]];
+        s.a.cols.forEach(function (c) { if (c.isNum) stat.push([c.name, c.unit, c.sum, c.avg, c.count, c.empty, c.min, c.max]); });
+        if (stat.length > 1) XLSX.utils.book_append_sheet(out, XLSX.utils.aoa_to_sheet(stat), ("집계_" + (idx + 1)).slice(0, 28));
+      });
+      var base = "분석_" + (res.name.replace(/\.[^.]+$/, "") || "결과");
+      if (fmt === "csv") {
+        var csv = XLSX.utils.sheet_to_csv(out.Sheets[out.SheetNames[0]]);
+        var blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+        var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = base + ".csv"; a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+      } else {
+        XLSX.writeFile(out, base + ".xlsx");
+      }
+      showToast("다운로드를 시작합니다");
+    } catch (e) { addMsg("err", "다운로드 생성 중 오류: " + (e && e.message || e)); }
+  }
+  function analyzeFiles() {
+    if (typeof XLSX === "undefined") { addMsg("err", "분석 라이브러리를 불러오지 못했습니다. 인터넷 연결 후 새로고침해 주세요."); return; }
+    var files = attached.slice();
+    // 첨부 표시 메시지(내 쪽)
+    addMsg("me", "📎 " + files.map(function (f) { return f.name; }).join(", ") + " 분석");
+    attached = []; renderChips(); qEl.value = ""; updateCnt(); autoGrow();
+    var typing = addTyping(); busy = true; sendEl.disabled = true;
+    var done = 0;
+    files.forEach(function (fobj) {
+      var fr = new FileReader();
+      fr.onload = function () {
+        try { var res = analyzeWorkbook(fobj.name, new Uint8Array(fr.result)); renderAnalysis(res); }
+        catch (e) { addMsg("err", "'" + fobj.name + "' 분석 실패: " + (e && e.message || e)); }
+        if (++done === files.length) { typing.remove(); busy = false; sendEl.disabled = false; }
+      };
+      fr.onerror = function () { addMsg("err", "'" + fobj.name + "' 읽기 실패"); if (++done === files.length) { typing.remove(); busy = false; sendEl.disabled = false; } };
+      fr.readAsArrayBuffer(fobj.file);
+    });
+  }
+  // 첨부 버튼 wiring
+  (function wireAttach() {
+    var bt = $("btnAttach"), fi = $("fileInput");
+    if (bt && fi) {
+      bt.onclick = function () { fi.click(); };
+      fi.onchange = function () { if (fi.files && fi.files.length) addFiles(fi.files); fi.value = ""; };
+    }
+  })();
 
   // ── 조사표 작성(A단계) 답변 렌더 ──
   function confBadge(c) {
