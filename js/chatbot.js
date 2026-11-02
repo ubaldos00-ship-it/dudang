@@ -1,4 +1,4 @@
-/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-03 02:49 KST · v106[파일분석 1차·브라우저내 처리]: 📎 첨부(엑셀xlsx/xls·CSV, 최대3개·10MB)→SheetJS로 브라우저 안에서만 분석(파일·숫자를 OpenAI 등 외부로 전송 안 함). 시트별 표 미리보기+열별 합계/평균/건수/누락·중복행·단위추출, xlsx/CSV 다운로드(집계시트 포함). 첨부 있으면 doSend가 analyzeFiles로 분기(OpenAI 미경유). PDF·이미지 OCR은 다음 단계. v105[통계 라우팅 키워드]: 질문탭 통계 자동라우팅에 '공표자료·코시스·kosis' 추가(대소문자무관). (신규 페이지 chukbi_stats.html 축비공표자료 조회는 index 카드) v104[소이력 판매정리·조사표 자동작성]: 소이력 조회결과 기억(lastTrace). 이후 '판매금액 ○○, 판매비용 ○○ (구입금액·구입체중)' 입력하면 실판매금액·실구입·두당평균사육일수·일당증체량(=(추정생체중−구입체중)÷사육일수) 정리 + [📝 조사표 ②에 입력] 버튼. 핸드오프는 축종힌트(육우→beef/한우→비육우)·사육구분힌트(출하개월)·구입당시(buy) 포함→survey.html ② 비육완료 both 행 자동(사육일수·일당증체 자동계산). 금액파서 억/만/콤마. v103[탭 합치기·소이력 전체정보]: (A)💬일반+📊통계 → '💬 질문'(통계·체중 포함) 1탭으로 통합, 질문탭에서 통계성 질의(looksLikeStats)면 자동 mode:stats, 아니면 일반. 조사표 탭은 분리. (B)소이력 조회를 전체필드로 확장 — 품종·성별·출생·신고/이동·구입일·구입개월령·사육개월수·도축일·출하개월수·육질등급·검사결과·도축장·주소·도체중량·도체율(품종성별자동)·추정생체중량(도체중÷도체율). 판매금액·조사표자동작성은 다음단계 안내. v102[소이력 조회·개인정보보호]: 이력번호(12자리 또는 410+12) 감지 시 OpenAI로 안 보내고 축산물이력제 API(TRACE_URL, cattle.html과 동일)로만 조회→품종·성별·출생·도축·등급·도체중·이동 요약. 모든 탭 공통(doSend 최상단). 전화11·금액·주민13자리는 미감지. v99[B확장 ①사육현황]: [📝 조사표에 입력] 버튼을 ②구입판매 외 ①사육현황(livestock_status) handoff에도 표시. 서버 Lambda v11가 ① 증감종류(분만/구입/판매/도태/폐사)+두수 handoff 제공. +③ 축산물판매수입(product_sales_income, Lambda v12 계란/유대) 버튼도 표시. v98[플로팅 위젯·내질문 복사]: 모든 페이지 우측하단 🐮 AI 버튼(js/ai_widget.js)→팝업 iframe(chatbot.html?embed=1)로 어디서나 질문. EMBED 모드 감지(?embed=1 또는 iframe내)→[📝 조사표에 입력] 누르면 부모창에 postMessage(dudang-ai-handoff)→조사표 페이지면 그 자리서 미리보기, 아니면 survey.html 이동. 내가 질문한 메시지(me)에도 📋 복사 버튼 추가. v97[B-1 조사표 핸드오프]: 조사표(②) 답변에 [📝 조사표에 입력] 버튼(st.handoff 있을 때만) → handoff를 localStorage(dudang_ai_handoff)에 기록 후 survey.html 이동(조사표에서 미리보기·확인 후 ②원장 입력). 서버 Lambda v10가 survey 결과에 handoff 블록 제공. v96[통계·체중 조회]: [📊 통계·체중] 모드 추가(chatMode chat/survey/stats), mode:stats 전송→서버가 데이터에서 조회(숫자 서버조회)·KOSIS 원문 링크. v95[스크롤·A단계보강]: scrollDown이 <main>을 스크롤(새 답변시 항상 맨아래 이동, requestAnimationFrame). v94[A단계 조사표 작성모드]: [일반질문/조사표 작성] 토글, 조사표 질문→서버가 구조화JSON+프로그램 재계산→표 답변(부호·구분·수량·금액·실금액·연계·신뢰도). 데이터 survey_schema.json. v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
+/* chatbot.js · 두당 AI 챗봇 · 저장: 2026-11-03 03:00 KST · v107[파일분석 PDF 추가]: 📎에 PDF 지원 — pdf.js(3.11.174)로 브라우저 내 텍스트 추출(페이지별·숫자/금액 추출·텍스트 다운로드/복사). 스캔(이미지)PDF면 텍스트없음 감지→'이미지 OCR 필요' 안내. 여전히 외부 전송 없음. v106[파일분석 1차·브라우저내 처리]: 📎 첨부(엑셀xlsx/xls·CSV, 최대3개·10MB)→SheetJS로 브라우저 안에서만 분석(파일·숫자를 OpenAI 등 외부로 전송 안 함). 시트별 표 미리보기+열별 합계/평균/건수/누락·중복행·단위추출, xlsx/CSV 다운로드(집계시트 포함). 첨부 있으면 doSend가 analyzeFiles로 분기(OpenAI 미경유). PDF·이미지 OCR은 다음 단계. v105[통계 라우팅 키워드]: 질문탭 통계 자동라우팅에 '공표자료·코시스·kosis' 추가(대소문자무관). (신규 페이지 chukbi_stats.html 축비공표자료 조회는 index 카드) v104[소이력 판매정리·조사표 자동작성]: 소이력 조회결과 기억(lastTrace). 이후 '판매금액 ○○, 판매비용 ○○ (구입금액·구입체중)' 입력하면 실판매금액·실구입·두당평균사육일수·일당증체량(=(추정생체중−구입체중)÷사육일수) 정리 + [📝 조사표 ②에 입력] 버튼. 핸드오프는 축종힌트(육우→beef/한우→비육우)·사육구분힌트(출하개월)·구입당시(buy) 포함→survey.html ② 비육완료 both 행 자동(사육일수·일당증체 자동계산). 금액파서 억/만/콤마. v103[탭 합치기·소이력 전체정보]: (A)💬일반+📊통계 → '💬 질문'(통계·체중 포함) 1탭으로 통합, 질문탭에서 통계성 질의(looksLikeStats)면 자동 mode:stats, 아니면 일반. 조사표 탭은 분리. (B)소이력 조회를 전체필드로 확장 — 품종·성별·출생·신고/이동·구입일·구입개월령·사육개월수·도축일·출하개월수·육질등급·검사결과·도축장·주소·도체중량·도체율(품종성별자동)·추정생체중량(도체중÷도체율). 판매금액·조사표자동작성은 다음단계 안내. v102[소이력 조회·개인정보보호]: 이력번호(12자리 또는 410+12) 감지 시 OpenAI로 안 보내고 축산물이력제 API(TRACE_URL, cattle.html과 동일)로만 조회→품종·성별·출생·도축·등급·도체중·이동 요약. 모든 탭 공통(doSend 최상단). 전화11·금액·주민13자리는 미감지. v99[B확장 ①사육현황]: [📝 조사표에 입력] 버튼을 ②구입판매 외 ①사육현황(livestock_status) handoff에도 표시. 서버 Lambda v11가 ① 증감종류(분만/구입/판매/도태/폐사)+두수 handoff 제공. +③ 축산물판매수입(product_sales_income, Lambda v12 계란/유대) 버튼도 표시. v98[플로팅 위젯·내질문 복사]: 모든 페이지 우측하단 🐮 AI 버튼(js/ai_widget.js)→팝업 iframe(chatbot.html?embed=1)로 어디서나 질문. EMBED 모드 감지(?embed=1 또는 iframe내)→[📝 조사표에 입력] 누르면 부모창에 postMessage(dudang-ai-handoff)→조사표 페이지면 그 자리서 미리보기, 아니면 survey.html 이동. 내가 질문한 메시지(me)에도 📋 복사 버튼 추가. v97[B-1 조사표 핸드오프]: 조사표(②) 답변에 [📝 조사표에 입력] 버튼(st.handoff 있을 때만) → handoff를 localStorage(dudang_ai_handoff)에 기록 후 survey.html 이동(조사표에서 미리보기·확인 후 ②원장 입력). 서버 Lambda v10가 survey 결과에 handoff 블록 제공. v96[통계·체중 조회]: [📊 통계·체중] 모드 추가(chatMode chat/survey/stats), mode:stats 전송→서버가 데이터에서 조회(숫자 서버조회)·KOSIS 원문 링크. v95[스크롤·A단계보강]: scrollDown이 <main>을 스크롤(새 답변시 항상 맨아래 이동, requestAnimationFrame). v94[A단계 조사표 작성모드]: [일반질문/조사표 작성] 토글, 조사표 질문→서버가 구조화JSON+프로그램 재계산→표 답변(부호·구분·수량·금액·실금액·연계·신뢰도). 데이터 survey_schema.json. v93[대화기록·복사·UI]: 대화 '대화별' 로컬저장(dudangAI_sessions, 목록·날짜시간·열기/복사/삭제, 🕘 기록 모달), AI답변·대화 복사(토스트), 새대화시 이전대화 기록유지, 음성 아이콘 SVG·입력창 자동확장 160px. v92[음성 녹음→Whisper전사]: 음성입력을 MediaRecorder 녹음→RELAY_URL(body.audio base64)→서버 Whisper 전사→텍스트 입력으로 교체(iOS Safari의 Web Speech 미지원 해결). 미지원/권한거부 안내. v91[관리버튼·음성(구)·로컬기록]: 🎤 음성입력(SpeechRecognition ko-KR, 지원시만), 대화 기기내 로컬저장(dudangAI_chatHistory·서버저장 안함·새대화시 삭제·복원), 관리자(role=admin)만 '👤 관리'→members.html 노출(chatbot.html 모듈). v90[접근제어]: 전송 시 Firebase ID토큰 첨부(window.__dudangAuth.getToken) → 서버 승인검증. 게이트는 chatbot.html 모듈 스크립트. v89[조사표 부호 연동]: 답변 참고자료에 '🔢 조사표 부호' 링크 추가(buildMeta codes 매핑·중복제거). 서버(Lambda v4)가 codes.json으로 부호 근거 제공. v88[PWA 헤더 수정]. v87[3단계 연결완료]: RELAY_URL에 aws_dudang_ai 함수 URL 입력 → 실제 OpenAI 답변 연결. (AWS 검증완료: 빈질문400·개인정보차단·OpenAI한국어답변200). v86[3단계 연결준비]: 서버 전송 history를 '현재 질문 제외 이전 맥락'으로 정정(서버가 뒤에 현재 질문 추가 → 중복 방지). v85[신규·2단계 화면]
    역할: 챗봇 화면 동작 + 1차(클라이언트) 개인정보 차단 + 질문 전송/답변 표시.
    원칙(개발 시나리오 B안·9장·10장):
    - AI API 키/모델은 이 파일에 없습니다. AWS Lambda(환경변수)에서만 사용합니다.
@@ -438,7 +438,7 @@
       var f = list[i];
       if (f.size > MAX_BYTES) { addMsg("err", "'" + f.name + "'은 10MB를 초과합니다."); continue; }
       var e = (f.name.split(".").pop() || "").toLowerCase();
-      if (["xlsx", "xls", "csv"].indexOf(e) < 0) { addMsg("err", "'" + f.name + "'은 아직 지원하지 않는 형식입니다. (현재 엑셀·CSV 지원, PDF·이미지는 준비 중)"); continue; }
+      if (["xlsx", "xls", "csv", "pdf"].indexOf(e) < 0) { addMsg("err", "'" + f.name + "'은 아직 지원하지 않는 형식입니다. (현재 엑셀·CSV·PDF 지원, 이미지 OCR은 준비 중)"); continue; }
       attached.push({ file: f, name: f.name, type: f.type, size: f.size, url: null });
     }
     renderChips();
@@ -549,16 +549,65 @@
     attached = []; renderChips(); qEl.value = ""; updateCnt(); autoGrow();
     var typing = addTyping(); busy = true; sendEl.disabled = true;
     var done = 0;
+    var fin = function () { if (++done === files.length) { typing.remove(); busy = false; sendEl.disabled = false; } };
     files.forEach(function (fobj) {
+      var ext = (fobj.name.split(".").pop() || "").toLowerCase();
       var fr = new FileReader();
       fr.onload = function () {
-        try { var res = analyzeWorkbook(fobj.name, new Uint8Array(fr.result)); renderAnalysis(res); }
-        catch (e) { addMsg("err", "'" + fobj.name + "' 분석 실패: " + (e && e.message || e)); }
-        if (++done === files.length) { typing.remove(); busy = false; sendEl.disabled = false; }
+        var buf = new Uint8Array(fr.result);
+        if (ext === "pdf") {
+          analyzePdf(fobj.name, buf).then(function (res) { renderPdf(res); })
+            .catch(function (e) { addMsg("err", "'" + fobj.name + "' PDF 분석 실패: " + (e && e.message || e)); })
+            .then(fin);
+        } else {
+          try { renderAnalysis(analyzeWorkbook(fobj.name, buf)); }
+          catch (e) { addMsg("err", "'" + fobj.name + "' 분석 실패: " + (e && e.message || e)); }
+          fin();
+        }
       };
-      fr.onerror = function () { addMsg("err", "'" + fobj.name + "' 읽기 실패"); if (++done === files.length) { typing.remove(); busy = false; sendEl.disabled = false; } };
+      fr.onerror = function () { addMsg("err", "'" + fobj.name + "' 읽기 실패"); fin(); };
       fr.readAsArrayBuffer(fobj.file);
     });
+  }
+  // ── PDF 텍스트 추출 (pdf.js · 브라우저 내) ──
+  function pdfLines(tc) {
+    var items = (tc && tc.items) || [];
+    var lines = {}, order = [];
+    items.forEach(function (it) { var y = Math.round((it.transform && it.transform[5]) || 0); if (!(y in lines)) { lines[y] = []; order.push(y); } lines[y].push({ x: (it.transform && it.transform[4]) || 0, s: it.str || "" }); });
+    order.sort(function (a, b) { return b - a; });
+    return order.map(function (y) { return lines[y].sort(function (a, b) { return a.x - b.x; }).map(function (o) { return o.s; }).join(" ").replace(/\s+/g, " ").trim(); }).filter(function (l) { return l !== ""; });
+  }
+  function analyzePdf(name, buf) {
+    if (typeof pdfjsLib === "undefined") return Promise.reject(new Error("PDF 라이브러리를 불러오지 못했습니다(새로고침)."));
+    return pdfjsLib.getDocument({ data: buf }).promise.then(function (pdf) {
+      var maxP = Math.min(pdf.numPages, 20), pages = [], seq = Promise.resolve();
+      for (var p = 1; p <= maxP; p++) (function (pn) { seq = seq.then(function () { return pdf.getPage(pn).then(function (pg) { return pg.getTextContent().then(function (tc) { pages.push({ page: pn, text: pdfLines(tc) }); }); }); }); })(p);
+      return seq.then(function () { pages.sort(function (a, b) { return a.page - b.page; }); return { name: name, numPages: pdf.numPages, shown: maxP, pages: pages }; });
+    });
+  }
+  function renderPdf(res) {
+    var scanLike = res.pages.every(function (p) { return p.text.join("").replace(/\s/g, "").length < 3; });
+    var allText = "";
+    var div = document.createElement("div"); div.className = "msg ai";
+    var html = "<div class='av'>📎</div><div class='bubble'>";
+    html += "<b>" + esc(res.name) + "</b> PDF 분석 <span class='fanote'>· 브라우저 안에서만 처리(외부 전송 없음)</span>";
+    html += "<div class='fm' style='font-size:11px;color:#718096;margin-top:4px'>총 " + res.numPages + "쪽 중 " + res.shown + "쪽 표시</div>";
+    if (scanLike) html += "<div class='fa-stat'>⚠️ 텍스트가 거의 없습니다 — <b>스캔(이미지) PDF</b>로 보입니다. 이미지 OCR(다음 단계)이 필요합니다.</div>";
+    res.pages.forEach(function (p) {
+      var t = p.text.join("\n"); allText += "[" + p.page + "쪽]\n" + t + "\n\n";
+      html += "<div style='margin-top:8px'><b>[" + p.page + "쪽]</b></div><div class='fa-scroll' style='max-height:200px'><div style='padding:6px 8px;font-size:12px;white-space:pre-wrap;line-height:1.5'>" + esc(t.slice(0, 2000)) + (t.length > 2000 ? "…" : "") + "</div></div>";
+    });
+    var nums = (allText.match(/[0-9][0-9,]{2,}(?:\.[0-9]+)?/g) || []).map(function (x) { return x.replace(/,/g, ""); }).filter(function (x) { return x.replace(/\D/g, "").length >= 3; });
+    if (nums.length) html += "<div class='fa-stat'>🔢 추출된 숫자(상위 30): " + nums.slice(0, 30).map(function (n) { return Number(n).toLocaleString("ko-KR"); }).join(" · ") + "</div>";
+    html += "<div class='fanote' style='margin-top:8px'>※ 추출 텍스트는 파일 원본입니다. 표 정렬이 깨질 수 있으니 확인 후 사용하세요.</div></div>";
+    div.innerHTML = html;
+    var bubble = div.querySelector(".bubble");
+    var cr = document.createElement("div"); cr.className = "copyrow";
+    var cb = document.createElement("button"); cb.className = "copybtn"; cb.type = "button"; cb.textContent = "⬇ 텍스트 다운로드";
+    cb.onclick = function () { var blob = new Blob(["﻿" + allText], { type: "text/plain;charset=utf-8" }); var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "추출_" + res.name.replace(/\.[^.]+$/, "") + ".txt"; a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500); showToast("다운로드를 시작합니다"); };
+    var cc = document.createElement("button"); cc.className = "copybtn"; cc.type = "button"; cc.textContent = "📋 복사"; cc.onclick = function () { copyText(allText); };
+    cr.appendChild(cb); cr.appendChild(cc); bubble.appendChild(cr);
+    logEl.appendChild(div); scrollDown();
   }
   // 첨부 버튼 wiring
   (function wireAttach() {
