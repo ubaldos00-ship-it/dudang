@@ -1,0 +1,154 @@
+<!-- chukbi_stats.html · 축비 공표자료(축산물생산비조사 KOSIS) 조회 · 저장: 2026-11-03 KST · 축종별·연도별 생산비/항목 결과값 표+차트(statistics.json 클라이언트 조회) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="두당">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>축비 공표자료 조회 · 두당 頭當</title>
+<style>
+  :root{--navy:#1a365d;--navy2:#2c5282;--bg:#f4f6f9;--card:#fff;--line:#e2e8f0;--text:#1a202c;--muted:#718096;--accent:#2b6cb0;--up:#c53030;--down:#2b6cb0;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.55;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:12px 16px;position:sticky;top:0;z-index:30;}
+  header .hrow{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:10px;}
+  header a{color:#fff;text-decoration:none;font-size:20px;}
+  header .tt{flex:1;}
+  header h1{margin:0;font-size:17px;}
+  header .hsub{font-size:12px;opacity:.85;}
+  main{max-width:900px;margin:0 auto;padding:14px 16px 40px;}
+  .note{background:#eef3fb;border:1px solid #cbd9ee;color:#2a4a7f;border-radius:10px;padding:9px 12px;font-size:12.5px;margin-bottom:14px;}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .controls .full{grid-column:1 / -1;}
+  label.lb{display:block;font-size:12px;color:var(--muted);margin:0 0 3px 2px;font-weight:700;}
+  select{width:100%;padding:9px 10px;border:1px solid #cbd5e0;border-radius:9px;font-size:15px;background:#fff;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.03);}
+  .ttl{font-weight:800;color:var(--navy);font-size:15px;margin-bottom:8px;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{border-bottom:1px solid #edf2f7;padding:8px 6px;text-align:right;}
+  th{background:#f7f9fc;color:var(--navy);font-weight:700;}
+  th:first-child,td:first-child{text-align:center;}
+  td.up{color:var(--up);font-weight:700;}
+  td.down{color:var(--down);font-weight:700;}
+  .chart-wrap{position:relative;height:300px;margin-top:6px;}
+  .src{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5;}
+  .empty{color:var(--muted);text-align:center;padding:24px 0;font-size:13.5px;}
+  @media(max-width:520px){ .controls{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<header><div class="hrow">
+  <a href="index.html" aria-label="뒤로">←</a>
+  <div class="tt"><h1>📊 축비 공표자료 조회</h1><div class="hsub">축산물생산비조사 공표통계(KOSIS) · 축종별·연도별</div></div>
+  <a href="index.html" aria-label="홈">🏠</a>
+</div></header>
+
+<main>
+  <div class="note">축종·항목·사육규모를 고르면 <b>연도별 결과값</b>을 표와 그래프로 보여줍니다. 공표된 과거 통계값이며, 빈칸·‘-’는 0으로 답하지 않습니다.</div>
+
+  <div class="controls">
+    <div class="full"><label class="lb">축종</label><select id="selAnimal"></select></div>
+    <div><label class="lb">항목</label><select id="selMetric"></select></div>
+    <div><label class="lb">사육규모</label><select id="selScale"></select></div>
+  </div>
+
+  <div class="card">
+    <div class="ttl" id="resTitle">연도별 결과값</div>
+    <div id="tableBox"><div class="empty" id="loadMsg">자료를 불러오는 중…</div></div>
+    <div class="chart-wrap" id="chartWrap" hidden><canvas id="chart"></canvas></div>
+    <div class="src" id="srcNote"></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  var ANIMAL_KO={hanwoo_calf:"한우 송아지",hanwoo_breeding_cow:"한우 번식우",hanwoo_fattening_cattle:"한우 비육우",beef_dairy_cattle:"육우",dairy_cattle:"젖소",breeding_pig:"번식돈",fattening_pig:"비육돈",layer:"산란계",pullet:"육성계",broiler:"육계"};
+  var ANIMAL_ORDER=["hanwoo_calf","hanwoo_breeding_cow","hanwoo_fattening_cattle","beef_dairy_cattle","dairy_cattle","breeding_pig","fattening_pig","layer","pullet","broiler"];
+  var $=function(id){return document.getElementById(id);};
+  var DATA=[], chart=null;
+  var nf=function(n){return (n==null||isNaN(n))?"-":Number(n).toLocaleString("ko-KR");};
+
+  fetch("data/stats/statistics.json",{cache:"force-cache"})
+    .then(function(r){return r.json();})
+    .then(function(d){ DATA=(d||[]).filter(function(r){return r&&r.answer_eligible;}); initAnimals(); })
+    .catch(function(){ $("loadMsg").textContent="자료를 불러오지 못했습니다. 인터넷 연결을 확인하세요."; });
+
+  function uniq(arr){ var s={},o=[]; arr.forEach(function(x){ if(x!=null&&!s[x]){s[x]=1;o.push(x);} }); return o; }
+
+  function initAnimals(){
+    var present=uniq(DATA.map(function(r){return r.animal;}));
+    var ordered=ANIMAL_ORDER.filter(function(a){return present.indexOf(a)>=0;});
+    $("selAnimal").innerHTML=ordered.map(function(a){return "<option value='"+a+"'>"+(ANIMAL_KO[a]||a)+"</option>";}).join("");
+    $("selAnimal").onchange=onAnimal;
+    $("selMetric").onchange=render;
+    $("selScale").onchange=render;
+    onAnimal();
+  }
+
+  function onAnimal(){
+    var a=$("selAnimal").value;
+    var rows=DATA.filter(function(r){return r.animal===a;});
+    // 항목: 최상위(슬래시 없는) metric_path 우선 — 생산비·경영비·소득류 등
+    var mp=uniq(rows.map(function(r){return r.metric_path;})).filter(function(m){return m&&String(m).indexOf("/")<0;});
+    // 보기 좋은 순서: 생산비·경영비·비용합계·소득·순수익·총수입 먼저
+    var pri=["생산비","경영비","비용합계","비용합계(C)","일반비(B)","총수입(A)","부산물수입","소득(A-B)","순수익(A-C)","사료비","노동비","자가노동비","고용노동비","가축비"];
+    mp.sort(function(x,y){ var ix=pri.indexOf(x),iy=pri.indexOf(y); ix=ix<0?999:ix; iy=iy<0?999:iy; return ix-iy || (x<y?-1:1); });
+    var curM=$("selMetric").value;
+    $("selMetric").innerHTML=mp.map(function(m){return "<option value='"+m.replace(/'/g,"&#39;")+"'>"+m+"</option>";}).join("");
+    if(mp.indexOf(curM)>=0) $("selMetric").value=curM; else if(mp.indexOf("생산비")>=0) $("selMetric").value="생산비";
+    // 사육규모
+    var sc=uniq(rows.map(function(r){return r.scale;})).filter(Boolean);
+    sc.sort(function(x,y){ if(x==="평균")return -1; if(y==="평균")return 1; return x<y?-1:1; });
+    $("selScale").innerHTML=sc.map(function(s){return "<option value='"+String(s).replace(/'/g,"&#39;")+"'>"+s+"</option>";}).join("");
+    if(sc.indexOf("평균")>=0) $("selScale").value="평균";
+    render();
+  }
+
+  function render(){
+    var a=$("selAnimal").value, m=$("selMetric").value, sc=$("selScale").value;
+    var rows=DATA.filter(function(r){return r.animal===a && r.metric_path===m && String(r.scale)===String(sc);});
+    $("resTitle").textContent=(ANIMAL_KO[a]||a)+" · "+m+" · "+sc;
+    if(!rows.length){ $("tableBox").innerHTML="<div class='empty'>이 조건의 공표 자료가 없습니다. 항목·규모를 바꿔보세요.</div>"; $("chartWrap").hidden=true; $("srcNote").textContent=""; return; }
+    rows.sort(function(x,y){return (x.year||0)-(y.year||0);});
+    var unit=rows[0].unit||"", basis=rows[0].basis||"";
+    // 표
+    var h="<table><tr><th>연도</th><th>값 ("+unit+")</th><th>전년대비</th></tr>";
+    rows.forEach(function(r,i){
+      var prev=i>0?rows[i-1]:null; var rate="";
+      if(prev && typeof prev.value==="number" && prev.value>0 && typeof r.value==="number"){
+        var p=(r.value-prev.value)/prev.value*100; var cls=p>=0?"up":"down";
+        rate="<span class='"+cls+"'>"+(p>=0?"▲":"▼")+" "+Math.abs(p).toFixed(1)+"%</span>";
+      }
+      h+="<tr><td>"+r.year+"</td><td>"+nf(r.value)+"</td><td class='"+(rate?( (r.value>=(prev?prev.value:0))?"up":"down"):"")+"'>"+(rate||"-")+"</td></tr>";
+    });
+    h+="</table>";
+    $("tableBox").innerHTML=h;
+    $("srcNote").innerHTML="단위: "+unit+(basis?(" · 기준: "+basis):"")+" · 출처: 통계청 축산물생산비조사(KOSIS) · 과거 공표값(현재 시점 아님).";
+    drawChart(rows.map(function(r){return r.year;}), rows.map(function(r){return r.value;}), (ANIMAL_KO[a]||a)+" "+m+" ("+unit+")");
+  }
+
+  function drawChart(labels, values, label){
+    $("chartWrap").hidden=false;
+    var ctx=$("chart").getContext("2d");
+    if(chart) chart.destroy();
+    if(typeof Chart==="undefined") { $("chartWrap").hidden=true; return; }
+    chart=new Chart(ctx,{ type:"line",
+      data:{ labels:labels, datasets:[{ label:label, data:values, borderColor:"#2b6cb0", backgroundColor:"rgba(43,108,176,.12)", fill:true, tension:.2, pointRadius:4, pointBackgroundColor:"#1a365d" }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:true,position:"bottom"}, tooltip:{callbacks:{label:function(c){return nf(c.parsed.y);}}} },
+        scales:{ y:{ ticks:{ callback:function(v){return nf(v);} } } } }
+    });
+  }
+})();
+</script>
+<script src="js/ai_widget.js"></script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}</script>
+</body>
+</html>
