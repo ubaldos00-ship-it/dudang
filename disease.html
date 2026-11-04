@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -134,6 +134,7 @@
   #reportCard{position:absolute; left:-99999px; top:0; width:520px; background:#fff; color:#1f2937; padding:18px; font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;}
   #capBusy{position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:700;}
 </style>
+<style>html,body{touch-action:manipulation}</style>
 </head>
 <body>
 <div class="wrap">
@@ -835,5 +836,6 @@ wcs_add["wa"] = "1b150b27ece7010";
 if(window.wcs) { wcs_do(); }
 </script>
 <script>(function(){var ly=0,h=document.querySelector('header');if(!h)return;h.style.position='sticky';h.style.top='0';h.style.zIndex='40';h.style.transition='transform .25s ease';h.style.willChange='transform';window.addEventListener('scroll',function(){var y=window.scrollY||document.documentElement.scrollTop||0;if(y>ly&&y>60)h.style.transform='translateY(-100%)';else h.style.transform='translateY(0)';ly=y;},{passive:true});})();</script>
+<script src="js/ai_widget.js"></script>
 </body>
 </html>

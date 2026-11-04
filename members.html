@@ -6,7 +6,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1a365d">
 <title>두당 AI · 사용자 관리</title>
 <style>
@@ -42,6 +42,7 @@
   .empty{ color:#999; text-align:center; padding:26px; }
   .muted{ color:#777; font-size:12.5px; line-height:1.6; }
 </style>
+<style>html,body{touch-action:manipulation}</style>
 </head>
 <body>
 <header>
@@ -219,5 +220,6 @@
   function tsMs(t){ try{ return t&&t.toMillis?t.toMillis():(t?new Date(t).getTime():0); }catch(e){ return 0; } }
   function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
 </script>
+<script src="js/ai_widget.js"></script>
 </body>
 </html>

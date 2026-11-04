@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -68,6 +68,7 @@
   #toast{position:fixed;left:50%;top:14%;transform:translateX(-50%);background:#173a5e;color:#fff;padding:12px 20px;border-radius:11px;font-weight:800;z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;max-width:88%;text-align:center;}
   @media print{ header,.noprint{display:none!important;} body{background:#fff;font-size:11px;} .card,details.basecard{box-shadow:none;border:none;padding:0;margin:0 0 10px;} details.basecard[open] .basebody,details.basecard .basebody{display:block;} main{padding:0;max-width:none;} table{font-size:10px;} th,td{padding:3px 4px;} }
 </style>
+<style>html,body{touch-action:manipulation}</style>
 </head>
 <body>
 <header><div class="hrow">
@@ -322,5 +323,6 @@ document.querySelectorAll("#chips .chip").forEach(ch=>ch.onclick=()=>setSpecies(
 setSpecies("pig");
 window.addEventListener("pagehide",()=>{ const f=$("farm").value.trim(); if(f){ collectBase(); const store=loadStore(f); store[yr()]=JSON.parse(JSON.stringify(M)); saveStore(f,store); } });
 </script>
+<script src="js/ai_widget.js"></script>
 </body>
 </html>

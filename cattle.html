@@ -1,7 +1,7 @@
 <!-- 소이력관리_v12.html (배포명 cattle.html) · 저장: 2026-09-21 07:26 KST · v12[v25]: 축비 조사표 연동(?pick=survey 진입 시 하단 '조사표로 보내기' 바→현재 목록 요약[수량·평균 도체중·축령·구입일·사육일수]을 dudang_trace_res로 저장 후 조사표 복귀) · v12b[v26]: 뒤로가기=히스토리 뒤로(홈 아님)+우측 홈버튼 추가 · v77(저장: 2026-10-18 03:43 KST): 조사표 전송(pickSend) rows에 salePrice(판매금액)·saleCost(판매비용)·netSale(실판매) 추가 — 소이력제에서 수정한 판매금액·비용이 축비 조사표 원장에 그대로 반영되도록(survey.html applyTraceResult가 값 있으면 기본값 대신 사용). -->
 <!-- v10 → 방문 카운트(Abacus 전역, 실패시 이 기기 폴백) · Google Analytics(gtag) 추가 -->
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -871,3 +871,5 @@ wcs_add["wa"] = "1b150b27ece7010";
 if(window.wcs) { wcs_do(); }
 </script>
 <script>(function(){var ly=0,h=document.querySelector('.topbar');if(!h)return;h.style.position='sticky';h.style.top='0';h.style.zIndex='40';h.style.background='var(--bg)';h.style.transition='transform .25s ease';h.style.willChange='transform';window.addEventListener('scroll',function(){var y=window.scrollY||document.documentElement.scrollTop||0;if(y>ly&&y>60)h.style.transform='translateY(-100%)';else h.style.transform='translateY(0)';ly=y;},{passive:true});})();</script>
+
+<script src="js/ai_widget.js"></script>
