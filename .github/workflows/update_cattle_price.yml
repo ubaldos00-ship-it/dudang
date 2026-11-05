@@ -1,0 +1,43 @@
+name: 소 산지가격 자동수집(다봄)
+
+# 매 평일 18:00 KST(=09:00 UTC) 실행 + 수동 실행 버튼
+on:
+  schedule:
+    - cron: "0 9 * * 1-5"      # UTC 기준 월~금 09:00 = KST 18:00
+  workflow_dispatch:            # Actions 탭에서 손으로도 실행 가능
+
+permissions:
+  contents: write               # prices.json commit 권한
+
+concurrency:
+  group: cattle-price
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 준비
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 산지가격 수집
+        env:
+          PRICE_FILE: data/cattle_price/prices.json
+        run: python .github/scripts/update_price.py
+
+      - name: 변경 시 커밋·푸시
+        run: |
+          if git diff --quiet -- data/cattle_price/prices.json; then
+            echo "변경 없음 — 커밋 생략"
+          else
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data/cattle_price/prices.json
+            git commit -m "소 산지가격 자동수집(다봄) $(TZ=Asia/Seoul date '+%Y-%m-%d')"
+            git push
+          fi
