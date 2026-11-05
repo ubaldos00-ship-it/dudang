@@ -2,14 +2,3654 @@
  "_안내": "소 산지가격 통합 파일(다봄 실측). 갱신: data 아래에 '날짜':{prices:{...}} 를 추가하고 latestDate·updatedAt만 바꾸세요. 단위 천원/마리. 값 없으면 null.",
  "unit": "천원/마리",
  "source": "축산물품질평가원 축산유통정보 다봄·농협중앙회",
- "latestDate": "2026-10-21",
- "updatedAt": "2026-10-23T04:42:00+09:00",
+ "latestDate": "2026-11-04",
+ "updatedAt": "2026-11-06T04:13:26+09:00",
  "data": {
+  "2024-11-04": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5182,
+     "previousPrice": null
+    },
+    "femaleCalf4to5": {
+     "price": 2250,
+     "previousPrice": null
+    },
+    "maleCalf4to5": {
+     "price": 3713,
+     "previousPrice": null
+    },
+    "femaleCalf6to7": {
+     "price": 2474,
+     "previousPrice": null
+    },
+    "maleCalf6to7": {
+     "price": 3548,
+     "previousPrice": null
+    },
+    "hanwooAverage600kg": {
+     "price": 4070,
+     "previousPrice": null
+    },
+    "hanwooSteer600kg": {
+     "price": 5547,
+     "previousPrice": null
+    },
+    "hanwooBull600kg": {
+     "price": 3305,
+     "previousPrice": null
+    },
+    "beefCattleAverage600kg": {
+     "price": 3137,
+     "previousPrice": null
+    }
+   }
+  },
+  "2024-11-11": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 4678,
+     "previousPrice": 5182
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2250
+    },
+    "maleCalf4to5": {
+     "price": 2956,
+     "previousPrice": 3713
+    },
+    "femaleCalf6to7": {
+     "price": 2505,
+     "previousPrice": 2474
+    },
+    "maleCalf6to7": {
+     "price": 3686,
+     "previousPrice": 3548
+    },
+    "hanwooAverage600kg": {
+     "price": 4762,
+     "previousPrice": 4070
+    },
+    "hanwooSteer600kg": {
+     "price": 5821,
+     "previousPrice": 5547
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3305
+    },
+    "beefCattleAverage600kg": {
+     "price": 3060,
+     "previousPrice": 3137
+    }
+   }
+  },
+  "2024-11-18": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5187,
+     "previousPrice": 4678
+    },
+    "femaleCalf4to5": {
+     "price": 1630,
+     "previousPrice": 2250
+    },
+    "maleCalf4to5": {
+     "price": 3151,
+     "previousPrice": 2956
+    },
+    "femaleCalf6to7": {
+     "price": 2582,
+     "previousPrice": 2505
+    },
+    "maleCalf6to7": {
+     "price": 3750,
+     "previousPrice": 3686
+    },
+    "hanwooAverage600kg": {
+     "price": 5034,
+     "previousPrice": 4762
+    },
+    "hanwooSteer600kg": {
+     "price": 5783,
+     "previousPrice": 5821
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3305
+    },
+    "beefCattleAverage600kg": {
+     "price": 2770,
+     "previousPrice": 3060
+    }
+   }
+  },
+  "2024-11-25": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5214,
+     "previousPrice": 5187
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1630
+    },
+    "maleCalf4to5": {
+     "price": 3033,
+     "previousPrice": 3151
+    },
+    "femaleCalf6to7": {
+     "price": 2499,
+     "previousPrice": 2582
+    },
+    "maleCalf6to7": {
+     "price": 3738,
+     "previousPrice": 3750
+    },
+    "hanwooAverage600kg": {
+     "price": 5095,
+     "previousPrice": 5034
+    },
+    "hanwooSteer600kg": {
+     "price": 6096,
+     "previousPrice": 5783
+    },
+    "hanwooBull600kg": {
+     "price": 3675,
+     "previousPrice": 3305
+    },
+    "beefCattleAverage600kg": {
+     "price": 3272,
+     "previousPrice": 2770
+    }
+   }
+  },
+  "2024-12-02": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5221,
+     "previousPrice": 5214
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1630
+    },
+    "maleCalf4to5": {
+     "price": 2980,
+     "previousPrice": 3033
+    },
+    "femaleCalf6to7": {
+     "price": 2431,
+     "previousPrice": 2499
+    },
+    "maleCalf6to7": {
+     "price": 3717,
+     "previousPrice": 3738
+    },
+    "hanwooAverage600kg": {
+     "price": 5503,
+     "previousPrice": 5095
+    },
+    "hanwooSteer600kg": {
+     "price": 6100,
+     "previousPrice": 6096
+    },
+    "hanwooBull600kg": {
+     "price": 3610,
+     "previousPrice": 3675
+    },
+    "beefCattleAverage600kg": {
+     "price": 3471,
+     "previousPrice": 3272
+    }
+   }
+  },
+  "2024-12-09": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5279,
+     "previousPrice": 5221
+    },
+    "femaleCalf4to5": {
+     "price": 1620,
+     "previousPrice": 1630
+    },
+    "maleCalf4to5": {
+     "price": 2951,
+     "previousPrice": 2980
+    },
+    "femaleCalf6to7": {
+     "price": 2425,
+     "previousPrice": 2431
+    },
+    "maleCalf6to7": {
+     "price": 3660,
+     "previousPrice": 3717
+    },
+    "hanwooAverage600kg": {
+     "price": 5362,
+     "previousPrice": 5503
+    },
+    "hanwooSteer600kg": {
+     "price": 5902,
+     "previousPrice": 6100
+    },
+    "hanwooBull600kg": {
+     "price": 3775,
+     "previousPrice": 3610
+    },
+    "beefCattleAverage600kg": {
+     "price": 3115,
+     "previousPrice": 3471
+    }
+   }
+  },
+  "2024-12-16": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5036,
+     "previousPrice": 5279
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1620
+    },
+    "maleCalf4to5": {
+     "price": 2806,
+     "previousPrice": 2951
+    },
+    "femaleCalf6to7": {
+     "price": 2469,
+     "previousPrice": 2425
+    },
+    "maleCalf6to7": {
+     "price": 3646,
+     "previousPrice": 3660
+    },
+    "hanwooAverage600kg": {
+     "price": 5403,
+     "previousPrice": 5362
+    },
+    "hanwooSteer600kg": {
+     "price": 6276,
+     "previousPrice": 5902
+    },
+    "hanwooBull600kg": {
+     "price": 3506,
+     "previousPrice": 3775
+    },
+    "beefCattleAverage600kg": {
+     "price": 3001,
+     "previousPrice": 3115
+    }
+   }
+  },
+  "2024-12-23": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5277,
+     "previousPrice": 5036
+    },
+    "femaleCalf4to5": {
+     "price": 2010,
+     "previousPrice": 1620
+    },
+    "maleCalf4to5": {
+     "price": 2936,
+     "previousPrice": 2806
+    },
+    "femaleCalf6to7": {
+     "price": 2428,
+     "previousPrice": 2469
+    },
+    "maleCalf6to7": {
+     "price": 3605,
+     "previousPrice": 3646
+    },
+    "hanwooAverage600kg": {
+     "price": 5631,
+     "previousPrice": 5403
+    },
+    "hanwooSteer600kg": {
+     "price": 6289,
+     "previousPrice": 6276
+    },
+    "hanwooBull600kg": {
+     "price": 3397,
+     "previousPrice": 3506
+    },
+    "beefCattleAverage600kg": {
+     "price": 3189,
+     "previousPrice": 3001
+    }
+   }
+  },
+  "2024-12-30": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5168,
+     "previousPrice": 5277
+    },
+    "femaleCalf4to5": {
+     "price": 1230,
+     "previousPrice": 2010
+    },
+    "maleCalf4to5": {
+     "price": 3022,
+     "previousPrice": 2936
+    },
+    "femaleCalf6to7": {
+     "price": 2427,
+     "previousPrice": 2428
+    },
+    "maleCalf6to7": {
+     "price": 3531,
+     "previousPrice": 3605
+    },
+    "hanwooAverage600kg": {
+     "price": 6109,
+     "previousPrice": 5631
+    },
+    "hanwooSteer600kg": {
+     "price": 6600,
+     "previousPrice": 6289
+    },
+    "hanwooBull600kg": {
+     "price": 2717,
+     "previousPrice": 3397
+    },
+    "beefCattleAverage600kg": {
+     "price": 3323,
+     "previousPrice": 3189
+    }
+   }
+  },
+  "2025-01-06": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5298,
+     "previousPrice": 5168
+    },
+    "femaleCalf4to5": {
+     "price": 1475,
+     "previousPrice": 1230
+    },
+    "maleCalf4to5": {
+     "price": 2972,
+     "previousPrice": 3022
+    },
+    "femaleCalf6to7": {
+     "price": 2486,
+     "previousPrice": 2427
+    },
+    "maleCalf6to7": {
+     "price": 3589,
+     "previousPrice": 3531
+    },
+    "hanwooAverage600kg": {
+     "price": 6351,
+     "previousPrice": 6109
+    },
+    "hanwooSteer600kg": {
+     "price": 6766,
+     "previousPrice": 6600
+    },
+    "hanwooBull600kg": {
+     "price": 3898,
+     "previousPrice": 2717
+    },
+    "beefCattleAverage600kg": {
+     "price": 3552,
+     "previousPrice": 3323
+    }
+   }
+  },
+  "2025-01-13": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5223,
+     "previousPrice": 5298
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 2900,
+     "previousPrice": 2972
+    },
+    "femaleCalf6to7": {
+     "price": 2524,
+     "previousPrice": 2486
+    },
+    "maleCalf6to7": {
+     "price": 3475,
+     "previousPrice": 3589
+    },
+    "hanwooAverage600kg": {
+     "price": 6178,
+     "previousPrice": 6351
+    },
+    "hanwooSteer600kg": {
+     "price": 6612,
+     "previousPrice": 6766
+    },
+    "hanwooBull600kg": {
+     "price": 3705,
+     "previousPrice": 3898
+    },
+    "beefCattleAverage600kg": {
+     "price": 3852,
+     "previousPrice": 3552
+    }
+   }
+  },
+  "2025-01-20": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5135,
+     "previousPrice": 5223
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 2900,
+     "previousPrice": 2900
+    },
+    "femaleCalf6to7": {
+     "price": 2524,
+     "previousPrice": 2524
+    },
+    "maleCalf6to7": {
+     "price": 3628,
+     "previousPrice": 3475
+    },
+    "hanwooAverage600kg": {
+     "price": 5680,
+     "previousPrice": 6178
+    },
+    "hanwooSteer600kg": {
+     "price": 6210,
+     "previousPrice": 6612
+    },
+    "hanwooBull600kg": {
+     "price": 3217,
+     "previousPrice": 3705
+    },
+    "beefCattleAverage600kg": {
+     "price": 3685,
+     "previousPrice": 3852
+    }
+   }
+  },
+  "2025-01-27": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 4918,
+     "previousPrice": 5135
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 2918,
+     "previousPrice": 2900
+    },
+    "femaleCalf6to7": {
+     "price": 2632,
+     "previousPrice": 2524
+    },
+    "maleCalf6to7": {
+     "price": 3639,
+     "previousPrice": 3628
+    },
+    "hanwooAverage600kg": {
+     "price": 5926,
+     "previousPrice": 5680
+    },
+    "hanwooSteer600kg": {
+     "price": 6343,
+     "previousPrice": 6210
+    },
+    "hanwooBull600kg": {
+     "price": 3048,
+     "previousPrice": 3217
+    },
+    "beefCattleAverage600kg": {
+     "price": 2617,
+     "previousPrice": 3685
+    }
+   }
+  },
+  "2025-02-03": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5083,
+     "previousPrice": 4918
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 2646,
+     "previousPrice": 2918
+    },
+    "femaleCalf6to7": {
+     "price": 2635,
+     "previousPrice": 2632
+    },
+    "maleCalf6to7": {
+     "price": 3641,
+     "previousPrice": 3639
+    },
+    "hanwooAverage600kg": {
+     "price": 6308,
+     "previousPrice": 5926
+    },
+    "hanwooSteer600kg": {
+     "price": 6584,
+     "previousPrice": 6343
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3048
+    },
+    "beefCattleAverage600kg": {
+     "price": 3431,
+     "previousPrice": 2617
+    }
+   }
+  },
+  "2025-02-10": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5223,
+     "previousPrice": 5083
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 3215,
+     "previousPrice": 2646
+    },
+    "femaleCalf6to7": {
+     "price": 2495,
+     "previousPrice": 2635
+    },
+    "maleCalf6to7": {
+     "price": 3578,
+     "previousPrice": 3641
+    },
+    "hanwooAverage600kg": {
+     "price": 4932,
+     "previousPrice": 6308
+    },
+    "hanwooSteer600kg": {
+     "price": 5798,
+     "previousPrice": 6584
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3048
+    },
+    "beefCattleAverage600kg": {
+     "price": 3013,
+     "previousPrice": 3431
+    }
+   }
+  },
+  "2025-02-17": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5176,
+     "previousPrice": 5223
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 3288,
+     "previousPrice": 3215
+    },
+    "femaleCalf6to7": {
+     "price": 2528,
+     "previousPrice": 2495
+    },
+    "maleCalf6to7": {
+     "price": 3614,
+     "previousPrice": 3578
+    },
+    "hanwooAverage600kg": {
+     "price": 5212,
+     "previousPrice": 4932
+    },
+    "hanwooSteer600kg": {
+     "price": 5416,
+     "previousPrice": 5798
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3048
+    },
+    "beefCattleAverage600kg": {
+     "price": 3041,
+     "previousPrice": 3013
+    }
+   }
+  },
+  "2025-02-24": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5286,
+     "previousPrice": 5176
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 2762,
+     "previousPrice": 3288
+    },
+    "femaleCalf6to7": {
+     "price": 2714,
+     "previousPrice": 2528
+    },
+    "maleCalf6to7": {
+     "price": 3610,
+     "previousPrice": 3614
+    },
+    "hanwooAverage600kg": {
+     "price": 5057,
+     "previousPrice": 5212
+    },
+    "hanwooSteer600kg": {
+     "price": 5844,
+     "previousPrice": 5416
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3048
+    },
+    "beefCattleAverage600kg": {
+     "price": 3185,
+     "previousPrice": 3041
+    }
+   }
+  },
+  "2025-03-03": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5176,
+     "previousPrice": 5286
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 3033,
+     "previousPrice": 2762
+    },
+    "femaleCalf6to7": {
+     "price": 2880,
+     "previousPrice": 2714
+    },
+    "maleCalf6to7": {
+     "price": 3543,
+     "previousPrice": 3610
+    },
+    "hanwooAverage600kg": {
+     "price": 4979,
+     "previousPrice": 5057
+    },
+    "hanwooSteer600kg": {
+     "price": 6051,
+     "previousPrice": 5844
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3048
+    },
+    "beefCattleAverage600kg": {
+     "price": null,
+     "previousPrice": 3185
+    }
+   }
+  },
+  "2025-03-10": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5201,
+     "previousPrice": 5176
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 3033,
+     "previousPrice": 3033
+    },
+    "femaleCalf6to7": {
+     "price": 2752,
+     "previousPrice": 2880
+    },
+    "maleCalf6to7": {
+     "price": 3570,
+     "previousPrice": 3543
+    },
+    "hanwooAverage600kg": {
+     "price": 4882,
+     "previousPrice": 4979
+    },
+    "hanwooSteer600kg": {
+     "price": 5496,
+     "previousPrice": 6051
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3048
+    },
+    "beefCattleAverage600kg": {
+     "price": 3255,
+     "previousPrice": 3185
+    }
+   }
+  },
+  "2025-03-17": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5127,
+     "previousPrice": 5201
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 2872,
+     "previousPrice": 3033
+    },
+    "femaleCalf6to7": {
+     "price": 2648,
+     "previousPrice": 2752
+    },
+    "maleCalf6to7": {
+     "price": 3551,
+     "previousPrice": 3570
+    },
+    "hanwooAverage600kg": {
+     "price": 5448,
+     "previousPrice": 4882
+    },
+    "hanwooSteer600kg": {
+     "price": 5834,
+     "previousPrice": 5496
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3048
+    },
+    "beefCattleAverage600kg": {
+     "price": 2953,
+     "previousPrice": 3255
+    }
+   }
+  },
+  "2025-03-24": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5198,
+     "previousPrice": 5127
+    },
+    "femaleCalf4to5": {
+     "price": 2570,
+     "previousPrice": 1475
+    },
+    "maleCalf4to5": {
+     "price": 2928,
+     "previousPrice": 2872
+    },
+    "femaleCalf6to7": {
+     "price": 2537,
+     "previousPrice": 2648
+    },
+    "maleCalf6to7": {
+     "price": 3621,
+     "previousPrice": 3551
+    },
+    "hanwooAverage600kg": {
+     "price": 4921,
+     "previousPrice": 5448
+    },
+    "hanwooSteer600kg": {
+     "price": 5275,
+     "previousPrice": 5834
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3048
+    },
+    "beefCattleAverage600kg": {
+     "price": 3019,
+     "previousPrice": 2953
+    }
+   }
+  },
+  "2025-03-31": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5225,
+     "previousPrice": 5198
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2570
+    },
+    "maleCalf4to5": {
+     "price": 2928,
+     "previousPrice": 2928
+    },
+    "femaleCalf6to7": {
+     "price": 2448,
+     "previousPrice": 2537
+    },
+    "maleCalf6to7": {
+     "price": 3609,
+     "previousPrice": 3621
+    },
+    "hanwooAverage600kg": {
+     "price": 5040,
+     "previousPrice": 4921
+    },
+    "hanwooSteer600kg": {
+     "price": 5817,
+     "previousPrice": 5275
+    },
+    "hanwooBull600kg": {
+     "price": 3879,
+     "previousPrice": 3048
+    },
+    "beefCattleAverage600kg": {
+     "price": 2652,
+     "previousPrice": 3019
+    }
+   }
+  },
+  "2025-04-07": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5160,
+     "previousPrice": 5225
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2570
+    },
+    "maleCalf4to5": {
+     "price": 2872,
+     "previousPrice": 2928
+    },
+    "femaleCalf6to7": {
+     "price": 2503,
+     "previousPrice": 2448
+    },
+    "maleCalf6to7": {
+     "price": 3650,
+     "previousPrice": 3609
+    },
+    "hanwooAverage600kg": {
+     "price": 4974,
+     "previousPrice": 5040
+    },
+    "hanwooSteer600kg": {
+     "price": 5936,
+     "previousPrice": 5817
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3879
+    },
+    "beefCattleAverage600kg": {
+     "price": 3115,
+     "previousPrice": 2652
+    }
+   }
+  },
+  "2025-04-14": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5017,
+     "previousPrice": 5160
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2570
+    },
+    "maleCalf4to5": {
+     "price": null,
+     "previousPrice": 2872
+    },
+    "femaleCalf6to7": {
+     "price": 2658,
+     "previousPrice": 2503
+    },
+    "maleCalf6to7": {
+     "price": 3704,
+     "previousPrice": 3650
+    },
+    "hanwooAverage600kg": {
+     "price": 5235,
+     "previousPrice": 4974
+    },
+    "hanwooSteer600kg": {
+     "price": 5724,
+     "previousPrice": 5936
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3879
+    },
+    "beefCattleAverage600kg": {
+     "price": 3169,
+     "previousPrice": 3115
+    }
+   }
+  },
+  "2025-04-21": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5155,
+     "previousPrice": 5017
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2570
+    },
+    "maleCalf4to5": {
+     "price": 2906,
+     "previousPrice": 2872
+    },
+    "femaleCalf6to7": {
+     "price": 2678,
+     "previousPrice": 2658
+    },
+    "maleCalf6to7": {
+     "price": 3722,
+     "previousPrice": 3704
+    },
+    "hanwooAverage600kg": {
+     "price": 4463,
+     "previousPrice": 5235
+    },
+    "hanwooSteer600kg": {
+     "price": 5544,
+     "previousPrice": 5724
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3879
+    },
+    "beefCattleAverage600kg": {
+     "price": 3107,
+     "previousPrice": 3169
+    }
+   }
+  },
+  "2025-04-28": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5233,
+     "previousPrice": 5155
+    },
+    "femaleCalf4to5": {
+     "price": 2030,
+     "previousPrice": 2570
+    },
+    "maleCalf4to5": {
+     "price": 3002,
+     "previousPrice": 2906
+    },
+    "femaleCalf6to7": {
+     "price": 2834,
+     "previousPrice": 2678
+    },
+    "maleCalf6to7": {
+     "price": 3811,
+     "previousPrice": 3722
+    },
+    "hanwooAverage600kg": {
+     "price": 4953,
+     "previousPrice": 4463
+    },
+    "hanwooSteer600kg": {
+     "price": 5971,
+     "previousPrice": 5544
+    },
+    "hanwooBull600kg": {
+     "price": 3513,
+     "previousPrice": 3879
+    },
+    "beefCattleAverage600kg": {
+     "price": 3316,
+     "previousPrice": 3107
+    }
+   }
+  },
+  "2025-05-05": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5084,
+     "previousPrice": 5233
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2030
+    },
+    "maleCalf4to5": {
+     "price": 2853,
+     "previousPrice": 3002
+    },
+    "femaleCalf6to7": {
+     "price": 2843,
+     "previousPrice": 2834
+    },
+    "maleCalf6to7": {
+     "price": 3887,
+     "previousPrice": 3811
+    },
+    "hanwooAverage600kg": {
+     "price": 4375,
+     "previousPrice": 4953
+    },
+    "hanwooSteer600kg": {
+     "price": null,
+     "previousPrice": 5971
+    },
+    "hanwooBull600kg": {
+     "price": 4273,
+     "previousPrice": 3513
+    },
+    "beefCattleAverage600kg": {
+     "price": 2241,
+     "previousPrice": 3316
+    }
+   }
+  },
+  "2025-05-12": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5007,
+     "previousPrice": 5084
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2030
+    },
+    "maleCalf4to5": {
+     "price": 3132,
+     "previousPrice": 2853
+    },
+    "femaleCalf6to7": {
+     "price": 2761,
+     "previousPrice": 2843
+    },
+    "maleCalf6to7": {
+     "price": 3876,
+     "previousPrice": 3887
+    },
+    "hanwooAverage600kg": {
+     "price": 4697,
+     "previousPrice": 4375
+    },
+    "hanwooSteer600kg": {
+     "price": 5464,
+     "previousPrice": 5971
+    },
+    "hanwooBull600kg": {
+     "price": 4670,
+     "previousPrice": 4273
+    },
+    "beefCattleAverage600kg": {
+     "price": 3395,
+     "previousPrice": 2241
+    }
+   }
+  },
+  "2025-05-19": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5059,
+     "previousPrice": 5007
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2030
+    },
+    "maleCalf4to5": {
+     "price": 3205,
+     "previousPrice": 3132
+    },
+    "femaleCalf6to7": {
+     "price": 2798,
+     "previousPrice": 2761
+    },
+    "maleCalf6to7": {
+     "price": 3903,
+     "previousPrice": 3876
+    },
+    "hanwooAverage600kg": {
+     "price": 5568,
+     "previousPrice": 4697
+    },
+    "hanwooSteer600kg": {
+     "price": 5970,
+     "previousPrice": 5464
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4670
+    },
+    "beefCattleAverage600kg": {
+     "price": 3325,
+     "previousPrice": 3395
+    }
+   }
+  },
+  "2025-05-26": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5119,
+     "previousPrice": 5059
+    },
+    "femaleCalf4to5": {
+     "price": 1630,
+     "previousPrice": 2030
+    },
+    "maleCalf4to5": {
+     "price": 3362,
+     "previousPrice": 3205
+    },
+    "femaleCalf6to7": {
+     "price": 2841,
+     "previousPrice": 2798
+    },
+    "maleCalf6to7": {
+     "price": 3899,
+     "previousPrice": 3903
+    },
+    "hanwooAverage600kg": {
+     "price": 4845,
+     "previousPrice": 5568
+    },
+    "hanwooSteer600kg": {
+     "price": 5227,
+     "previousPrice": 5970
+    },
+    "hanwooBull600kg": {
+     "price": 3801,
+     "previousPrice": 4670
+    },
+    "beefCattleAverage600kg": {
+     "price": 3566,
+     "previousPrice": 3325
+    }
+   }
+  },
+  "2025-06-02": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5137,
+     "previousPrice": 5119
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1630
+    },
+    "maleCalf4to5": {
+     "price": 3223,
+     "previousPrice": 3362
+    },
+    "femaleCalf6to7": {
+     "price": 2764,
+     "previousPrice": 2841
+    },
+    "maleCalf6to7": {
+     "price": 3860,
+     "previousPrice": 3899
+    },
+    "hanwooAverage600kg": {
+     "price": 4792,
+     "previousPrice": 4845
+    },
+    "hanwooSteer600kg": {
+     "price": 5243,
+     "previousPrice": 5227
+    },
+    "hanwooBull600kg": {
+     "price": 3907,
+     "previousPrice": 3801
+    },
+    "beefCattleAverage600kg": {
+     "price": 3205,
+     "previousPrice": 3566
+    }
+   }
+  },
+  "2025-06-09": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5163,
+     "previousPrice": 5137
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1630
+    },
+    "maleCalf4to5": {
+     "price": 3382,
+     "previousPrice": 3223
+    },
+    "femaleCalf6to7": {
+     "price": 2749,
+     "previousPrice": 2764
+    },
+    "maleCalf6to7": {
+     "price": 3948,
+     "previousPrice": 3860
+    },
+    "hanwooAverage600kg": {
+     "price": 5205,
+     "previousPrice": 4792
+    },
+    "hanwooSteer600kg": {
+     "price": 5757,
+     "previousPrice": 5243
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3907
+    },
+    "beefCattleAverage600kg": {
+     "price": 3265,
+     "previousPrice": 3205
+    }
+   }
+  },
+  "2025-06-16": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5115,
+     "previousPrice": 5163
+    },
+    "femaleCalf4to5": {
+     "price": 1690,
+     "previousPrice": 1630
+    },
+    "maleCalf4to5": {
+     "price": 3434,
+     "previousPrice": 3382
+    },
+    "femaleCalf6to7": {
+     "price": 2923,
+     "previousPrice": 2749
+    },
+    "maleCalf6to7": {
+     "price": 3964,
+     "previousPrice": 3948
+    },
+    "hanwooAverage600kg": {
+     "price": 4831,
+     "previousPrice": 5205
+    },
+    "hanwooSteer600kg": {
+     "price": 5396,
+     "previousPrice": 5757
+    },
+    "hanwooBull600kg": {
+     "price": 3901,
+     "previousPrice": 3907
+    },
+    "beefCattleAverage600kg": {
+     "price": 3566,
+     "previousPrice": 3265
+    }
+   }
+  },
+  "2025-06-23": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5129,
+     "previousPrice": 5115
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1690
+    },
+    "maleCalf4to5": {
+     "price": 3474,
+     "previousPrice": 3434
+    },
+    "femaleCalf6to7": {
+     "price": 2886,
+     "previousPrice": 2923
+    },
+    "maleCalf6to7": {
+     "price": 4043,
+     "previousPrice": 3964
+    },
+    "hanwooAverage600kg": {
+     "price": 5027,
+     "previousPrice": 4831
+    },
+    "hanwooSteer600kg": {
+     "price": 5199,
+     "previousPrice": 5396
+    },
+    "hanwooBull600kg": {
+     "price": 4010,
+     "previousPrice": 3901
+    },
+    "beefCattleAverage600kg": {
+     "price": 3049,
+     "previousPrice": 3566
+    }
+   }
+  },
+  "2025-06-30": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5130,
+     "previousPrice": 5129
+    },
+    "femaleCalf4to5": {
+     "price": 1050,
+     "previousPrice": 1690
+    },
+    "maleCalf4to5": {
+     "price": 3525,
+     "previousPrice": 3474
+    },
+    "femaleCalf6to7": {
+     "price": 2886,
+     "previousPrice": 2886
+    },
+    "maleCalf6to7": {
+     "price": 4090,
+     "previousPrice": 4043
+    },
+    "hanwooAverage600kg": {
+     "price": 4999,
+     "previousPrice": 5027
+    },
+    "hanwooSteer600kg": {
+     "price": 4680,
+     "previousPrice": 5199
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4010
+    },
+    "beefCattleAverage600kg": {
+     "price": 3244,
+     "previousPrice": 3049
+    }
+   }
+  },
+  "2025-07-07": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5175,
+     "previousPrice": 5130
+    },
+    "femaleCalf4to5": {
+     "price": 2600,
+     "previousPrice": 1050
+    },
+    "maleCalf4to5": {
+     "price": 3289,
+     "previousPrice": 3525
+    },
+    "femaleCalf6to7": {
+     "price": 2920,
+     "previousPrice": 2886
+    },
+    "maleCalf6to7": {
+     "price": 4114,
+     "previousPrice": 4090
+    },
+    "hanwooAverage600kg": {
+     "price": 4690,
+     "previousPrice": 4999
+    },
+    "hanwooSteer600kg": {
+     "price": 5843,
+     "previousPrice": 4680
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4010
+    },
+    "beefCattleAverage600kg": {
+     "price": 3330,
+     "previousPrice": 3244
+    }
+   }
+  },
+  "2025-07-14": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5194,
+     "previousPrice": 5175
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2600
+    },
+    "maleCalf4to5": {
+     "price": 3280,
+     "previousPrice": 3289
+    },
+    "femaleCalf6to7": {
+     "price": 2895,
+     "previousPrice": 2920
+    },
+    "maleCalf6to7": {
+     "price": 4114,
+     "previousPrice": 4114
+    },
+    "hanwooAverage600kg": {
+     "price": 5582,
+     "previousPrice": 4690
+    },
+    "hanwooSteer600kg": {
+     "price": 6436,
+     "previousPrice": 5843
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4010
+    },
+    "beefCattleAverage600kg": {
+     "price": 3272,
+     "previousPrice": 3330
+    }
+   }
+  },
+  "2025-07-21": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5332,
+     "previousPrice": 5194
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2600
+    },
+    "maleCalf4to5": {
+     "price": 3491,
+     "previousPrice": 3280
+    },
+    "femaleCalf6to7": {
+     "price": 2947,
+     "previousPrice": 2895
+    },
+    "maleCalf6to7": {
+     "price": 4176,
+     "previousPrice": 4114
+    },
+    "hanwooAverage600kg": {
+     "price": 4975,
+     "previousPrice": 5582
+    },
+    "hanwooSteer600kg": {
+     "price": 5613,
+     "previousPrice": 6436
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4010
+    },
+    "beefCattleAverage600kg": {
+     "price": 3407,
+     "previousPrice": 3272
+    }
+   }
+  },
+  "2025-07-28": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5275,
+     "previousPrice": 5332
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2600
+    },
+    "maleCalf4to5": {
+     "price": 3331,
+     "previousPrice": 3491
+    },
+    "femaleCalf6to7": {
+     "price": 2938,
+     "previousPrice": 2947
+    },
+    "maleCalf6to7": {
+     "price": 4195,
+     "previousPrice": 4176
+    },
+    "hanwooAverage600kg": {
+     "price": 5124,
+     "previousPrice": 4975
+    },
+    "hanwooSteer600kg": {
+     "price": 5872,
+     "previousPrice": 5613
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4010
+    },
+    "beefCattleAverage600kg": {
+     "price": 3220,
+     "previousPrice": 3407
+    }
+   }
+  },
+  "2025-08-04": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5347,
+     "previousPrice": 5275
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2600
+    },
+    "maleCalf4to5": {
+     "price": 3252,
+     "previousPrice": 3331
+    },
+    "femaleCalf6to7": {
+     "price": 2945,
+     "previousPrice": 2938
+    },
+    "maleCalf6to7": {
+     "price": 4161,
+     "previousPrice": 4195
+    },
+    "hanwooAverage600kg": {
+     "price": 5069,
+     "previousPrice": 5124
+    },
+    "hanwooSteer600kg": {
+     "price": 6095,
+     "previousPrice": 5872
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4010
+    },
+    "beefCattleAverage600kg": {
+     "price": 3259,
+     "previousPrice": 3220
+    }
+   }
+  },
+  "2025-08-11": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5580,
+     "previousPrice": 5347
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2600
+    },
+    "maleCalf4to5": {
+     "price": 3259,
+     "previousPrice": 3252
+    },
+    "femaleCalf6to7": {
+     "price": 2980,
+     "previousPrice": 2945
+    },
+    "maleCalf6to7": {
+     "price": 4217,
+     "previousPrice": 4161
+    },
+    "hanwooAverage600kg": {
+     "price": 5521,
+     "previousPrice": 5069
+    },
+    "hanwooSteer600kg": {
+     "price": 6842,
+     "previousPrice": 6095
+    },
+    "hanwooBull600kg": {
+     "price": 4656,
+     "previousPrice": 4010
+    },
+    "beefCattleAverage600kg": {
+     "price": 3615,
+     "previousPrice": 3259
+    }
+   }
+  },
+  "2025-08-18": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5554,
+     "previousPrice": 5580
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2600
+    },
+    "maleCalf4to5": {
+     "price": 3195,
+     "previousPrice": 3259
+    },
+    "femaleCalf6to7": {
+     "price": 3174,
+     "previousPrice": 2980
+    },
+    "maleCalf6to7": {
+     "price": 4357,
+     "previousPrice": 4217
+    },
+    "hanwooAverage600kg": {
+     "price": 5949,
+     "previousPrice": 5521
+    },
+    "hanwooSteer600kg": {
+     "price": 6447,
+     "previousPrice": 6842
+    },
+    "hanwooBull600kg": {
+     "price": 5000,
+     "previousPrice": 4656
+    },
+    "beefCattleAverage600kg": {
+     "price": 2821,
+     "previousPrice": 3615
+    }
+   }
+  },
+  "2025-08-25": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5695,
+     "previousPrice": 5554
+    },
+    "femaleCalf4to5": {
+     "price": 1530,
+     "previousPrice": 2600
+    },
+    "maleCalf4to5": {
+     "price": 3350,
+     "previousPrice": 3195
+    },
+    "femaleCalf6to7": {
+     "price": 3200,
+     "previousPrice": 3174
+    },
+    "maleCalf6to7": {
+     "price": 4453,
+     "previousPrice": 4357
+    },
+    "hanwooAverage600kg": {
+     "price": 5786,
+     "previousPrice": 5949
+    },
+    "hanwooSteer600kg": {
+     "price": 6601,
+     "previousPrice": 6447
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 5000
+    },
+    "beefCattleAverage600kg": {
+     "price": 3458,
+     "previousPrice": 2821
+    }
+   }
+  },
+  "2025-09-01": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5758,
+     "previousPrice": 5695
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1530
+    },
+    "maleCalf4to5": {
+     "price": 3302,
+     "previousPrice": 3350
+    },
+    "femaleCalf6to7": {
+     "price": 3234,
+     "previousPrice": 3200
+    },
+    "maleCalf6to7": {
+     "price": 4472,
+     "previousPrice": 4453
+    },
+    "hanwooAverage600kg": {
+     "price": 6274,
+     "previousPrice": 5786
+    },
+    "hanwooSteer600kg": {
+     "price": 6869,
+     "previousPrice": 6601
+    },
+    "hanwooBull600kg": {
+     "price": 4764,
+     "previousPrice": 5000
+    },
+    "beefCattleAverage600kg": {
+     "price": 3314,
+     "previousPrice": 3458
+    }
+   }
+  },
+  "2025-09-08": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5881,
+     "previousPrice": 5758
+    },
+    "femaleCalf4to5": {
+     "price": 1960,
+     "previousPrice": 1530
+    },
+    "maleCalf4to5": {
+     "price": 3559,
+     "previousPrice": 3302
+    },
+    "femaleCalf6to7": {
+     "price": 3336,
+     "previousPrice": 3234
+    },
+    "maleCalf6to7": {
+     "price": 4566,
+     "previousPrice": 4472
+    },
+    "hanwooAverage600kg": {
+     "price": 6832,
+     "previousPrice": 6274
+    },
+    "hanwooSteer600kg": {
+     "price": 7331,
+     "previousPrice": 6869
+    },
+    "hanwooBull600kg": {
+     "price": 4362,
+     "previousPrice": 4764
+    },
+    "beefCattleAverage600kg": {
+     "price": 3537,
+     "previousPrice": 3314
+    }
+   }
+  },
+  "2025-09-15": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5710,
+     "previousPrice": 5881
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1960
+    },
+    "maleCalf4to5": {
+     "price": 3595,
+     "previousPrice": 3559
+    },
+    "femaleCalf6to7": {
+     "price": 3507,
+     "previousPrice": 3336
+    },
+    "maleCalf6to7": {
+     "price": 4740,
+     "previousPrice": 4566
+    },
+    "hanwooAverage600kg": {
+     "price": 6705,
+     "previousPrice": 6832
+    },
+    "hanwooSteer600kg": {
+     "price": 7320,
+     "previousPrice": 7331
+    },
+    "hanwooBull600kg": {
+     "price": 4120,
+     "previousPrice": 4362
+    },
+    "beefCattleAverage600kg": {
+     "price": 3574,
+     "previousPrice": 3537
+    }
+   }
+  },
+  "2025-09-22": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5589,
+     "previousPrice": 5710
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1960
+    },
+    "maleCalf4to5": {
+     "price": 3571,
+     "previousPrice": 3595
+    },
+    "femaleCalf6to7": {
+     "price": 3466,
+     "previousPrice": 3507
+    },
+    "maleCalf6to7": {
+     "price": 4785,
+     "previousPrice": 4740
+    },
+    "hanwooAverage600kg": {
+     "price": 6476,
+     "previousPrice": 6705
+    },
+    "hanwooSteer600kg": {
+     "price": 7203,
+     "previousPrice": 7320
+    },
+    "hanwooBull600kg": {
+     "price": 3910,
+     "previousPrice": 4120
+    },
+    "beefCattleAverage600kg": {
+     "price": 3446,
+     "previousPrice": 3574
+    }
+   }
+  },
+  "2025-09-29": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5476,
+     "previousPrice": 5589
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 1960
+    },
+    "maleCalf4to5": {
+     "price": 3539,
+     "previousPrice": 3571
+    },
+    "femaleCalf6to7": {
+     "price": 3437,
+     "previousPrice": 3466
+    },
+    "maleCalf6to7": {
+     "price": 4771,
+     "previousPrice": 4785
+    },
+    "hanwooAverage600kg": {
+     "price": 7199,
+     "previousPrice": 6476
+    },
+    "hanwooSteer600kg": {
+     "price": 7758,
+     "previousPrice": 7203
+    },
+    "hanwooBull600kg": {
+     "price": 4006,
+     "previousPrice": 3910
+    },
+    "beefCattleAverage600kg": {
+     "price": 3639,
+     "previousPrice": 3446
+    }
+   }
+  },
+  "2025-10-06": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5446,
+     "previousPrice": 5476
+    },
+    "femaleCalf4to5": {
+     "price": 2680,
+     "previousPrice": 1960
+    },
+    "maleCalf4to5": {
+     "price": 3823,
+     "previousPrice": 3539
+    },
+    "femaleCalf6to7": {
+     "price": 3458,
+     "previousPrice": 3437
+    },
+    "maleCalf6to7": {
+     "price": 4798,
+     "previousPrice": 4771
+    },
+    "hanwooAverage600kg": {
+     "price": null,
+     "previousPrice": 7199
+    },
+    "hanwooSteer600kg": {
+     "price": null,
+     "previousPrice": 7758
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4006
+    },
+    "beefCattleAverage600kg": {
+     "price": null,
+     "previousPrice": 3639
+    }
+   }
+  },
+  "2025-10-13": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5744,
+     "previousPrice": 5446
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2680
+    },
+    "maleCalf4to5": {
+     "price": 3640,
+     "previousPrice": 3823
+    },
+    "femaleCalf6to7": {
+     "price": 3345,
+     "previousPrice": 3458
+    },
+    "maleCalf6to7": {
+     "price": 4533,
+     "previousPrice": 4798
+    },
+    "hanwooAverage600kg": {
+     "price": 7286,
+     "previousPrice": 7199
+    },
+    "hanwooSteer600kg": {
+     "price": 7777,
+     "previousPrice": 7758
+    },
+    "hanwooBull600kg": {
+     "price": 3188,
+     "previousPrice": 4006
+    },
+    "beefCattleAverage600kg": {
+     "price": 3712,
+     "previousPrice": 3639
+    }
+   }
+  },
+  "2025-10-20": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5920,
+     "previousPrice": 5744
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2680
+    },
+    "maleCalf4to5": {
+     "price": 3650,
+     "previousPrice": 3640
+    },
+    "femaleCalf6to7": {
+     "price": 3266,
+     "previousPrice": 3345
+    },
+    "maleCalf6to7": {
+     "price": 4514,
+     "previousPrice": 4533
+    },
+    "hanwooAverage600kg": {
+     "price": 5776,
+     "previousPrice": 7286
+    },
+    "hanwooSteer600kg": {
+     "price": 6785,
+     "previousPrice": 7777
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3188
+    },
+    "beefCattleAverage600kg": {
+     "price": 3212,
+     "previousPrice": 3712
+    }
+   }
+  },
+  "2025-10-27": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6001,
+     "previousPrice": 5920
+    },
+    "femaleCalf4to5": {
+     "price": 2147,
+     "previousPrice": 2680
+    },
+    "maleCalf4to5": {
+     "price": 4551,
+     "previousPrice": 3650
+    },
+    "femaleCalf6to7": {
+     "price": 3236,
+     "previousPrice": 3266
+    },
+    "maleCalf6to7": {
+     "price": 4518,
+     "previousPrice": 4514
+    },
+    "hanwooAverage600kg": {
+     "price": 6250,
+     "previousPrice": 5776
+    },
+    "hanwooSteer600kg": {
+     "price": 7075,
+     "previousPrice": 6785
+    },
+    "hanwooBull600kg": {
+     "price": 3767,
+     "previousPrice": 3188
+    },
+    "beefCattleAverage600kg": {
+     "price": 3458,
+     "previousPrice": 3212
+    }
+   }
+  },
+  "2025-11-03": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6157,
+     "previousPrice": 6001
+    },
+    "femaleCalf4to5": {
+     "price": 2380,
+     "previousPrice": 2147
+    },
+    "maleCalf4to5": {
+     "price": 4588,
+     "previousPrice": 4551
+    },
+    "femaleCalf6to7": {
+     "price": 3159,
+     "previousPrice": 3236
+    },
+    "maleCalf6to7": {
+     "price": 4451,
+     "previousPrice": 4518
+    },
+    "hanwooAverage600kg": {
+     "price": 5798,
+     "previousPrice": 6250
+    },
+    "hanwooSteer600kg": {
+     "price": 6721,
+     "previousPrice": 7075
+    },
+    "hanwooBull600kg": {
+     "price": 4322,
+     "previousPrice": 3767
+    },
+    "beefCattleAverage600kg": {
+     "price": 3474,
+     "previousPrice": 3458
+    }
+   }
+  },
+  "2025-11-10": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6258,
+     "previousPrice": 6157
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2380
+    },
+    "maleCalf4to5": {
+     "price": 4567,
+     "previousPrice": 4588
+    },
+    "femaleCalf6to7": {
+     "price": 3173,
+     "previousPrice": 3159
+    },
+    "maleCalf6to7": {
+     "price": 4489,
+     "previousPrice": 4451
+    },
+    "hanwooAverage600kg": {
+     "price": 5584,
+     "previousPrice": 5798
+    },
+    "hanwooSteer600kg": {
+     "price": 6323,
+     "previousPrice": 6721
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4322
+    },
+    "beefCattleAverage600kg": {
+     "price": 3257,
+     "previousPrice": 3474
+    }
+   }
+  },
+  "2025-11-17": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6236,
+     "previousPrice": 6258
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2380
+    },
+    "maleCalf4to5": {
+     "price": 4471,
+     "previousPrice": 4567
+    },
+    "femaleCalf6to7": {
+     "price": 3285,
+     "previousPrice": 3173
+    },
+    "maleCalf6to7": {
+     "price": 4496,
+     "previousPrice": 4489
+    },
+    "hanwooAverage600kg": {
+     "price": 5052,
+     "previousPrice": 5584
+    },
+    "hanwooSteer600kg": {
+     "price": 6812,
+     "previousPrice": 6323
+    },
+    "hanwooBull600kg": {
+     "price": 4361,
+     "previousPrice": 4322
+    },
+    "beefCattleAverage600kg": {
+     "price": 3226,
+     "previousPrice": 3257
+    }
+   }
+  },
+  "2025-11-24": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6195,
+     "previousPrice": 6236
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2380
+    },
+    "maleCalf4to5": {
+     "price": 3763,
+     "previousPrice": 4471
+    },
+    "femaleCalf6to7": {
+     "price": 3350,
+     "previousPrice": 3285
+    },
+    "maleCalf6to7": {
+     "price": 4505,
+     "previousPrice": 4496
+    },
+    "hanwooAverage600kg": {
+     "price": 5792,
+     "previousPrice": 5052
+    },
+    "hanwooSteer600kg": {
+     "price": 5712,
+     "previousPrice": 6812
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4361
+    },
+    "beefCattleAverage600kg": {
+     "price": 3770,
+     "previousPrice": 3226
+    }
+   }
+  },
+  "2025-12-01": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6136,
+     "previousPrice": 6195
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2380
+    },
+    "maleCalf4to5": {
+     "price": 3798,
+     "previousPrice": 3763
+    },
+    "femaleCalf6to7": {
+     "price": 3335,
+     "previousPrice": 3350
+    },
+    "maleCalf6to7": {
+     "price": 4453,
+     "previousPrice": 4505
+    },
+    "hanwooAverage600kg": {
+     "price": 6180,
+     "previousPrice": 5792
+    },
+    "hanwooSteer600kg": {
+     "price": 6874,
+     "previousPrice": 5712
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4361
+    },
+    "beefCattleAverage600kg": {
+     "price": 3791,
+     "previousPrice": 3770
+    }
+   }
+  },
+  "2025-12-08": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6146,
+     "previousPrice": 6136
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2380
+    },
+    "maleCalf4to5": {
+     "price": 3813,
+     "previousPrice": 3798
+    },
+    "femaleCalf6to7": {
+     "price": 3416,
+     "previousPrice": 3335
+    },
+    "maleCalf6to7": {
+     "price": 4485,
+     "previousPrice": 4453
+    },
+    "hanwooAverage600kg": {
+     "price": 5823,
+     "previousPrice": 6180
+    },
+    "hanwooSteer600kg": {
+     "price": 6408,
+     "previousPrice": 6874
+    },
+    "hanwooBull600kg": {
+     "price": 3788,
+     "previousPrice": 4361
+    },
+    "beefCattleAverage600kg": {
+     "price": 3452,
+     "previousPrice": 3791
+    }
+   }
+  },
+  "2025-12-15": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6069,
+     "previousPrice": 6146
+    },
+    "femaleCalf4to5": {
+     "price": 2210,
+     "previousPrice": 2380
+    },
+    "maleCalf4to5": {
+     "price": 4114,
+     "previousPrice": 3813
+    },
+    "femaleCalf6to7": {
+     "price": 3518,
+     "previousPrice": 3416
+    },
+    "maleCalf6to7": {
+     "price": 4548,
+     "previousPrice": 4485
+    },
+    "hanwooAverage600kg": {
+     "price": 5378,
+     "previousPrice": 5823
+    },
+    "hanwooSteer600kg": {
+     "price": 5110,
+     "previousPrice": 6408
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3788
+    },
+    "beefCattleAverage600kg": {
+     "price": 3474,
+     "previousPrice": 3452
+    }
+   }
+  },
+  "2025-12-22": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6135,
+     "previousPrice": 6069
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2210
+    },
+    "maleCalf4to5": {
+     "price": 3817,
+     "previousPrice": 4114
+    },
+    "femaleCalf6to7": {
+     "price": 3652,
+     "previousPrice": 3518
+    },
+    "maleCalf6to7": {
+     "price": 4567,
+     "previousPrice": 4548
+    },
+    "hanwooAverage600kg": {
+     "price": 5109,
+     "previousPrice": 5378
+    },
+    "hanwooSteer600kg": {
+     "price": 6268,
+     "previousPrice": 5110
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3788
+    },
+    "beefCattleAverage600kg": {
+     "price": 3186,
+     "previousPrice": 3474
+    }
+   }
+  },
+  "2025-12-29": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6007,
+     "previousPrice": 6135
+    },
+    "femaleCalf4to5": {
+     "price": 1720,
+     "previousPrice": 2210
+    },
+    "maleCalf4to5": {
+     "price": 3753,
+     "previousPrice": 3817
+    },
+    "femaleCalf6to7": {
+     "price": 3640,
+     "previousPrice": 3652
+    },
+    "maleCalf6to7": {
+     "price": 4507,
+     "previousPrice": 4567
+    },
+    "hanwooAverage600kg": {
+     "price": 5351,
+     "previousPrice": 5109
+    },
+    "hanwooSteer600kg": {
+     "price": 6336,
+     "previousPrice": 6268
+    },
+    "hanwooBull600kg": {
+     "price": 4371,
+     "previousPrice": 3788
+    },
+    "beefCattleAverage600kg": {
+     "price": 3602,
+     "previousPrice": 3186
+    }
+   }
+  },
+  "2026-01-05": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6262,
+     "previousPrice": 6007
+    },
+    "femaleCalf4to5": {
+     "price": 2830,
+     "previousPrice": 1720
+    },
+    "maleCalf4to5": {
+     "price": 4105,
+     "previousPrice": 3753
+    },
+    "femaleCalf6to7": {
+     "price": 3399,
+     "previousPrice": 3640
+    },
+    "maleCalf6to7": {
+     "price": 4523,
+     "previousPrice": 4507
+    },
+    "hanwooAverage600kg": {
+     "price": 6448,
+     "previousPrice": 5351
+    },
+    "hanwooSteer600kg": {
+     "price": 7278,
+     "previousPrice": 6336
+    },
+    "hanwooBull600kg": {
+     "price": 4916,
+     "previousPrice": 4371
+    },
+    "beefCattleAverage600kg": {
+     "price": 3300,
+     "previousPrice": 3602
+    }
+   }
+  },
+  "2026-01-12": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6260,
+     "previousPrice": 6262
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2830
+    },
+    "maleCalf4to5": {
+     "price": 4008,
+     "previousPrice": 4105
+    },
+    "femaleCalf6to7": {
+     "price": 3432,
+     "previousPrice": 3399
+    },
+    "maleCalf6to7": {
+     "price": 4598,
+     "previousPrice": 4523
+    },
+    "hanwooAverage600kg": {
+     "price": 6495,
+     "previousPrice": 6448
+    },
+    "hanwooSteer600kg": {
+     "price": 7727,
+     "previousPrice": 7278
+    },
+    "hanwooBull600kg": {
+     "price": 4414,
+     "previousPrice": 4916
+    },
+    "beefCattleAverage600kg": {
+     "price": 3305,
+     "previousPrice": 3300
+    }
+   }
+  },
+  "2026-01-19": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6240,
+     "previousPrice": 6260
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2830
+    },
+    "maleCalf4to5": {
+     "price": 4008,
+     "previousPrice": 4008
+    },
+    "femaleCalf6to7": {
+     "price": 3504,
+     "previousPrice": 3432
+    },
+    "maleCalf6to7": {
+     "price": 4657,
+     "previousPrice": 4598
+    },
+    "hanwooAverage600kg": {
+     "price": 7137,
+     "previousPrice": 6495
+    },
+    "hanwooSteer600kg": {
+     "price": 7693,
+     "previousPrice": 7727
+    },
+    "hanwooBull600kg": {
+     "price": 4321,
+     "previousPrice": 4414
+    },
+    "beefCattleAverage600kg": {
+     "price": 3546,
+     "previousPrice": 3305
+    }
+   }
+  },
+  "2026-01-26": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6188,
+     "previousPrice": 6240
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2830
+    },
+    "maleCalf4to5": {
+     "price": 3743,
+     "previousPrice": 4008
+    },
+    "femaleCalf6to7": {
+     "price": 3551,
+     "previousPrice": 3504
+    },
+    "maleCalf6to7": {
+     "price": 4652,
+     "previousPrice": 4657
+    },
+    "hanwooAverage600kg": {
+     "price": 7191,
+     "previousPrice": 7137
+    },
+    "hanwooSteer600kg": {
+     "price": 7570,
+     "previousPrice": 7693
+    },
+    "hanwooBull600kg": {
+     "price": 4692,
+     "previousPrice": 4321
+    },
+    "beefCattleAverage600kg": {
+     "price": 3704,
+     "previousPrice": 3546
+    }
+   }
+  },
+  "2026-02-02": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6035,
+     "previousPrice": 6188
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2830
+    },
+    "maleCalf4to5": {
+     "price": 3658,
+     "previousPrice": 3743
+    },
+    "femaleCalf6to7": {
+     "price": 3623,
+     "previousPrice": 3551
+    },
+    "maleCalf6to7": {
+     "price": 4670,
+     "previousPrice": 4652
+    },
+    "hanwooAverage600kg": {
+     "price": 7007,
+     "previousPrice": 7191
+    },
+    "hanwooSteer600kg": {
+     "price": 7405,
+     "previousPrice": 7570
+    },
+    "hanwooBull600kg": {
+     "price": 4503,
+     "previousPrice": 4692
+    },
+    "beefCattleAverage600kg": {
+     "price": 3732,
+     "previousPrice": 3704
+    }
+   }
+  },
+  "2026-02-09": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6054,
+     "previousPrice": 6035
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2830
+    },
+    "maleCalf4to5": {
+     "price": 3615,
+     "previousPrice": 3658
+    },
+    "femaleCalf6to7": {
+     "price": 3555,
+     "previousPrice": 3623
+    },
+    "maleCalf6to7": {
+     "price": 4742,
+     "previousPrice": 4670
+    },
+    "hanwooAverage600kg": {
+     "price": 7394,
+     "previousPrice": 7007
+    },
+    "hanwooSteer600kg": {
+     "price": 7955,
+     "previousPrice": 7405
+    },
+    "hanwooBull600kg": {
+     "price": 3786,
+     "previousPrice": 4503
+    },
+    "beefCattleAverage600kg": {
+     "price": 4023,
+     "previousPrice": 3732
+    }
+   }
+  },
+  "2026-02-16": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5968,
+     "previousPrice": 6054
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2830
+    },
+    "maleCalf4to5": {
+     "price": 3960,
+     "previousPrice": 3615
+    },
+    "femaleCalf6to7": {
+     "price": 3596,
+     "previousPrice": 3555
+    },
+    "maleCalf6to7": {
+     "price": 4740,
+     "previousPrice": 4742
+    },
+    "hanwooAverage600kg": {
+     "price": 7597,
+     "previousPrice": 7394
+    },
+    "hanwooSteer600kg": {
+     "price": 8256,
+     "previousPrice": 7955
+    },
+    "hanwooBull600kg": {
+     "price": 4089,
+     "previousPrice": 3786
+    },
+    "beefCattleAverage600kg": {
+     "price": 3698,
+     "previousPrice": 4023
+    }
+   }
+  },
+  "2026-02-23": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6058,
+     "previousPrice": 5968
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2830
+    },
+    "maleCalf4to5": {
+     "price": 3924,
+     "previousPrice": 3960
+    },
+    "femaleCalf6to7": {
+     "price": 3581,
+     "previousPrice": 3596
+    },
+    "maleCalf6to7": {
+     "price": 4692,
+     "previousPrice": 4740
+    },
+    "hanwooAverage600kg": {
+     "price": 7317,
+     "previousPrice": 7597
+    },
+    "hanwooSteer600kg": {
+     "price": 7839,
+     "previousPrice": 8256
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 3871,
+     "previousPrice": 3698
+    }
+   }
+  },
+  "2026-03-02": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6296,
+     "previousPrice": 6058
+    },
+    "femaleCalf4to5": {
+     "price": 2510,
+     "previousPrice": 2830
+    },
+    "maleCalf4to5": {
+     "price": 4257,
+     "previousPrice": 3924
+    },
+    "femaleCalf6to7": {
+     "price": 3571,
+     "previousPrice": 3581
+    },
+    "maleCalf6to7": {
+     "price": 4701,
+     "previousPrice": 4692
+    },
+    "hanwooAverage600kg": {
+     "price": 6699,
+     "previousPrice": 7317
+    },
+    "hanwooSteer600kg": {
+     "price": 6906,
+     "previousPrice": 7839
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 3038,
+     "previousPrice": 3871
+    }
+   }
+  },
+  "2026-03-09": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6373,
+     "previousPrice": 6296
+    },
+    "femaleCalf4to5": {
+     "price": 2720,
+     "previousPrice": 2510
+    },
+    "maleCalf4to5": {
+     "price": 4175,
+     "previousPrice": 4257
+    },
+    "femaleCalf6to7": {
+     "price": 3617,
+     "previousPrice": 3571
+    },
+    "maleCalf6to7": {
+     "price": 4666,
+     "previousPrice": 4701
+    },
+    "hanwooAverage600kg": {
+     "price": 6131,
+     "previousPrice": 6699
+    },
+    "hanwooSteer600kg": {
+     "price": 6419,
+     "previousPrice": 6906
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 4331,
+     "previousPrice": 3038
+    }
+   }
+  },
+  "2026-03-16": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6324,
+     "previousPrice": 6373
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2720
+    },
+    "maleCalf4to5": {
+     "price": 3906,
+     "previousPrice": 4175
+    },
+    "femaleCalf6to7": {
+     "price": 3659,
+     "previousPrice": 3617
+    },
+    "maleCalf6to7": {
+     "price": 4652,
+     "previousPrice": 4666
+    },
+    "hanwooAverage600kg": {
+     "price": 5744,
+     "previousPrice": 6131
+    },
+    "hanwooSteer600kg": {
+     "price": 6823,
+     "previousPrice": 6419
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 4311,
+     "previousPrice": 4331
+    }
+   }
+  },
+  "2026-03-23": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6130,
+     "previousPrice": 6324
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2720
+    },
+    "maleCalf4to5": {
+     "price": 3895,
+     "previousPrice": 3906
+    },
+    "femaleCalf6to7": {
+     "price": 3583,
+     "previousPrice": 3659
+    },
+    "maleCalf6to7": {
+     "price": 4649,
+     "previousPrice": 4652
+    },
+    "hanwooAverage600kg": {
+     "price": 6366,
+     "previousPrice": 5744
+    },
+    "hanwooSteer600kg": {
+     "price": 6994,
+     "previousPrice": 6823
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 4151,
+     "previousPrice": 4311
+    }
+   }
+  },
+  "2026-03-30": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6104,
+     "previousPrice": 6130
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2720
+    },
+    "maleCalf4to5": {
+     "price": 3895,
+     "previousPrice": 3895
+    },
+    "femaleCalf6to7": {
+     "price": 3551,
+     "previousPrice": 3583
+    },
+    "maleCalf6to7": {
+     "price": 4663,
+     "previousPrice": 4649
+    },
+    "hanwooAverage600kg": {
+     "price": 6121,
+     "previousPrice": 6366
+    },
+    "hanwooSteer600kg": {
+     "price": 6958,
+     "previousPrice": 6994
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 3634,
+     "previousPrice": 4151
+    }
+   }
+  },
+  "2026-04-06": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6045,
+     "previousPrice": 6104
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2720
+    },
+    "maleCalf4to5": {
+     "price": 3685,
+     "previousPrice": 3895
+    },
+    "femaleCalf6to7": {
+     "price": 3494,
+     "previousPrice": 3551
+    },
+    "maleCalf6to7": {
+     "price": 4701,
+     "previousPrice": 4663
+    },
+    "hanwooAverage600kg": {
+     "price": 5655,
+     "previousPrice": 6121
+    },
+    "hanwooSteer600kg": {
+     "price": 6670,
+     "previousPrice": 6958
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 4227,
+     "previousPrice": 3634
+    }
+   }
+  },
+  "2026-04-13": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6007,
+     "previousPrice": 6045
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2720
+    },
+    "maleCalf4to5": {
+     "price": 3928,
+     "previousPrice": 3685
+    },
+    "femaleCalf6to7": {
+     "price": 3513,
+     "previousPrice": 3494
+    },
+    "maleCalf6to7": {
+     "price": 4694,
+     "previousPrice": 4701
+    },
+    "hanwooAverage600kg": {
+     "price": 5740,
+     "previousPrice": 5655
+    },
+    "hanwooSteer600kg": {
+     "price": 6860,
+     "previousPrice": 6670
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 4201,
+     "previousPrice": 4227
+    }
+   }
+  },
+  "2026-04-20": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5953,
+     "previousPrice": 6007
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2720
+    },
+    "maleCalf4to5": {
+     "price": 3961,
+     "previousPrice": 3928
+    },
+    "femaleCalf6to7": {
+     "price": 3508,
+     "previousPrice": 3513
+    },
+    "maleCalf6to7": {
+     "price": 4687,
+     "previousPrice": 4694
+    },
+    "hanwooAverage600kg": {
+     "price": 5197,
+     "previousPrice": 5740
+    },
+    "hanwooSteer600kg": {
+     "price": 5659,
+     "previousPrice": 6860
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 3759,
+     "previousPrice": 4201
+    }
+   }
+  },
+  "2026-04-27": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5930,
+     "previousPrice": 5953
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2720
+    },
+    "maleCalf4to5": {
+     "price": 3944,
+     "previousPrice": 3961
+    },
+    "femaleCalf6to7": {
+     "price": 3520,
+     "previousPrice": 3508
+    },
+    "maleCalf6to7": {
+     "price": 4782,
+     "previousPrice": 4687
+    },
+    "hanwooAverage600kg": {
+     "price": 5507,
+     "previousPrice": 5197
+    },
+    "hanwooSteer600kg": {
+     "price": 5828,
+     "previousPrice": 5659
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 3900,
+     "previousPrice": 3759
+    }
+   }
+  },
+  "2026-05-04": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5726,
+     "previousPrice": 5930
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 2720
+    },
+    "maleCalf4to5": {
+     "price": 4163,
+     "previousPrice": 3944
+    },
+    "femaleCalf6to7": {
+     "price": 3484,
+     "previousPrice": 3520
+    },
+    "maleCalf6to7": {
+     "price": 4771,
+     "previousPrice": 4782
+    },
+    "hanwooAverage600kg": {
+     "price": 5486,
+     "previousPrice": 5507
+    },
+    "hanwooSteer600kg": {
+     "price": 5950,
+     "previousPrice": 5828
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 3442,
+     "previousPrice": 3900
+    }
+   }
+  },
+  "2026-05-11": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 5852,
+     "previousPrice": 5726
+    },
+    "femaleCalf4to5": {
+     "price": 3683,
+     "previousPrice": 2720
+    },
+    "maleCalf4to5": {
+     "price": 4580,
+     "previousPrice": 4163
+    },
+    "femaleCalf6to7": {
+     "price": 3468,
+     "previousPrice": 3484
+    },
+    "maleCalf6to7": {
+     "price": 4816,
+     "previousPrice": 4771
+    },
+    "hanwooAverage600kg": {
+     "price": 6205,
+     "previousPrice": 5486
+    },
+    "hanwooSteer600kg": {
+     "price": 6989,
+     "previousPrice": 5950
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 3739,
+     "previousPrice": 3442
+    }
+   }
+  },
+  "2026-05-18": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6003,
+     "previousPrice": 5852
+    },
+    "femaleCalf4to5": {
+     "price": 3683,
+     "previousPrice": 3683
+    },
+    "maleCalf4to5": {
+     "price": 4580,
+     "previousPrice": 4580
+    },
+    "femaleCalf6to7": {
+     "price": 3559,
+     "previousPrice": 3468
+    },
+    "maleCalf6to7": {
+     "price": 4824,
+     "previousPrice": 4816
+    },
+    "hanwooAverage600kg": {
+     "price": 5655,
+     "previousPrice": 6205
+    },
+    "hanwooSteer600kg": {
+     "price": 6751,
+     "previousPrice": 6989
+    },
+    "hanwooBull600kg": {
+     "price": 6615,
+     "previousPrice": 4089
+    },
+    "beefCattleAverage600kg": {
+     "price": 3765,
+     "previousPrice": 3739
+    }
+   }
+  },
+  "2026-05-25": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6088,
+     "previousPrice": 6003
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3683
+    },
+    "maleCalf4to5": {
+     "price": 4312,
+     "previousPrice": 4580
+    },
+    "femaleCalf6to7": {
+     "price": 3506,
+     "previousPrice": 3559
+    },
+    "maleCalf6to7": {
+     "price": 4814,
+     "previousPrice": 4824
+    },
+    "hanwooAverage600kg": {
+     "price": 5533,
+     "previousPrice": 5655
+    },
+    "hanwooSteer600kg": {
+     "price": null,
+     "previousPrice": 6751
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 6615
+    },
+    "beefCattleAverage600kg": {
+     "price": 3557,
+     "previousPrice": 3765
+    }
+   }
+  },
+  "2026-06-01": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6012,
+     "previousPrice": 6088
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3683
+    },
+    "maleCalf4to5": {
+     "price": 4310,
+     "previousPrice": 4312
+    },
+    "femaleCalf6to7": {
+     "price": 3603,
+     "previousPrice": 3506
+    },
+    "maleCalf6to7": {
+     "price": 4845,
+     "previousPrice": 4814
+    },
+    "hanwooAverage600kg": {
+     "price": 5779,
+     "previousPrice": 5533
+    },
+    "hanwooSteer600kg": {
+     "price": 6817,
+     "previousPrice": 6751
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 6615
+    },
+    "beefCattleAverage600kg": {
+     "price": 3586,
+     "previousPrice": 3557
+    }
+   }
+  },
+  "2026-06-08": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6008,
+     "previousPrice": 6012
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3683
+    },
+    "maleCalf4to5": {
+     "price": 4051,
+     "previousPrice": 4310
+    },
+    "femaleCalf6to7": {
+     "price": 3568,
+     "previousPrice": 3603
+    },
+    "maleCalf6to7": {
+     "price": 4926,
+     "previousPrice": 4845
+    },
+    "hanwooAverage600kg": {
+     "price": 6792,
+     "previousPrice": 5779
+    },
+    "hanwooSteer600kg": {
+     "price": 7254,
+     "previousPrice": 6817
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 6615
+    },
+    "beefCattleAverage600kg": {
+     "price": 3969,
+     "previousPrice": 3586
+    }
+   }
+  },
+  "2026-06-15": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6082,
+     "previousPrice": 6008
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3683
+    },
+    "maleCalf4to5": {
+     "price": 4073,
+     "previousPrice": 4051
+    },
+    "femaleCalf6to7": {
+     "price": 3597,
+     "previousPrice": 3568
+    },
+    "maleCalf6to7": {
+     "price": 4981,
+     "previousPrice": 4926
+    },
+    "hanwooAverage600kg": {
+     "price": 6051,
+     "previousPrice": 6792
+    },
+    "hanwooSteer600kg": {
+     "price": 6840,
+     "previousPrice": 7254
+    },
+    "hanwooBull600kg": {
+     "price": 4148,
+     "previousPrice": 6615
+    },
+    "beefCattleAverage600kg": {
+     "price": 3806,
+     "previousPrice": 3969
+    }
+   }
+  },
+  "2026-06-22": {
+   "prices": {
+    "largeCow600kg": {
+     "price": null,
+     "previousPrice": 6082
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3683
+    },
+    "maleCalf4to5": {
+     "price": null,
+     "previousPrice": 4073
+    },
+    "femaleCalf6to7": {
+     "price": null,
+     "previousPrice": 3597
+    },
+    "maleCalf6to7": {
+     "price": null,
+     "previousPrice": 4981
+    },
+    "hanwooAverage600kg": {
+     "price": 6065,
+     "previousPrice": 6051
+    },
+    "hanwooSteer600kg": {
+     "price": 6491,
+     "previousPrice": 6840
+    },
+    "hanwooBull600kg": {
+     "price": 4319,
+     "previousPrice": 4148
+    },
+    "beefCattleAverage600kg": {
+     "price": 3637,
+     "previousPrice": 3806
+    }
+   }
+  },
+  "2026-06-29": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6168,
+     "previousPrice": 6082
+    },
+    "femaleCalf4to5": {
+     "price": 3080,
+     "previousPrice": 3683
+    },
+    "maleCalf4to5": {
+     "price": 4420,
+     "previousPrice": 4073
+    },
+    "femaleCalf6to7": {
+     "price": 3640,
+     "previousPrice": 3597
+    },
+    "maleCalf6to7": {
+     "price": 5044,
+     "previousPrice": 4981
+    },
+    "hanwooAverage600kg": {
+     "price": 6295,
+     "previousPrice": 6065
+    },
+    "hanwooSteer600kg": {
+     "price": 7555,
+     "previousPrice": 6491
+    },
+    "hanwooBull600kg": {
+     "price": 4500,
+     "previousPrice": 4319
+    },
+    "beefCattleAverage600kg": {
+     "price": 3523,
+     "previousPrice": 3637
+    }
+   }
+  },
+  "2026-07-06": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6216,
+     "previousPrice": 6168
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3080
+    },
+    "maleCalf4to5": {
+     "price": 4352,
+     "previousPrice": 4420
+    },
+    "femaleCalf6to7": {
+     "price": 3724,
+     "previousPrice": 3640
+    },
+    "maleCalf6to7": {
+     "price": 5080,
+     "previousPrice": 5044
+    },
+    "hanwooAverage600kg": {
+     "price": 6639,
+     "previousPrice": 6295
+    },
+    "hanwooSteer600kg": {
+     "price": 8003,
+     "previousPrice": 7555
+    },
+    "hanwooBull600kg": {
+     "price": 4616,
+     "previousPrice": 4500
+    },
+    "beefCattleAverage600kg": {
+     "price": 4073,
+     "previousPrice": 3523
+    }
+   }
+  },
+  "2026-07-13": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6311,
+     "previousPrice": 6216
+    },
+    "femaleCalf4to5": {
+     "price": 3722,
+     "previousPrice": 3080
+    },
+    "maleCalf4to5": {
+     "price": 4418,
+     "previousPrice": 4352
+    },
+    "femaleCalf6to7": {
+     "price": 3773,
+     "previousPrice": 3724
+    },
+    "maleCalf6to7": {
+     "price": 5134,
+     "previousPrice": 5080
+    },
+    "hanwooAverage600kg": {
+     "price": 6376,
+     "previousPrice": 6639
+    },
+    "hanwooSteer600kg": {
+     "price": 7285,
+     "previousPrice": 8003
+    },
+    "hanwooBull600kg": {
+     "price": 4794,
+     "previousPrice": 4616
+    },
+    "beefCattleAverage600kg": {
+     "price": 3858,
+     "previousPrice": 4073
+    }
+   }
+  },
+  "2026-07-20": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6331,
+     "previousPrice": 6311
+    },
+    "femaleCalf4to5": {
+     "price": 3648,
+     "previousPrice": 3722
+    },
+    "maleCalf4to5": {
+     "price": 4258,
+     "previousPrice": 4418
+    },
+    "femaleCalf6to7": {
+     "price": 3706,
+     "previousPrice": 3773
+    },
+    "maleCalf6to7": {
+     "price": 5086,
+     "previousPrice": 5134
+    },
+    "hanwooAverage600kg": {
+     "price": 6371,
+     "previousPrice": 6376
+    },
+    "hanwooSteer600kg": {
+     "price": 6750,
+     "previousPrice": 7285
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 4794
+    },
+    "beefCattleAverage600kg": {
+     "price": 3827,
+     "previousPrice": 3858
+    }
+   }
+  },
+  "2026-07-27": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 6370,
+     "previousPrice": 6331
+    },
+    "femaleCalf4to5": {
+     "price": 3640,
+     "previousPrice": 3648
+    },
+    "maleCalf4to5": {
+     "price": 4476,
+     "previousPrice": 4258
+    },
+    "femaleCalf6to7": {
+     "price": 3765,
+     "previousPrice": 3706
+    },
+    "maleCalf6to7": {
+     "price": 5094,
+     "previousPrice": 5086
+    },
+    "hanwooAverage600kg": {
+     "price": 6155,
+     "previousPrice": 6371
+    },
+    "hanwooSteer600kg": {
+     "price": 7892,
+     "previousPrice": 6750
+    },
+    "hanwooBull600kg": {
+     "price": 5052,
+     "previousPrice": 4794
+    },
+    "beefCattleAverage600kg": {
+     "price": 3333,
+     "previousPrice": 3827
+    }
+   }
+  },
   "2026-08-03": {
    "prices": {
     "largeCow600kg": {
      "price": 6446,
-     "previousPrice": 6422
+     "previousPrice": 6370
     },
     "femaleCalf4to5": {
      "price": 3640,
@@ -17,31 +3657,31 @@
     },
     "maleCalf4to5": {
      "price": 4495,
-     "previousPrice": 4495
+     "previousPrice": 4476
     },
     "femaleCalf6to7": {
      "price": 3784,
-     "previousPrice": 3768
+     "previousPrice": 3765
     },
     "maleCalf6to7": {
      "price": 5081,
-     "previousPrice": 5079
+     "previousPrice": 5094
     },
     "hanwooAverage600kg": {
      "price": 6506,
-     "previousPrice": 7686
+     "previousPrice": 6155
     },
     "hanwooSteer600kg": {
      "price": 7322,
-     "previousPrice": 8426
+     "previousPrice": 7892
     },
     "hanwooBull600kg": {
      "price": null,
-     "previousPrice": null
+     "previousPrice": 5052
     },
     "beefCattleAverage600kg": {
      "price": 3232,
-     "previousPrice": 3650
+     "previousPrice": 3333
     }
    }
   },
@@ -77,7 +3717,7 @@
     },
     "hanwooBull600kg": {
      "price": 5047,
-     "previousPrice": null
+     "previousPrice": 5052
     },
     "beefCattleAverage600kg": {
      "price": 4090,
@@ -209,19 +3849,19 @@
    "prices": {
     "largeCow600kg": {
      "price": 6557,
-     "previousPrice": 6552
+     "previousPrice": 6521
     },
     "femaleCalf4to5": {
      "price": 2840,
-     "previousPrice": 2840
+     "previousPrice": 3551
     },
     "maleCalf4to5": {
      "price": 3895,
-     "previousPrice": 3895
+     "previousPrice": 4488
     },
     "femaleCalf6to7": {
      "price": 3716,
-     "previousPrice": 3725
+     "previousPrice": 3720
     },
     "maleCalf6to7": {
      "price": 5054,
@@ -237,7 +3877,7 @@
     },
     "hanwooBull600kg": {
      "price": 6273,
-     "previousPrice": null
+     "previousPrice": 5208
     },
     "beefCattleAverage600kg": {
      "price": 3615,
@@ -409,7 +4049,7 @@
    "prices": {
     "largeCow600kg": {
      "price": 6523,
-     "previousPrice": 6530
+     "previousPrice": 6553
     },
     "femaleCalf4to5": {
      "price": 3073,
@@ -417,15 +4057,15 @@
     },
     "maleCalf4to5": {
      "price": 3802,
-     "previousPrice": 3802
+     "previousPrice": 3849
     },
     "femaleCalf6to7": {
      "price": 3694,
-     "previousPrice": 3738
+     "previousPrice": 3765
     },
     "maleCalf6to7": {
      "price": 5199,
-     "previousPrice": 5170
+     "previousPrice": 5160
     },
     "hanwooAverage600kg": {
      "price": 5406,
@@ -477,7 +4117,7 @@
     },
     "hanwooBull600kg": {
      "price": 5032,
-     "previousPrice": null
+     "previousPrice": 5158
     },
     "beefCattleAverage600kg": {
      "price": 4257,
@@ -609,7 +4249,7 @@
    "prices": {
     "largeCow600kg": {
      "price": 6559,
-     "previousPrice": 6592
+     "previousPrice": 6575
     },
     "femaleCalf4to5": {
      "price": 2970,
@@ -617,15 +4257,15 @@
     },
     "maleCalf4to5": {
      "price": 3844,
-     "previousPrice": 3844
+     "previousPrice": 3802
     },
     "femaleCalf6to7": {
      "price": 3782,
-     "previousPrice": 3746
+     "previousPrice": 3718
     },
     "maleCalf6to7": {
      "price": 5207,
-     "previousPrice": 5216
+     "previousPrice": 5205
     },
     "hanwooAverage600kg": {
      "price": 5861,
@@ -809,7 +4449,7 @@
    "prices": {
     "largeCow600kg": {
      "price": 6635,
-     "previousPrice": 6619
+     "previousPrice": 6591
     },
     "femaleCalf4to5": {
      "price": 2930,
@@ -821,11 +4461,11 @@
     },
     "femaleCalf6to7": {
      "price": 3743,
-     "previousPrice": 3804
+     "previousPrice": 3818
     },
     "maleCalf6to7": {
      "price": 5443,
-     "previousPrice": 5412
+     "previousPrice": 5405
     },
     "hanwooAverage600kg": {
      "price": 7821,
@@ -877,7 +4517,7 @@
     },
     "hanwooBull600kg": {
      "price": 5339,
-     "previousPrice": null
+     "previousPrice": 5609
     },
     "beefCattleAverage600kg": {
      "price": 4263,
@@ -1009,11 +4649,11 @@
    "prices": {
     "largeCow600kg": {
      "price": 6709,
-     "previousPrice": 6738
+     "previousPrice": 6704
     },
     "femaleCalf4to5": {
      "price": null,
-     "previousPrice": null
+     "previousPrice": 2930
     },
     "maleCalf4to5": {
      "price": 3961,
@@ -1021,11 +4661,11 @@
     },
     "femaleCalf6to7": {
      "price": 3883,
-     "previousPrice": 3851
+     "previousPrice": 3836
     },
     "maleCalf6to7": {
      "price": 5456,
-     "previousPrice": 5444
+     "previousPrice": 5437
     },
     "hanwooAverage600kg": {
      "price": 8772,
@@ -1053,7 +4693,7 @@
     },
     "femaleCalf4to5": {
      "price": 3170,
-     "previousPrice": null
+     "previousPrice": 2930
     },
     "maleCalf4to5": {
      "price": 4090,
@@ -1209,7 +4849,7 @@
    "prices": {
     "largeCow600kg": {
      "price": 6832,
-     "previousPrice": 6765
+     "previousPrice": 6740
     },
     "femaleCalf4to5": {
      "price": 3170,
@@ -1217,15 +4857,15 @@
     },
     "maleCalf4to5": {
      "price": 4083,
-     "previousPrice": 4083
+     "previousPrice": 4770
     },
     "femaleCalf6to7": {
      "price": 3964,
-     "previousPrice": 3950
+     "previousPrice": 3946
     },
     "maleCalf6to7": {
      "price": 5579,
-     "previousPrice": 5530
+     "previousPrice": 5507
     },
     "hanwooAverage600kg": {
      "price": 8362,
@@ -1289,23 +4929,23 @@
    "prices": {
     "largeCow600kg": {
      "price": null,
-     "previousPrice": null
+     "previousPrice": 6866
     },
     "femaleCalf4to5": {
      "price": null,
-     "previousPrice": null
+     "previousPrice": 3260
     },
     "maleCalf4to5": {
      "price": null,
-     "previousPrice": null
+     "previousPrice": 4010
     },
     "femaleCalf6to7": {
      "price": null,
-     "previousPrice": null
+     "previousPrice": 3956
     },
     "maleCalf6to7": {
      "price": null,
-     "previousPrice": null
+     "previousPrice": 5583
     },
     "hanwooAverage600kg": {
      "price": 8616,
@@ -1329,7 +4969,7 @@
    "prices": {
     "largeCow600kg": {
      "price": 6890,
-     "previousPrice": 6868
+     "previousPrice": 6866
     },
     "femaleCalf4to5": {
      "price": 3260,
@@ -1341,11 +4981,11 @@
     },
     "femaleCalf6to7": {
      "price": 3922,
-     "previousPrice": 3921
+     "previousPrice": 3956
     },
     "maleCalf6to7": {
      "price": 5618,
-     "previousPrice": 5568
+     "previousPrice": 5583
     },
     "hanwooAverage600kg": {
      "price": 8413,
@@ -1409,7 +5049,7 @@
    "prices": {
     "largeCow600kg": {
      "price": 7042,
-     "previousPrice": 6991
+     "previousPrice": 6890
     },
     "femaleCalf4to5": {
      "price": 3260,
@@ -1417,15 +5057,15 @@
     },
     "maleCalf4to5": {
      "price": 3984,
-     "previousPrice": 3984
+     "previousPrice": 4010
     },
     "femaleCalf6to7": {
      "price": 3930,
-     "previousPrice": 4017
+     "previousPrice": 3984
     },
     "maleCalf6to7": {
      "price": 5646,
-     "previousPrice": 5649
+     "previousPrice": 5618
     },
     "hanwooAverage600kg": {
      "price": 8361,
@@ -1605,10 +5245,10 @@
     }
    }
   },
-  "2026-09-29": {
+  "2026-09-28": {
    "prices": {
     "largeCow600kg": {
-     "price": 7003,
+     "price": 7006,
      "previousPrice": 7034
     },
     "femaleCalf4to5": {
@@ -1616,24 +5256,64 @@
      "previousPrice": 3260
     },
     "maleCalf4to5": {
-     "price": 4489,
+     "price": 4435,
      "previousPrice": 4475
     },
     "femaleCalf6to7": {
-     "price": 4066,
+     "price": 4006,
      "previousPrice": 3939
     },
     "maleCalf6to7": {
-     "price": 5684,
+     "price": 5696,
      "previousPrice": 5648
     },
     "hanwooAverage600kg": {
-     "price": 8191,
+     "price": 7933,
      "previousPrice": 7397
     },
     "hanwooSteer600kg": {
-     "price": 8768,
+     "price": 8614,
      "previousPrice": 7856
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 3237
+    },
+    "beefCattleAverage600kg": {
+     "price": 4564,
+     "previousPrice": 4145
+    }
+   }
+  },
+  "2026-09-29": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 7003,
+     "previousPrice": 7006
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3260
+    },
+    "maleCalf4to5": {
+     "price": 4489,
+     "previousPrice": 4435
+    },
+    "femaleCalf6to7": {
+     "price": 4066,
+     "previousPrice": 4006
+    },
+    "maleCalf6to7": {
+     "price": 5684,
+     "previousPrice": 5696
+    },
+    "hanwooAverage600kg": {
+     "price": 8191,
+     "previousPrice": 7933
+    },
+    "hanwooSteer600kg": {
+     "price": 8768,
+     "previousPrice": 8614
     },
     "hanwooBull600kg": {
      "price": 4752,
@@ -1641,7 +5321,7 @@
     },
     "beefCattleAverage600kg": {
      "price": 4285,
-     "previousPrice": 4145
+     "previousPrice": 4564
     }
    }
   },
@@ -2242,6 +5922,166 @@
     "beefCattleAverage600kg": {
      "price": 4401,
      "previousPrice": 4462
+    }
+   }
+  },
+  "2026-10-26": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 7238,
+     "previousPrice": 7185
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3260
+    },
+    "maleCalf4to5": {
+     "price": 4518,
+     "previousPrice": 4535
+    },
+    "femaleCalf6to7": {
+     "price": 3881,
+     "previousPrice": 3957
+    },
+    "maleCalf6to7": {
+     "price": 5423,
+     "previousPrice": 5512
+    },
+    "hanwooAverage600kg": {
+     "price": 6195,
+     "previousPrice": 8392
+    },
+    "hanwooSteer600kg": {
+     "price": 7315,
+     "previousPrice": 8799
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 5125
+    },
+    "beefCattleAverage600kg": {
+     "price": 3261,
+     "previousPrice": 4401
+    }
+   }
+  },
+  "2026-11-02": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 7166,
+     "previousPrice": 7238
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3260
+    },
+    "maleCalf4to5": {
+     "price": 4339,
+     "previousPrice": 4518
+    },
+    "femaleCalf6to7": {
+     "price": 3779,
+     "previousPrice": 3881
+    },
+    "maleCalf6to7": {
+     "price": 5336,
+     "previousPrice": 5423
+    },
+    "hanwooAverage600kg": {
+     "price": 7719,
+     "previousPrice": 6195
+    },
+    "hanwooSteer600kg": {
+     "price": 8365,
+     "previousPrice": 7315
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 5125
+    },
+    "beefCattleAverage600kg": {
+     "price": 3503,
+     "previousPrice": 3261
+    }
+   }
+  },
+  "2026-11-03": {
+   "prices": {
+    "largeCow600kg": {
+     "price": 7249,
+     "previousPrice": 7166
+    },
+    "femaleCalf4to5": {
+     "price": 3690,
+     "previousPrice": 3260
+    },
+    "maleCalf4to5": {
+     "price": 4177,
+     "previousPrice": 4339
+    },
+    "femaleCalf6to7": {
+     "price": 3768,
+     "previousPrice": 3779
+    },
+    "maleCalf6to7": {
+     "price": 5285,
+     "previousPrice": 5336
+    },
+    "hanwooAverage600kg": {
+     "price": 8397,
+     "previousPrice": 7719
+    },
+    "hanwooSteer600kg": {
+     "price": 8831,
+     "previousPrice": 8365
+    },
+    "hanwooBull600kg": {
+     "price": 5096,
+     "previousPrice": 5125
+    },
+    "beefCattleAverage600kg": {
+     "price": 4419,
+     "previousPrice": 3503
+    }
+   }
+  },
+  "2026-11-04": {
+   "prices": {
+    "largeCow600kg": {
+     "price": null,
+     "previousPrice": 7249
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3690
+    },
+    "maleCalf4to5": {
+     "price": null,
+     "previousPrice": 4177
+    },
+    "femaleCalf6to7": {
+     "price": null,
+     "previousPrice": 3768
+    },
+    "maleCalf6to7": {
+     "price": null,
+     "previousPrice": 5285
+    },
+    "hanwooAverage600kg": {
+     "price": 8468,
+     "previousPrice": 8397
+    },
+    "hanwooSteer600kg": {
+     "price": 8937,
+     "previousPrice": 8831
+    },
+    "hanwooBull600kg": {
+     "price": 5063,
+     "previousPrice": 5096
+    },
+    "beefCattleAverage600kg": {
+     "price": 4450,
+     "previousPrice": 4419
     }
    }
   }
