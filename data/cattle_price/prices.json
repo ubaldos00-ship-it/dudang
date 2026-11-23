@@ -2,8 +2,8 @@
  "_안내": "소 산지가격 통합 파일(다봄 실측). 갱신: data 아래에 '날짜':{prices:{...}} 를 추가하고 latestDate·updatedAt만 바꾸세요. 단위 천원/마리. 값 없으면 null.",
  "unit": "천원/마리",
  "source": "축산물품질평가원 축산유통정보 다봄·농협중앙회",
- "latestDate": "2026-11-19",
- "updatedAt": "2026-11-21T02:27:12+09:00",
+ "latestDate": "2026-11-23",
+ "updatedAt": "2026-11-24T05:45:43+09:00",
  "data": {
   "2024-11-04": {
    "prices": {
@@ -6602,6 +6602,86 @@
     "beefCattleAverage600kg": {
      "price": 4240,
      "previousPrice": 4358
+    }
+   }
+  },
+  "2026-11-20": {
+   "prices": {
+    "largeCow600kg": {
+     "price": null,
+     "previousPrice": 6888
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3690
+    },
+    "maleCalf4to5": {
+     "price": null,
+     "previousPrice": 4536
+    },
+    "femaleCalf6to7": {
+     "price": null,
+     "previousPrice": 3702
+    },
+    "maleCalf6to7": {
+     "price": null,
+     "previousPrice": 5248
+    },
+    "hanwooAverage600kg": {
+     "price": 8003,
+     "previousPrice": 8137
+    },
+    "hanwooSteer600kg": {
+     "price": 8366,
+     "previousPrice": 8549
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 5173
+    },
+    "beefCattleAverage600kg": {
+     "price": 4085,
+     "previousPrice": 4240
+    }
+   }
+  },
+  "2026-11-23": {
+   "prices": {
+    "largeCow600kg": {
+     "price": null,
+     "previousPrice": 6888
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3690
+    },
+    "maleCalf4to5": {
+     "price": null,
+     "previousPrice": 4536
+    },
+    "femaleCalf6to7": {
+     "price": null,
+     "previousPrice": 3702
+    },
+    "maleCalf6to7": {
+     "price": null,
+     "previousPrice": 5248
+    },
+    "hanwooAverage600kg": {
+     "price": 6147,
+     "previousPrice": 8003
+    },
+    "hanwooSteer600kg": {
+     "price": 6379,
+     "previousPrice": 8366
+    },
+    "hanwooBull600kg": {
+     "price": null,
+     "previousPrice": 5173
+    },
+    "beefCattleAverage600kg": {
+     "price": 3933,
+     "previousPrice": 4085
     }
    }
   }
