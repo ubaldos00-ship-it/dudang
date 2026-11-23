@@ -1,3 +1,5 @@
+<!-- survey.html · 저장: 2026-11-23 16:10 KST · [v115d] -->
+<!-- [v115d · 2026-11-23] 6건: (1)입력 포커스 시 화면확대 방지(viewport maximum-scale·user-scalable=no) (2)젖소 유대 구분·세균수·체세포를 드롭다운화(선택하세요/구분=정상·기타, 세균수=2.02~6.1B등급, 체세포=1.1~5.5등급) (3)(4)사료비 농후/조사료 추가사료마다 블록 테두리 진하게(사료선택~소계)+조사료 작물구분 드롭다운 굵게 (5)사료비 전월이관=마리수는 이달 기준 재계산(전월 마리수 이월안함), 1일섭취량·단가 이월→급여량·금액 재계산 (6)⑥생산비 수량·평가액 숫자키패드 확인+합계99(수량·단가·평가액)를 표 아래 요약바로 이동 -->
 <!-- [v115c · 2026-11-23] 오른쪽 슬라이드 '바로가기' 패널 추가(≡ 바로가기 탭→우측 슬라이드: 💾저장(초록)·⬆맨위로·①마리수·②구입판매·⑤사료비·⑥생산비·📁백업공유, embed에선 숨김) / ⑥ 생산비 표 아래에 '수량 합계·단가 합계·평가액 합계' 요약바(가로스크롤 없이 항상 표시) -->
 <!-- [v115b · 2026-11-23] 사료별 섭취량 농후/조사료 '합계' 행에 마리수 합계(각 사료별 소계 합)·1일섭취량 평균(=급여량합/(마리수합×일수)) 추가 / ⑥ 생산비: 삭제 확인창(1건 삭제하시겠습니까?), 수량+평가액 입력시 단가 역산(평가액÷수량), 합계행에 수량·단가·평가액 3개 합계 추가 -->
 <!-- [v115 · 2026-11-10] ⑥ 생산비 투입내역 조사표 신규(부호 31~72·수량×단가=평가액·구분·전월이관·합계99 / 부담비율은 비육돈=비육용·번식용, 산란계·육계=산란계·육성계 2칸으로 분리, 한쪽 입력시 다른쪽 자동 합100 양방향 / 소는 부담비율 숨김) / 사료별 섭취량(소) 열순서 마리수→1일섭취량 교체 + 농후사료/조사료 2종이상시 섹션 합계 행 추가 / ② 자동생성 '마리별(1마리1줄)·무리별(묶어서1줄)' 선택 모달 추가 -->
@@ -7,7 +9,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -66,6 +68,11 @@
   #feedTbl.pfcattle th.pfname,#feedTbl.pfcattle td.pgrp{background:#eef3fb;}
   #feedTbl.pfcattle td.pgrp select{max-width:106px;font-size:10.5px;}   /* [v76] 긴 사료명(가공부산물·사료첨가제·엔시레지)도 박스에 맞게 폰트 축소 */
   #feedTbl.pfcattle td.pfstick{background:#fafbfc;white-space:normal;line-height:1.2;text-align:left;font-weight:800;color:#1a365d;}
+  /* [v115d] 추가된 사료(농후/조사료)마다 블록 테두리 진하게: 사료선택~소계 구분 */
+  #feedTbl.pfcattle tr.pfbk-top>td{border-top:2.5px solid #334e7a;}
+  #feedTbl.pfcattle tr.pfbk-end>td{border-bottom:2.5px solid #334e7a;}
+  #feedTbl.pfcattle tr.pfbk-top>td:first-child{border-left:2.5px solid #334e7a;}
+  #feedTbl.pfcattle tr.pfbk-end>td:first-child{border-left:2.5px solid #334e7a;}
   /* [v76] 5-1/5-2 조사표: 축종명·사료명 2열 틀고정 + 제목행 고정 + 합계 라벨도 좌측 고정(값은 안 가려짐) */
   table.surveytbl th.rc{background:#eef3fb;}
   table.surveytbl .rcj{left:0;min-width:68px;max-width:68px;white-space:nowrap;}
@@ -311,6 +318,7 @@
     </div>
     <div class="tbl-scroll"><table id="costTbl"></table></div>
     <div id="costSumBar" style="margin-top:8px;padding:9px 12px;background:#eef3fb;border:1px solid #d4dcea;border-radius:9px;font-weight:700;color:#1a365d;display:flex;flex-wrap:wrap;gap:6px 18px">
+      <span style="color:#1a365d">합계 (99)</span>
       <span>수량 합계 <b id="costSumQty2">0</b></span>
       <span>단가 합계 <b id="costSumPrice2">0</b>원</span>
       <span>평가액 합계 <b id="costSumAmt2">0</b>원</span>
@@ -1023,7 +1031,9 @@ function recalcEgg(){
   if($("eggsumNet"))$("eggsumNet").textContent=nf(sumNet);
 }
 /* ===== 유대(우유) 판매수입 (젖소) ===== */
-function newMilk(){ return {id:"mk"+Math.random().toString(36).slice(2,8),date:"",cows:0,total:0,gubun:"1",bacteria:"",somatic:"",fat:"",qty:0,amt:0,selfUse:0,calfUse:0,waste:0}; }
+const MILK_BACT=["2.02등급","3.03등급","4.04등급","5.1A등급","6.1B등급"];   // 등급-세균수
+const MILK_SOMATIC=["1.1등급","2.2등급","3.3등급","4.4등급","5.5등급"];      // 등급-체세포
+function newMilk(){ return {id:"mk"+Math.random().toString(36).slice(2,8),date:"",cows:0,total:0,gubun:"",bacteria:"",somatic:"",fat:"",qty:0,amt:0,selfUse:0,calfUse:0,waste:0}; }
 function milkInit(){ if(!Array.isArray(M.milkSales))M.milkSales=[]; if(!M.milkSales.length)M.milkSales.push(newMilk()); }
 function buildMilkSales(){
   if(!$("milkTbl"))return; milkInit();
@@ -1036,8 +1046,10 @@ function buildMilkSales(){
     h+=`<tr><td>${i+1}</td>`;
     h+=`<td><input type='number' inputmode='numeric' min='1' max='31' data-milk='${r.id}' data-milkf='date' value='${r.date||""}' placeholder='일' style='width:42px'></td>`;
     h+=`<td class='auto' title='월중 사육현황 착유우와 동일'>${nf(milkingCows)}</td>`+inp('total','72px');
-    h+=`<td><select data-milk='${r.id}' data-milkf='gubun'><option value='1'${r.gubun==='1'?' selected':''}>정상(1)</option><option value='2'${r.gubun==='2'?' selected':''}>기타(2)</option></select></td>`;
-    h+=inp('bacteria','64px')+inp('somatic','64px')+inp('fat','56px',true)+inp('qty','66px')+inp('amt','82px');
+    h+=`<td><select data-milk='${r.id}' data-milkf='gubun'><option value=''${!r.gubun?' selected':''}>선택하세요.</option><option value='1'${r.gubun==='1'?' selected':''}>1.정상 납유량</option><option value='2'${r.gubun==='2'?' selected':''}>2.기타 납유량</option></select></td>`;
+    h+=`<td><select data-milk='${r.id}' data-milkf='bacteria'><option value=''${!r.bacteria?' selected':''}>선택하세요.</option>${MILK_BACT.map(g=>`<option value='${g}'${r.bacteria===g?' selected':''}>${g}</option>`).join("")}</select></td>`;
+    h+=`<td><select data-milk='${r.id}' data-milkf='somatic'><option value=''${!r.somatic?' selected':''}>선택하세요.</option>${MILK_SOMATIC.map(g=>`<option value='${g}'${r.somatic===g?' selected':''}>${g}</option>`).join("")}</select></td>`;
+    h+=inp('fat','56px',true)+inp('qty','66px')+inp('amt','82px');
     h+=inp('selfUse','58px')+inp('calfUse','66px')+inp('waste','58px');
     h+=`<td class='act'>`+(i===0?`<button type='button' class='mini add' data-milkadd='1' title='행 추가'>＋</button>`:`<button type='button' class='mini del' data-milkdel='${r.id}' title='이 행 삭제'>－</button>`)+`</td></tr>`;
   });
@@ -1316,7 +1328,7 @@ const CROP_OPT={
 function cropOptsFor(t){ return CROP_OPT[t]||[]; }
 function cropDefault(t){ const o=cropOptsFor(t); return o.length?o[0][0]:""; }
 function cropCodeFor(t,label){ const o=cropOptsFor(t).find(([nm])=>nm===label); return o?o[1]:""; }
-function cropSelectHtml(dataAttr,t,cur){ const o=cropOptsFor(t); if(!o.length)return ""; const v=cur||cropDefault(t); return `<select ${dataAttr} style='max-width:106px;font-size:10.5px'>${o.map(([nm,cd])=>`<option value='${nm}'${nm===v?" selected":""}>${nm} (${cd})</option>`).join("")}</select>`; }   /* [v76] 작물구분도 긴 이름 박스에 맞게 폰트·폭 축소 */
+function cropSelectHtml(dataAttr,t,cur){ const o=cropOptsFor(t); if(!o.length)return ""; const v=cur||cropDefault(t); return `<select ${dataAttr} style='max-width:106px;font-size:10.5px;font-weight:700;color:#153e75'>${o.map(([nm,cd])=>`<option value='${nm}'${nm===v?" selected":""}>${nm} (${cd})</option>`).join("")}</select>`; }   /* [v76] 작물구분도 긴 이름 박스에 맞게 폰트·폭 축소 */
 // ===== 구분별 섭취량(perhead)의 조사료 섹션 (소 축종만·사료 선택식) =====
 const ROUGH_SPECIES=["breeding","beef","beeffat","dairy"];   // 조사료 먹는 소 축종
 function hasRoughSec(){ return ROUGH_SPECIES.indexOf(KIND)>=0; }
@@ -1363,7 +1375,7 @@ function pfSectionHtml(sect,title){
   list.forEach(ft=>{
     CATS.forEach((c,ci)=>{
       const ln=ft.lines[c.id]||{kg:0,price:0,note:""};
-      h+="<tr>";
+      h+=(ci===0)?"<tr class='pfbk-top'>":"<tr>";
       if(ci===0){ const CM=(sect==="conc")?CONC_CODE:ROUGH_CODE; const opts=(sect==="conc"?CONC_TYPES:ROUGH_TYPES).map(t=>`<option value='${t}'${t===ft.type?" selected":""}>${t}${CM[t]?" ("+CM[t]+")":""}</option>`).join("");
         const gopts=GUBUN3.map(([l,cd])=>`<option value='${l}'${l===(ft.gubun||"구입")?" selected":""}>${l} (${cd})</option>`).join("");
         const cropBlk=(sect==="rough")?`<br><span class='sub' style='font-size:10.5px'>작물구분</span><br>${cropSelectHtml(`data-pfcrop='${sect}:${ft.id}'`,ft.type,ft.crop)}`:"";
@@ -1377,7 +1389,7 @@ function pfSectionHtml(sect,title){
       h+=`<td class='ip'><input type='text' data-pf='${sect}:${ft.id}:${c.id}' data-pff='note' value='${(ln.note||"").replace(/'/g,"&#39;").replace(/"/g,"&quot;")}' style='min-width:48px' placeholder='비고'></td>`;
       h+="</tr>";
     });
-    h+=`<tr class='subt'><td class='pfstick tot'>${ft.type} 소계<br><span class='sub' style='font-weight:400;font-size:10px'>↳줄 비면 직접입력(전체)</span></td><td class='psub'></td><td class='end ip'><input type='text' inputmode='numeric' class='cma' id='pfsc_${ft.id}_cnt' data-pfsoc='${sect}:${ft.id}:cnt' value='${fmtCommaStr(ft.socCnt||0)}' style='width:50px'></td><td class='end ip'><input type='number' inputmode='decimal' min='0' step='0.01' id='pfsc_${ft.id}_avgkg' data-pfsoc='${sect}:${ft.id}:kg' value='${ft.socKg||0}' style='width:50px'></td><td class='end redval'><input type='text' inputmode='numeric' class='cma' id='pfsc_${ft.id}_feed' data-pfsoc='${sect}:${ft.id}:feed' value='${fmtCommaStr(ft.socFeed||0)}' style='width:66px'></td><td class='end'><input type='text' inputmode='numeric' class='cma' data-pfsoc='${sect}:${ft.id}:price' value='${fmtCommaStr(ft.socPrice||0)}' style='width:58px'></td><td class='end redval'><input type='text' inputmode='numeric' class='cma' id='pfsc_${ft.id}_amt' data-pfsoc='${sect}:${ft.id}:amt' value='${fmtCommaStr(ft.socAmt||0)}' style='width:84px'></td><td></td></tr>`;
+    h+=`<tr class='subt pfbk-end'><td class='pfstick tot'>${ft.type} 소계<br><span class='sub' style='font-weight:400;font-size:10px'>↳줄 비면 직접입력(전체)</span></td><td class='psub'></td><td class='end ip'><input type='text' inputmode='numeric' class='cma' id='pfsc_${ft.id}_cnt' data-pfsoc='${sect}:${ft.id}:cnt' value='${fmtCommaStr(ft.socCnt||0)}' style='width:50px'></td><td class='end ip'><input type='number' inputmode='decimal' min='0' step='0.01' id='pfsc_${ft.id}_avgkg' data-pfsoc='${sect}:${ft.id}:kg' value='${ft.socKg||0}' style='width:50px'></td><td class='end redval'><input type='text' inputmode='numeric' class='cma' id='pfsc_${ft.id}_feed' data-pfsoc='${sect}:${ft.id}:feed' value='${fmtCommaStr(ft.socFeed||0)}' style='width:66px'></td><td class='end'><input type='text' inputmode='numeric' class='cma' data-pfsoc='${sect}:${ft.id}:price' value='${fmtCommaStr(ft.socPrice||0)}' style='width:58px'></td><td class='end redval'><input type='text' inputmode='numeric' class='cma' id='pfsc_${ft.id}_amt' data-pfsoc='${sect}:${ft.id}:amt' value='${fmtCommaStr(ft.socAmt||0)}' style='width:84px'></td><td></td></tr>`;
   });
   // [v115] 사료명이 2개 이상이면 그 섹션(농후사료/조사료) 전체 합계 행 표시(급여량·단가·금액은 recalc이 pfsec_* 로 채움)
   if(list.length>1){
@@ -1692,7 +1704,7 @@ function buildCost(){
     h+=`<td><button type='button' class='btn del' data-costdel='${r.id}' style='padding:1px 7px;font-size:11px'>×</button></td>`;
     h+="</tr>";
   });
-  h+=`<tr class='subt'><td class='rc tot' colspan='${showRatio?7:5}' style='text-align:right;background:#e9eef6'>합계 (99)</td><td class='end'><span id='costSumQty'>0</span></td><td></td><td class='end'><span id='costSumPrice'>0</span></td><td class='end'><span id='costSum'>0</span></td><td></td></tr>`;
+  // [v115d] 합계(99)는 표 아래 요약 바(costSumBar)로 이동 — 표 안 합계행 제거
   $("costTbl").innerHTML=h;
   if($("costCodeRef")) $("costCodeRef").innerHTML="※ 지출부호: "+COST_CODES.map(c=>c[0]+" "+c[1]).join(" · ")+(showRatio?`<br>※ 부담비율(%): 공동 지출을 <b>${rl[0]}/${rl[1]}</b>로 배분. 한쪽에 %를 넣으면 다른 쪽이 자동으로 채워집니다(합계 100, 양방향).`:"");
 }
@@ -1743,7 +1755,7 @@ document.addEventListener("keydown",e=>{
 document.addEventListener("input",e=>{
   const el=e.target;
   if(el.dataset.egg){ const r=(M.eggSales||[]).find(x=>x.id===el.dataset.egg); if(r){ const f=el.dataset.eggf; if(f==="date") r.date=el.value; else if(f==="cost") r.cost=PV(el); else if(f[0]==="q") r.q[+f.slice(1)]=PV(el); else if(f[0]==="a") r.a[+f.slice(1)]=PV(el); recalcEgg(); autosave(); } }
-  else if(el.dataset.milk){ const r=(M.milkSales||[]).find(x=>x.id===el.dataset.milk); if(r){ const f=el.dataset.milkf; r[f]=(f==="date"||f==="gubun")?el.value:(PV(el)); recalcMilkSales(); autosave(); } }
+  else if(el.dataset.milk){ const r=(M.milkSales||[]).find(x=>x.id===el.dataset.milk); if(r){ const f=el.dataset.milkf; r[f]=(f==="date"||f==="gubun"||f==="bacteria"||f==="somatic")?el.value:(PV(el)); recalcMilkSales(); autosave(); } }
   else if(el.dataset.by){ const r=(M.byproduct||[]).find(x=>x.id===el.dataset.by); if(r){ const f=el.dataset.byf; r[f]=(f==="name"||f==="sUnit"||f==="cUnit"||f==="date"||f==="code")?el.value:(PV(el)); recalcByproduct(); autosave(); } }
   else if(el.dataset.cost){ const r=(M.costRows||[]).find(x=>x.id===el.dataset.cost); if(r){ const f=el.dataset.cf;   // ⑥ 생산비: 평가액=수량×단가(평가액 직접입력시 유지)
       if(f==="content"||f==="unit"||f==="date") r[f]=el.value;
@@ -1825,7 +1837,7 @@ document.addEventListener("change",e=>{
   else if(e.target.dataset.pfgubun){ const p=e.target.dataset.pfgubun.split(":"); const ft=((M.perFeed&&M.perFeed[p[0]])||[]).find(x=>x.id===p[1]); if(ft){ ft.gubun=e.target.value; recalcPerhead(); autosave(); } }
   else if(e.target.dataset.pfcrop){ const p=e.target.dataset.pfcrop.split(":"); const ft=((M.perFeed&&M.perFeed[p[0]])||[]).find(x=>x.id===p[1]); if(ft){ ft.crop=e.target.value; recalcPerhead(); autosave(); } }   // 작물구분(조사료)
   else if(e.target.dataset.crop){ const it=(M.feedItems||[]).find(x=>x.id===e.target.dataset.crop); if(it){ it.crop=e.target.value; recalc(); autosave(); } }   // 작물구분(조사료·성우환산/사육구분별)
-  else if(e.target.dataset.milk && e.target.dataset.milkf==="gubun"){ const r=(M.milkSales||[]).find(x=>x.id===e.target.dataset.milk); if(r){ r.gubun=e.target.value; autosave(); } }
+  else if(e.target.dataset.milk && ["gubun","bacteria","somatic"].includes(e.target.dataset.milkf)){ const r=(M.milkSales||[]).find(x=>x.id===e.target.dataset.milk); if(r){ r[e.target.dataset.milkf]=e.target.value; autosave(); } }
   else if(e.target.dataset.cost){ const r=(M.costRows||[]).find(x=>x.id===e.target.dataset.cost); if(r){ const f=e.target.dataset.cf; if(f==="code"||f==="gubun") r[f]=e.target.value; autosave(); } }   // ⑥ 생산비 부호·구분
   else if(e.target.dataset.lrow){ ledgerSet(e.target); }
 });
@@ -2080,7 +2092,10 @@ $("feedCarry").addEventListener("click",()=>{
   if(prev.coef) M.coef=Object.assign({},prev.coef);
   if(prev.feedItems) M.feedItems=prev.feedItems.map(f=>({id:newFid(),grp:f.grp,type:f.type,price:f.price||0,amt:f.amt||0,won:f.won||0,wonMan:!!f.wonMan,g:Object.assign(gzero(),f.g||{}),crop:f.crop,note:f.note||""}));
   if(prev.intake){ M.intake={}; Object.keys(prev.intake).forEach(k=>{ const s=prev.intake[k]||{}; M.intake[k]={kg:s.kg||0,price:s.price||0,cnt:0,feed:0,feedMan:false,amt:0,amtMan:false,note:s.note||""}; }); }
-  if(prev.perFeed){ try{ M.perFeed=JSON.parse(JSON.stringify(prev.perFeed)); }catch(e){} }
+  if(prev.perFeed){ try{ M.perFeed=JSON.parse(JSON.stringify(prev.perFeed)); }catch(e){}
+    // [v115d] 마리수는 이 달 기준으로 다시 계산(전월 마리수 이월 안 함). 1일섭취량(kg)·단가(price)는 이월 → 급여량·금액은 그 값으로 재계산
+    ["conc","rough"].forEach(s=>{ (M.perFeed[s]||[]).forEach(ft=>{ ft.socCnt=0; if(ft.lines){ Object.keys(ft.lines).forEach(cid=>{ const ln=ft.lines[cid]; if(ln){ ln.cnt=0; ln.cntMan=false; ln.feedMan=false; ln.amtMan=false; } }); } }); });
+  }
   buildFeed(); syncBasisUI(); recalc(); autosave(); toast("전월 사료비 투입내역을 가져왔습니다");
 });
 $("mClose").addEventListener("click",closeModal);
