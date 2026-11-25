@@ -1,4 +1,4 @@
-<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-10-30 07:00 KST · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
+<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-11-26 06:40 KST · [v116] 6건: ①합계를 '자동합계'→'합계'로 라벨변경+조사시기 바로 다음으로 이동+직접입력 가능(비우면 자동복귀, 돼지·닭·오리 공통) ②돼지 6개월이상~8개월미만 그룹헤더(수컷·암컷·그중 모돈용(후보돈)) ③오른쪽 슬라이드 바로가기 저장패널(축비와 동일) ④첫 진입 시 현재월로 분기 자동선택(11·12·1→12월/2·3·4→3월/5·6·7→6월/8·9·10→9월) ⑤조사연도·조사월·농장명 입력란 높이 통일(min-height 40px) · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
 <!doctype html>
 <html lang="ko">
 <head>
@@ -66,7 +66,17 @@
   .chk.good{background:#f0fff4;border-color:#9ae6b4;color:#276749;}
   .chk a{color:inherit;font-weight:700;cursor:pointer;text-decoration:underline;}
   #toast{position:fixed;left:50%;top:14%;transform:translateX(-50%);background:#173a5e;color:#fff;padding:12px 20px;border-radius:11px;font-weight:800;z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;max-width:88%;text-align:center;}
-  @media print{ header,.noprint{display:none!important;} body{background:#fff;font-size:11px;} .card,details.basecard{box-shadow:none;border:none;padding:0;margin:0 0 10px;} details.basecard[open] .basebody,details.basecard .basebody{display:block;} main{padding:0;max-width:none;} table{font-size:10px;} th,td{padding:3px 4px;} }
+  /* [v116] 조사연도·조사월·농장명 입력란 높이 통일 */
+  .grid .fld>input,.grid .fld>select{min-height:40px;}
+  /* [v116] 오른쪽 슬라이드 '바로가기' 저장 패널(축비 조사표와 동일 UX) */
+  #quickTab{position:fixed;right:0;top:42%;transform:translateY(-50%);z-index:50;background:var(--navy);color:#fff;border:none;border-radius:10px 0 0 10px;padding:14px 7px;font-size:13px;font-weight:800;writing-mode:vertical-rl;cursor:pointer;box-shadow:-2px 0 8px rgba(0,0,0,.2);}
+  #quickBack{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:59;display:none;}
+  #quickPanel{position:fixed;right:0;top:0;height:100%;width:188px;background:#fff;z-index:60;box-shadow:-3px 0 14px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .22s;display:flex;flex-direction:column;gap:9px;padding:18px 13px;}
+  #quickPanel.open{transform:translateX(0);}
+  #quickPanel button{width:100%;padding:13px;border-radius:10px;border:1px solid var(--line);font-size:14.5px;font-weight:700;cursor:pointer;background:#fff;color:var(--navy);}
+  #quickPanel .qp-save{background:#16a34a;color:#fff;border-color:#16a34a;}
+  #quickPanel .qp-top{background:#2b6cb0;color:#fff;border-color:#2b6cb0;}
+  @media print{ header,.noprint,#quickTab,#quickPanel,#quickBack{display:none!important;} body{background:#fff;font-size:11px;} .card,details.basecard{box-shadow:none;border:none;padding:0;margin:0 0 10px;} details.basecard[open] .basebody,details.basecard .basebody{display:block;} main{padding:0;max-width:none;} table{font-size:10px;} th,td{padding:3px 4px;} }
 </style>
 <style>html,body{touch-action:manipulation}</style>
 </head>
@@ -117,6 +127,17 @@
     <div id="chkBox"><div class="sub">🔍 내검 버튼을 누르거나 값을 입력하면 자동으로 검토합니다.</div></div>
   </div>
 </main>
+
+<!-- [v116] 오른쪽 슬라이드 바로가기(저장) 패널 -->
+<button id="quickTab" class="noprint">≡ 바로가기</button>
+<div id="quickBack" class="noprint"></div>
+<div id="quickPanel" class="noprint">
+  <div style="font-weight:800;color:var(--navy);margin-bottom:4px">바로 가기</div>
+  <button class="qp-save" id="quickSave">💾 저장</button>
+  <button class="qp-top" id="quickTop">⬆ 맨 위로</button>
+  <button id="quickClose">✕ 닫기</button>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -149,8 +170,9 @@ const SPCFG={
  pig:{ label:"돼지", unit:"두", change:CHANGE_PIG, baseExtra:[],
    tables:[
      {id:"head",title:"사육마릿수 (월령·성별)",total:true,
-      cols:[{k:"u2",l:"2개월 미만<br><span class='sub'>포유+이유</span>",sum:1},{k:"g24",l:"2~4개월<br><span class='sub'>육성</span>",sum:1},{k:"b46",l:"4~6개월<br><span class='sub'>비육</span>",sum:1},{k:"m68",l:"6~8개월<br>수컷",sum:1},{k:"f68",l:"6~8개월<br>암컷",sum:1},{k:"cand",l:"└그중 후보돈<br><span class='sub'>(합계 제외)</span>"},{k:"boar",l:"8개월↑ 수컷<br><span class='sub'>종돈</span>",sum:1},{k:"sow",l:"8개월↑ 암컷<br><span class='sub'>모돈</span>",sum:1}],
-      note:"합계 = 2개월미만+2~4+4~6+6~8(수+암)+8개월이상(수+암). <b>후보돈은 6~8개월 암컷의 \"그 중\" 값이므로 합계에 다시 더하지 않습니다.</b>"},
+      groups:[["2개월 미만",1],["2~4개월",1],["4~6개월",1],["6개월 이상~8개월 미만",3],["8개월 이상",2]],
+      cols:[{k:"u2",l:"포유+이유",sum:1},{k:"g24",l:"육성",sum:1},{k:"b46",l:"비육",sum:1},{k:"m68",l:"수컷",sum:1},{k:"f68",l:"암컷",sum:1},{k:"cand",l:"그중 모돈용<br><span class='sub'>(후보돈·합계 제외)</span>"},{k:"boar",l:"수컷<br><span class='sub'>종돈</span>",sum:1},{k:"sow",l:"암컷<br><span class='sub'>모돈</span>",sum:1}],
+      note:"합계 = 2개월미만+2~4+4~6+6~8(수+암)+8개월이상(수+암). <b>'그중 모돈용(후보돈)'은 6~8개월 암컷의 \"그 중\" 값이므로 합계에 다시 더하지 않습니다.</b>"},
      {id:"prod",title:"과거 3개월 생산·폐사 / 분만·임신 모돈",
       cols:[{k:"prod",l:"생산<br><span class='sub'>과거3개월</span>"},{k:"dead",l:"폐사<br><span class='sub'>과거3개월</span>"},{k:"farrow",l:"분만모돈<br><span class='sub'>과거3개월</span>"},{k:"preg1",l:"임신 1개월전"},{k:"preg2",l:"임신 2개월전"},{k:"preg3",l:"임신 3개월전"},{k:"pregTot",l:"임신 계<br><span class='sub'>자동</span>",auto:["preg1","preg2","preg3"]}],
       note:"임신모돈 계 = 1개월전+2개월전+3개월전. 과거 3개월: 3월조사=전년12·1·2월 / 6월=3·4·5월 / 9월=6·7·8월 / 12월=9·10·11월."}
@@ -191,6 +213,8 @@ function yr(){ return ($("year").value||"").trim(); }
 function storeKey(f){ return "dudang_gachuk_"+SP+"_"+(f||"_default"); }
 function gv(r,k){ const v=r?r[k]:null; return (v===null||v===undefined||v==="")?null:+v; }
 function rowTotal(r){ let s=0,any=false; sumKeys().forEach(k=>{ const v=gv(r,k); if(v!==null){s+=v;any=true;} }); return any?s:null; }
+/* [v116] 표시용 합계: 직접입력(_totMan)이면 그 값, 아니면 자동합계 */
+function dispTotal(r){ return (r&&r._totMan&&r._tot!=null&&r._tot!=="")?(+r._tot):rowTotal(r); }
 function autoVal(r,col){ let s=0,any=false; (col.auto||[]).forEach(k=>{ const v=gv(r,k); if(v!==null){s+=v;any=true;} }); return any?s:null; }
 
 /* ===== 기본정보 렌더(접기카드) ===== */
@@ -215,21 +239,25 @@ function buildTables(){
   const c=cur(); let H="";
   CFG.tables.forEach((t,ti)=>{
     H+=`<div class='card'><div class='lb'><span class='num'>${2+ti}</span>${t.title} <span class='sub'>단위: ${CFG.unit} · 현재 조사월만 입력(노랑), 과거는 저장자료 조회</span></div><div class='tbl-scroll'><table>`;
-    // 헤더
+    // 헤더 — [v116] 합계를 '조사시기' 바로 다음으로 이동(직접입력 가능)
+    const TOTH="합계<br><span class='sub'>자동·수정</span>";
     if(t.groups){
-      let g1="<tr><th rowspan='2'>조사시기</th>"; t.groups.forEach(([n,sp])=>g1+=`<th colspan='${sp}'>${n}</th>`); if(t.total)g1+="<th rowspan='2'>합계<br><span class='sub'>자동</span></th>"; g1+="</tr>";
+      let g1="<tr><th rowspan='2'>조사시기</th>"+(t.total?`<th rowspan='2'>${TOTH}</th>`:""); t.groups.forEach(([n,sp])=>g1+=`<th colspan='${sp}'>${n}</th>`); g1+="</tr>";
       let g2="<tr>"+t.cols.map(col=>`<th>${col.l}</th>`).join("")+"</tr>";
       H+=g1+g2;
     } else {
-      H+="<tr><th>조사시기</th>"+t.cols.map(col=>`<th>${col.l}</th>`).join("")+(t.total?"<th>합계<br><span class='sub'>자동</span></th>":"")+"</tr>";
+      H+="<tr><th>조사시기</th>"+(t.total?`<th>${TOTH}</th>`:"")+t.cols.map(col=>`<th>${col.l}</th>`).join("")+"</tr>";
     }
     // 행
     PERIODS.forEach(([pk,pl])=>{ const r=M.data[pk]||{}; const isCur=(pk===c);
       H+=`<tr class='${isCur?"cur":""}'><td class='hd'>${pl}${isCur?" ✎":""}</td>`;
+      if(t.total){ const tv=dispTotal(r);
+        if(isCur) H+=`<td class='auto'><input type='number' inputmode='numeric' min='0' step='1' class='totin' data-totin='${pk}' value='${(r._totMan&&r._tot!=null&&r._tot!=="")?r._tot:(rowTotal(r)==null?"":rowTotal(r))}' title='자동합계. 직접 입력하면 그 값이 우선(비우면 다시 자동).'></td>`;
+        else H+=`<td class='auto' data-totcell='${pk}'>${tv==null?"":nf(tv)}</td>`;
+      }
       t.cols.forEach(col=>{ if(col.auto){ const v=autoVal(r,col); H+=`<td class='auto' data-auto='${t.id}:${pk}:${col.k}'>${v==null?"":nf(v)}</td>`; return; }
         const v=(r[col.k]==null?"":r[col.k]); const step=col.pct?"0.1":"1";
         H+=`<td><input type='number' inputmode='decimal' min='0' ${col.pct?"max='100'":""} step='${step}' data-pk='${pk}' data-f='${col.k}' value='${v}' ${isCur?"":"readonly"}></td>`; });
-      if(t.total) H+=`<td class='auto' data-tot='${pk}'>${rowTotal(r)==null?"":nf(rowTotal(r))}</td>`;
       H+="</tr>";
     });
     H+=`</table></div>${t.note?`<div class='note'>※ ${t.note}</div>`:""}</div>`;
@@ -238,14 +266,23 @@ function buildTables(){
 }
 function recalc(){
   PERIODS.forEach(([pk])=>{ const r=M.data[pk]||{};
-    document.querySelectorAll(`[data-tot='${pk}']`).forEach(el=>el.textContent=rowTotal(r)==null?"":nf(rowTotal(r)));
+    // [v116] 과거 행 합계 셀
+    document.querySelectorAll(`[data-totcell='${pk}']`).forEach(el=>{ const v=dispTotal(r); el.textContent=v==null?"":nf(v); });
+    // [v116] 현재 행 합계 입력칸: 직접입력 중이 아니면 자동합계로 갱신
+    document.querySelectorAll(`[data-totin='${pk}']`).forEach(el=>{ if(!r._totMan && document.activeElement!==el){ const v=rowTotal(r); el.value=(v==null?"":v); } });
     CFG.tables.forEach(t=>t.cols.forEach(col=>{ if(col.auto){ const el=document.querySelector(`[data-auto='${t.id}:${pk}:${col.k}']`); if(el){ const v=autoVal(r,col); el.textContent=v==null?"":nf(v); } } }));
   });
 }
 
 /* ===== 입력 ===== */
 document.addEventListener("input",e=>{ const el=e.target;
-  if(el.dataset&&el.dataset.pk&&el.dataset.f){ const r=M.data[el.dataset.pk]; if(r){ r[el.dataset.f]=(el.value===""?null:+el.value); recalc(); scheduleInspect(); } }
+  if(el.dataset&&el.dataset.totin){ const r=M.data[el.dataset.totin]; if(r){   // [v116] 합계 직접입력(비우면 자동으로 복귀)
+      if(el.value===""){ r._totMan=false; r._tot=null; const v=rowTotal(r); el.value=(v==null?"":v); }
+      else { r._tot=+el.value; r._totMan=true; }
+      // 과거행 표시 동기화만(현재 입력칸은 건드리지 않음)
+      document.querySelectorAll(`[data-totcell='${el.dataset.totin}']`).forEach(c=>{ const v=dispTotal(r); c.textContent=v==null?"":nf(v); });
+      scheduleInspect(); } }
+  else if(el.dataset&&el.dataset.pk&&el.dataset.f){ const r=M.data[el.dataset.pk]; if(r){ r[el.dataset.f]=(el.value===""?null:+el.value); recalc(); scheduleInspect(); } }
   else if(el.dataset&&el.dataset.b){ M.base[el.dataset.b]=el.value; updateBaseSummary(); }
 });
 document.addEventListener("change",e=>{ if(e.target.dataset&&e.target.dataset.b){ M.base[e.target.dataset.b]=e.target.value; updateBaseSummary(); } });
@@ -254,7 +291,7 @@ document.addEventListener("change",e=>{ if(e.target.dataset&&e.target.dataset.b)
 let _inspT=null; function scheduleInspect(){ clearTimeout(_inspT); _inspT=setTimeout(inspect,400); }
 function inspect(){ const fn=CFG.inspect; const msgs=fn?fn():[]; renderChk(msgs); }
 function baseNeg(r){ const m=[]; allCols().forEach(col=>{ if(col.auto)return; const v=r[col.k]; if(v!==null&&v<0) m.push({lv:"err",t:"음수 입력",body:`'${esc(col.l)}' 값이 음수입니다.`,focus:{pk:cur(),f:col.k}}); }); return m; }
-function qoqCheck(r,pr,pct){ const m=[]; if(pr){ const t=rowTotal(r),p=rowTotal(pr); if(t!==null&&p!==null&&p>0){ const q=(t-p)/p*100; const line=`전분기 대비 전체 사육마릿수 ${q>=0?"+":""}${Math.round(q*10)/10}% (${nf(p)} → ${nf(t)}).`; if(Math.abs(q)>=pct) m.push({lv:"att",t:"전분기 대비 급변 주의",body:line+" 입식·출하·규모변동 사유를 확인하세요."}); else m.push({lv:"info",t:"전분기 대비 증감",body:line}); } } return m; }
+function qoqCheck(r,pr,pct){ const m=[]; if(pr){ const t=dispTotal(r),p=dispTotal(pr); if(t!==null&&p!==null&&p>0){ const q=(t-p)/p*100; const line=`전분기 대비 전체 사육마릿수 ${q>=0?"+":""}${Math.round(q*10)/10}% (${nf(p)} → ${nf(t)}).`; if(Math.abs(q)>=pct) m.push({lv:"att",t:"전분기 대비 급변 주의",body:line+" 입식·출하·규모변동 사유를 확인하세요."}); else m.push({lv:"info",t:"전분기 대비 증감",body:line}); } } return m; }
 
 function pigInspect(){ const R=RULE.pig, c=cur(), r=M.data[c]||{}, pr=prevOf[c]?M.data[prevOf[c]]:null; let m=baseNeg(r);
   const f68=gv(r,"f68"),cand=gv(r,"cand"),sow=gv(r,"sow"),prod=gv(r,"prod"),dead=gv(r,"dead"),farrow=gv(r,"farrow");
@@ -301,8 +338,8 @@ function setSpecies(sp){ if(!SPCFG[sp])return; SP=sp; CFG=SPCFG[sp]; M=blankMode
 function buildAOA(){ const aoa=[]; aoa.push([`가축동향조사표(${CFG.label})`,$("farm").value.trim(),yr()+"년"]); aoa.push([]);
   aoa.push(["[농가기본정보]"]); baseFields().forEach(([k,l])=>aoa.push([esc(l),M.base[k]||""]));
   CFG.tables.forEach(t=>{ aoa.push([]); aoa.push(["["+esc(t.title)+"]"]);
-    const head=["조사시기"].concat(t.cols.map(c=>esc(c.l))); if(t.total)head.push("합계"); aoa.push(head);
-    PERIODS.forEach(([pk,pl])=>{ const r=M.data[pk]||{}; const row=[pl].concat(t.cols.map(c=>c.auto?(autoVal(r,c)==null?"":autoVal(r,c)):(r[c.k]==null?"":r[c.k]))); if(t.total)row.push(rowTotal(r)==null?"":rowTotal(r)); aoa.push(row); });
+    const head=["조사시기"].concat(t.total?["합계"]:[]).concat(t.cols.map(c=>esc(c.l))); aoa.push(head);   // [v116] 합계 조사시기 다음
+    PERIODS.forEach(([pk,pl])=>{ const r=M.data[pk]||{}; const tv=dispTotal(r); const row=[pl].concat(t.total?[(tv==null?"":tv)]:[]).concat(t.cols.map(c=>c.auto?(autoVal(r,c)==null?"":autoVal(r,c)):(r[c.k]==null?"":r[c.k]))); aoa.push(row); });
   }); return aoa; }
 function doXlsx(){ collectBase(); const ws=XLSX.utils.aoa_to_sheet(buildAOA()), wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,CFG.label); XLSX.writeFile(wb,`가축동향_${CFG.label}_${$("farm").value.trim()||"농가"}_${yr()}.xlsx`); }
 function doCsv(){ collectBase(); const csv="﻿"+buildAOA().map(row=>row.map(c=>{ const s=(c==null?"":String(c)); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }).join(",")).join("\n"); const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=`가축동향_${CFG.label}_${$("farm").value.trim()||"농가"}_${yr()}.csv`; a.click(); }
@@ -319,7 +356,27 @@ $("period").onchange=()=>{ buildTables(); recalc(); inspect(); hsub(); };
 $("year").onchange=hsub;
 document.querySelectorAll("#chips .chip").forEach(ch=>ch.onclick=()=>setSpecies(ch.dataset.sp));
 
+/* ===== 사이드 바로가기(저장) 패널 ===== */
+(function(){ const tab=$("quickTab"),panel=$("quickPanel"),back=$("quickBack");
+  function openQ(){ panel.classList.add("open"); back.style.display="block"; }
+  function closeQ(){ panel.classList.remove("open"); back.style.display="none"; }
+  if(tab) tab.onclick=openQ; if(back) back.onclick=closeQ;
+  if($("quickClose")) $("quickClose").onclick=closeQ;
+  if($("quickSave")) $("quickSave").onclick=function(){ closeQ(); doSave(); };
+  if($("quickTop")) $("quickTop").onclick=function(){ closeQ(); window.scrollTo({top:0,behavior:"smooth"}); };
+})();
+
+/* ===== 기본 조사월: 현재 월로 분기 자동선택(11·12·1→12월 / 2·3·4→3월 / 5·6·7→6월 / 8·9·10→9월) ===== */
+function defaultPeriodByMonth(){ const d=new Date(), mo=d.getMonth()+1, y=d.getFullYear();
+  if(mo===1) return {p:"m12",y:y-1};          // 1월 = 전년 12월 조사
+  if(mo===11||mo===12) return {p:"m12",y:y};
+  if(mo>=2&&mo<=4) return {p:"m3",y:y};
+  if(mo>=5&&mo<=7) return {p:"m6",y:y};
+  return {p:"m9",y:y};                          // 8·9·10
+}
+
 /* ===== 초기 ===== */
+(function(){ const dp=defaultPeriodByMonth(); $("year").value=dp.y; $("period").value=dp.p; })();
 setSpecies("pig");
 window.addEventListener("pagehide",()=>{ const f=$("farm").value.trim(); if(f){ collectBase(); const store=loadStore(f); store[yr()]=JSON.parse(JSON.stringify(M)); saveStore(f,store); } });
 </script>
