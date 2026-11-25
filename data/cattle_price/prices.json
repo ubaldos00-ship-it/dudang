@@ -2,8 +2,8 @@
  "_안내": "소 산지가격 통합 파일(다봄 실측). 갱신: data 아래에 '날짜':{prices:{...}} 를 추가하고 latestDate·updatedAt만 바꾸세요. 단위 천원/마리. 값 없으면 null.",
  "unit": "천원/마리",
  "source": "축산물품질평가원 축산유통정보 다봄·농협중앙회",
- "latestDate": "2026-11-23",
- "updatedAt": "2026-11-25T04:51:13+09:00",
+ "latestDate": "2026-11-24",
+ "updatedAt": "2026-11-26T03:55:27+09:00",
  "data": {
   "2024-11-04": {
    "prices": {
@@ -6728,7 +6728,7 @@
   "2026-11-23": {
    "prices": {
     "largeCow600kg": {
-     "price": null,
+     "price": 6905,
      "previousPrice": 6863
     },
     "femaleCalf4to5": {
@@ -6736,15 +6736,15 @@
      "previousPrice": 3690
     },
     "maleCalf4to5": {
-     "price": null,
+     "price": 4033,
      "previousPrice": 4017
     },
     "femaleCalf6to7": {
-     "price": null,
+     "price": 3569,
      "previousPrice": 3728
     },
     "maleCalf6to7": {
-     "price": null,
+     "price": 5058,
      "previousPrice": 5102
     },
     "hanwooAverage600kg": {
@@ -6762,6 +6762,46 @@
     "beefCattleAverage600kg": {
      "price": 3933,
      "previousPrice": 4085
+    }
+   }
+  },
+  "2026-11-24": {
+   "prices": {
+    "largeCow600kg": {
+     "price": null,
+     "previousPrice": 6905
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3690
+    },
+    "maleCalf4to5": {
+     "price": null,
+     "previousPrice": 4033
+    },
+    "femaleCalf6to7": {
+     "price": null,
+     "previousPrice": 3569
+    },
+    "maleCalf6to7": {
+     "price": null,
+     "previousPrice": 5058
+    },
+    "hanwooAverage600kg": {
+     "price": 8264,
+     "previousPrice": 6147
+    },
+    "hanwooSteer600kg": {
+     "price": 8689,
+     "previousPrice": 6379
+    },
+    "hanwooBull600kg": {
+     "price": 5507,
+     "previousPrice": 5173
+    },
+    "beefCattleAverage600kg": {
+     "price": 4379,
+     "previousPrice": 3933
     }
    }
   }
