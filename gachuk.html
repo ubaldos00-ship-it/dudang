@@ -1,9 +1,9 @@
-<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-11-26 09:36 KST · [v117] 저장/불러오기 개선: 농가명으로 연도별 저장(store[year], 이미 분리됨-확인), 연도/농장명 바꾸면 그 자료 자동 로드(직전자료 자동저장)·빈 연도면 전년 12월(m12)→올해 '전년 12월'(prev12) 자동 이월(+기본정보 이어줌), 불러오기 전에도 현재자료 자동저장. · [v116] 6건: ①합계를 '자동합계'→'합계'로 라벨변경+조사시기 바로 다음으로 이동+직접입력 가능(비우면 자동복귀, 돼지·닭·오리 공통) ②돼지 6개월이상~8개월미만 그룹헤더(수컷·암컷·그중 모돈용(후보돈)) ③오른쪽 슬라이드 바로가기 저장패널(축비와 동일) ④첫 진입 시 현재월로 분기 자동선택(11·12·1→12월/2·3·4→3월/5·6·7→6월/8·9·10→9월) ⑤조사연도·조사월·농장명 입력란 높이 통일(min-height 40px) · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
+<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-11-26 10:09 KST · [v118] ①입력 포커스 시 화면확대 방지(viewport maximum-scale·user-scalable=no) ②불러오기 UI를 농가 콤보 + 연도 콤보 2단으로 분리(농가 고르면 그 농가 저장연도만 연도콤보에 표시) · [v117] 저장/불러오기 개선: 농가명으로 연도별 저장(store[year], 이미 분리됨-확인), 연도/농장명 바꾸면 그 자료 자동 로드(직전자료 자동저장)·빈 연도면 전년 12월(m12)→올해 '전년 12월'(prev12) 자동 이월(+기본정보 이어줌), 불러오기 전에도 현재자료 자동저장. · [v116] 6건: ①합계를 '자동합계'→'합계'로 라벨변경+조사시기 바로 다음으로 이동+직접입력 가능(비우면 자동복귀, 돼지·닭·오리 공통) ②돼지 6개월이상~8개월미만 그룹헤더(수컷·암컷·그중 모돈용(후보돈)) ③오른쪽 슬라이드 바로가기 저장패널(축비와 동일) ④첫 진입 시 현재월로 분기 자동선택(11·12·1→12월/2·3·4→3월/5·6·7→6월/8·9·10→9월) ⑤조사연도·조사월·농장명 입력란 높이 통일(min-height 40px) · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
 <!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -102,7 +102,8 @@
     </div>
     <div class="btnrow" style="margin-top:10px">
       <button class="btn g" id="btnSave">💾 저장</button>
-      <select id="loadList" style="max-width:220px"><option value="">— 저장 농가·연도 불러오기 —</option></select>
+      <select id="loadFarm" style="max-width:180px"><option value="">— 농가 선택 —</option></select>
+      <select id="loadYear" style="max-width:120px"><option value="">— 연도 —</option></select>
       <button class="btn" id="btnLoad">📂 불러오기</button>
       <button class="btn" id="btnDel">🗑 삭제</button>
       <button class="btn o" id="btnInspect">🔍 내검</button>
@@ -346,9 +347,19 @@ function loadYearForFarm(){
 function autosaveCurrent(){ if(LOADED_FARM && LOADED_YEAR!=null && modelHasData(M)){ collectBase(); const s=loadStore(LOADED_FARM); s[LOADED_YEAR]=JSON.parse(JSON.stringify(M)); saveStore(LOADED_FARM,s); refreshList(); } }
 /* [v117] 농가/연도 입력 바뀌면: 직전 자료 자동저장 후 새 자료 로드 */
 function switchContext(){ autosaveCurrent(); loadYearForFarm(); }
-function refreshList(){ const sel=$("loadList"), keep=sel.value; let o="<option value=''>— 저장 농가·연도 불러오기 —</option>";
-  try{ const pfx="dudang_gachuk_"+SP+"_"; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.indexOf(pfx)===0){ const f=k.slice(pfx.length); const store=loadStore(f); Object.keys(store).sort().forEach(y=>{ o+=`<option value='${encodeURIComponent(f)}|${y}'>${f} · ${y}년</option>`; }); } } }catch(e){}
-  sel.innerHTML=o; sel.value=keep; }
+/* [v118] 불러오기 = 농가 콤보 + 연도 콤보(농가 고르면 그 농가의 저장 연도만 나옴) */
+function refreshList(){ const fsel=$("loadFarm"); if(!fsel) return; const keepF=fsel.value;
+  const pfx="dudang_gachuk_"+SP+"_"; const farms=[];
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.indexOf(pfx)===0){ const f=k.slice(pfx.length); if(loadStore(f)&&Object.keys(loadStore(f)).length) farms.push(f); } } }catch(e){}
+  farms.sort();
+  fsel.innerHTML="<option value=''>— 농가 선택 —</option>"+farms.map(f=>`<option value='${encodeURIComponent(f)}'>${f}</option>`).join("");
+  if(keepF && farms.indexOf(decodeURIComponent(keepF))>=0) fsel.value=keepF; else fsel.value="";
+  fillYearList(); }
+function fillYearList(){ const fsel=$("loadFarm"), ysel=$("loadYear"); if(!ysel) return; const keepY=ysel.value;
+  if(!fsel.value){ ysel.innerHTML="<option value=''>— 연도 —</option>"; return; }
+  const f=decodeURIComponent(fsel.value), years=Object.keys(loadStore(f)).sort();
+  ysel.innerHTML="<option value=''>— 연도 —</option>"+years.map(y=>`<option value='${y}'>${y}년</option>`).join("");
+  if(keepY && years.indexOf(keepY)>=0) ysel.value=keepY; }
 function hsub(){ $("hSub").textContent=`${CFG.label} · ${$("farm").value.trim()||"농가 미선택"} · ${yr()}년 ${PERIODS.find(p=>p[0]===cur())[1]}`; }
 
 /* ===== 축종 전환 ===== */
@@ -370,8 +381,9 @@ function doCsv(){ collectBase(); const csv="﻿"+buildAOA().map(row=>row.map(c=>
 
 /* ===== 이벤트 ===== */
 $("btnSave").onclick=doSave;
-$("btnLoad").onclick=()=>{ const v=$("loadList").value; if(!v){ alert("불러올 농가·연도를 선택하세요."); return; } autosaveCurrent(); const [f,y]=v.split("|"); if(doLoad(decodeURIComponent(f),y)) toast("불러왔습니다"); };
-$("btnDel").onclick=()=>{ const v=$("loadList").value; if(!v){ alert("삭제할 농가·연도를 선택하세요."); return; } const [fe,y]=v.split("|"), f=decodeURIComponent(fe); if(!confirm(`${f} · ${y}년 자료를 삭제할까요?`))return; const store=loadStore(f); delete store[y]; if(Object.keys(store).length) saveStore(f,store); else localStorage.removeItem(storeKey(f)); refreshList(); toast("삭제되었습니다"); };
+$("loadFarm").onchange=fillYearList;   // [v118] 농가 고르면 그 농가 연도만 채움
+$("btnLoad").onclick=()=>{ const fv=$("loadFarm").value, y=$("loadYear").value; if(!fv||!y){ alert("농가와 연도를 선택하세요."); return; } autosaveCurrent(); if(doLoad(decodeURIComponent(fv),y)) toast("불러왔습니다"); };
+$("btnDel").onclick=()=>{ const fv=$("loadFarm").value, y=$("loadYear").value; if(!fv||!y){ alert("삭제할 농가·연도를 선택하세요."); return; } const f=decodeURIComponent(fv); if(!confirm(`${f} · ${y}년 자료를 삭제할까요?`))return; const store=loadStore(f); delete store[y]; if(Object.keys(store).length) saveStore(f,store); else localStorage.removeItem(storeKey(f)); refreshList(); toast("삭제되었습니다"); };
 $("btnInspect").onclick=()=>{ inspect(); toast("내검 완료"); $("chkBox").scrollIntoView({block:"center"}); };
 $("btnPrint").onclick=()=>{ collectBase(); window.print(); };
 $("btnXlsx").onclick=doXlsx;
