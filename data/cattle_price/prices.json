@@ -2,8 +2,8 @@
  "_안내": "소 산지가격 통합 파일(다봄 실측). 갱신: data 아래에 '날짜':{prices:{...}} 를 추가하고 latestDate·updatedAt만 바꾸세요. 단위 천원/마리. 값 없으면 null.",
  "unit": "천원/마리",
  "source": "축산물품질평가원 축산유통정보 다봄·농협중앙회",
- "latestDate": "2026-11-24",
- "updatedAt": "2026-11-26T03:55:27+09:00",
+ "latestDate": "2026-11-25",
+ "updatedAt": "2026-11-27T03:44:43+09:00",
  "data": {
   "2024-11-04": {
    "prices": {
@@ -6802,6 +6802,46 @@
     "beefCattleAverage600kg": {
      "price": 4379,
      "previousPrice": 3933
+    }
+   }
+  },
+  "2026-11-25": {
+   "prices": {
+    "largeCow600kg": {
+     "price": null,
+     "previousPrice": 6905
+    },
+    "femaleCalf4to5": {
+     "price": null,
+     "previousPrice": 3690
+    },
+    "maleCalf4to5": {
+     "price": null,
+     "previousPrice": 4033
+    },
+    "femaleCalf6to7": {
+     "price": null,
+     "previousPrice": 3569
+    },
+    "maleCalf6to7": {
+     "price": null,
+     "previousPrice": 5058
+    },
+    "hanwooAverage600kg": {
+     "price": 8255,
+     "previousPrice": 8264
+    },
+    "hanwooSteer600kg": {
+     "price": 8613,
+     "previousPrice": 8689
+    },
+    "hanwooBull600kg": {
+     "price": 5274,
+     "previousPrice": 5507
+    },
+    "beefCattleAverage600kg": {
+     "price": 4369,
+     "previousPrice": 4379
     }
    }
   }
