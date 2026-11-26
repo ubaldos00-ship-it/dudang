@@ -1,4 +1,4 @@
-<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-11-26 06:40 KST · [v116] 6건: ①합계를 '자동합계'→'합계'로 라벨변경+조사시기 바로 다음으로 이동+직접입력 가능(비우면 자동복귀, 돼지·닭·오리 공통) ②돼지 6개월이상~8개월미만 그룹헤더(수컷·암컷·그중 모돈용(후보돈)) ③오른쪽 슬라이드 바로가기 저장패널(축비와 동일) ④첫 진입 시 현재월로 분기 자동선택(11·12·1→12월/2·3·4→3월/5·6·7→6월/8·9·10→9월) ⑤조사연도·조사월·농장명 입력란 높이 통일(min-height 40px) · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
+<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-11-26 09:36 KST · [v117] 저장/불러오기 개선: 농가명으로 연도별 저장(store[year], 이미 분리됨-확인), 연도/농장명 바꾸면 그 자료 자동 로드(직전자료 자동저장)·빈 연도면 전년 12월(m12)→올해 '전년 12월'(prev12) 자동 이월(+기본정보 이어줌), 불러오기 전에도 현재자료 자동저장. · [v116] 6건: ①합계를 '자동합계'→'합계'로 라벨변경+조사시기 바로 다음으로 이동+직접입력 가능(비우면 자동복귀, 돼지·닭·오리 공통) ②돼지 6개월이상~8개월미만 그룹헤더(수컷·암컷·그중 모돈용(후보돈)) ③오른쪽 슬라이드 바로가기 저장패널(축비와 동일) ④첫 진입 시 현재월로 분기 자동선택(11·12·1→12월/2·3·4→3월/5·6·7→6월/8·9·10→9월) ⑤조사연도·조사월·농장명 입력란 높이 통일(min-height 40px) · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
 <!doctype html>
 <html lang="ko">
 <head>
@@ -204,6 +204,7 @@ const RULE={ pig:{litterMin:11,litterMax:14,deadRate:0.15,pregFarrowLo:0.7,pregF
 
 /* ===== 상태 ===== */
 let SP="pig", CFG=SPCFG.pig, M=blankModel();
+let LOADED_FARM=null, LOADED_YEAR=null;   // [v117] 현재 메모리 모델이 묶인 농가·연도(년 전환 자동저장용)
 function allCols(){ let a=[]; CFG.tables.forEach(t=>a=a.concat(t.cols)); return a; }
 function sumKeys(){ return allCols().filter(c=>c.sum).map(c=>c.k); }
 function blankRow(){ const r={}; allCols().forEach(c=>{ if(!c.auto) r[c.k]=null; }); return r; }
@@ -319,10 +320,32 @@ function loadStore(f){ try{ const raw=localStorage.getItem(storeKey(f)); if(!raw
 function saveStore(f,obj){ try{ localStorage.setItem(storeKey(f),encStr(JSON.stringify(obj))); }catch(e){} }
 function collectBase(){ const b={}; document.querySelectorAll("[data-b]").forEach(el=>b[el.dataset.b]=el.value); M.base=Object.assign(M.base||{},b); }
 function doSave(){ const f=$("farm").value.trim(); if(!f){ alert("농장명을 입력하세요."); return; } collectBase();
-  const store=loadStore(f), y=yr(); M.species=SP; store[y]=JSON.parse(JSON.stringify(M)); saveStore(f,store); refreshList(); toast("저장되었습니다(암호화)"); }
+  const store=loadStore(f), y=yr(); M.species=SP; store[y]=JSON.parse(JSON.stringify(M)); saveStore(f,store); LOADED_FARM=f; LOADED_YEAR=y; refreshList(); toast("저장되었습니다(암호화)"); }
 function doLoad(f,y){ const store=loadStore(f), rec=store[y]; if(!rec) return false;
   M=Object.assign(blankModel(),rec); if(!M.data)M.data=blankModel().data; PERIODS.forEach(([k])=>{ if(!M.data[k])M.data[k]=blankRow(); });
-  $("farm").value=f; $("year").value=y; buildBase(); buildTables(); recalc(); inspect(); hsub(); return true; }
+  $("farm").value=f; $("year").value=y; LOADED_FARM=f; LOADED_YEAR=y; buildBase(); buildTables(); recalc(); inspect(); hsub(); return true; }
+/* [v117] 모델에 입력값이 하나라도 있는지(빈 년도 자동저장 방지) */
+function modelHasData(m){ let any=false; PERIODS.forEach(([k])=>{ const r=(m.data&&m.data[k])||{}; Object.keys(r).forEach(fk=>{ if(fk[0]!=="_"&&r[fk]!=null&&r[fk]!=="") any=true; if(fk==="_totMan"&&r._totMan) any=true; }); }); return any; }
+/* [v117] 현재 농가·연도 자료 로드. 저장분 있으면 로드, 없으면 빈 양식 + 전년 12월 자동 이월 */
+function loadYearForFarm(){
+  const f=$("farm").value.trim(), y=yr();
+  if(!f){ hsub(); return; }
+  const store=loadStore(f), rec=store[y];
+  if(rec){ M=Object.assign(blankModel(),rec); if(!M.data)M.data=blankModel().data; PERIODS.forEach(([k])=>{ if(!M.data[k])M.data[k]=blankRow(); });
+    LOADED_FARM=f; LOADED_YEAR=y; buildBase(); buildTables(); recalc(); inspect(); hsub(); toast(y+"년 자료를 불러왔습니다"); return; }
+  // 저장분 없음: 빈 양식. 전년도 12월(m12) 있으면 올해 '전년 12월'(prev12)로 이월
+  const prevRec=store[String(+y-1)];
+  M=blankModel();
+  let carried=false;
+  if(prevRec&&prevRec.data&&prevRec.data.m12){ M.data.prev12=JSON.parse(JSON.stringify(prevRec.data.m12)); carried=true; }
+  if(prevRec&&prevRec.base) M.base=JSON.parse(JSON.stringify(prevRec.base));   // 기본정보도 이어줌
+  LOADED_FARM=f; LOADED_YEAR=y; buildBase(); buildTables(); recalc(); inspect(); hsub();
+  if(carried) toast((+y-1)+"년 12월 → "+y+"년 '전년 12월'로 자동 이월");
+}
+/* [v117] 직전 농가·연도 자료 자동저장(입력값 있을 때만) */
+function autosaveCurrent(){ if(LOADED_FARM && LOADED_YEAR!=null && modelHasData(M)){ collectBase(); const s=loadStore(LOADED_FARM); s[LOADED_YEAR]=JSON.parse(JSON.stringify(M)); saveStore(LOADED_FARM,s); refreshList(); } }
+/* [v117] 농가/연도 입력 바뀌면: 직전 자료 자동저장 후 새 자료 로드 */
+function switchContext(){ autosaveCurrent(); loadYearForFarm(); }
 function refreshList(){ const sel=$("loadList"), keep=sel.value; let o="<option value=''>— 저장 농가·연도 불러오기 —</option>";
   try{ const pfx="dudang_gachuk_"+SP+"_"; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.indexOf(pfx)===0){ const f=k.slice(pfx.length); const store=loadStore(f); Object.keys(store).sort().forEach(y=>{ o+=`<option value='${encodeURIComponent(f)}|${y}'>${f} · ${y}년</option>`; }); } } }catch(e){}
   sel.innerHTML=o; sel.value=keep; }
@@ -331,7 +354,8 @@ function hsub(){ $("hSub").textContent=`${CFG.label} · ${$("farm").value.trim()
 /* ===== 축종 전환 ===== */
 function setSpecies(sp){ if(!SPCFG[sp])return; SP=sp; CFG=SPCFG[sp]; M=blankModel();
   document.querySelectorAll("#chips .chip").forEach(ch=>ch.classList.toggle("on",ch.dataset.sp===sp));
-  buildBase(); buildTables(); recalc(); $("chkBox").innerHTML="<div class='sub'>🔍 값을 입력하면 자동으로 검토합니다.</div>"; $("numChk").textContent=2+CFG.tables.length; refreshList(); hsub();
+  buildBase(); buildTables(); recalc(); $("chkBox").innerHTML="<div class='sub'>🔍 값을 입력하면 자동으로 검토합니다.</div>"; $("numChk").textContent=2+CFG.tables.length; refreshList();
+  LOADED_FARM=null; LOADED_YEAR=null; loadYearForFarm();   // [v117] 같은 농가면 축종 전환 시에도 그 축종 자료 로드
 }
 
 /* ===== Excel / CSV ===== */
@@ -346,14 +370,15 @@ function doCsv(){ collectBase(); const csv="﻿"+buildAOA().map(row=>row.map(c=>
 
 /* ===== 이벤트 ===== */
 $("btnSave").onclick=doSave;
-$("btnLoad").onclick=()=>{ const v=$("loadList").value; if(!v){ alert("불러올 농가·연도를 선택하세요."); return; } const [f,y]=v.split("|"); if(doLoad(decodeURIComponent(f),y)) toast("불러왔습니다"); };
+$("btnLoad").onclick=()=>{ const v=$("loadList").value; if(!v){ alert("불러올 농가·연도를 선택하세요."); return; } autosaveCurrent(); const [f,y]=v.split("|"); if(doLoad(decodeURIComponent(f),y)) toast("불러왔습니다"); };
 $("btnDel").onclick=()=>{ const v=$("loadList").value; if(!v){ alert("삭제할 농가·연도를 선택하세요."); return; } const [fe,y]=v.split("|"), f=decodeURIComponent(fe); if(!confirm(`${f} · ${y}년 자료를 삭제할까요?`))return; const store=loadStore(f); delete store[y]; if(Object.keys(store).length) saveStore(f,store); else localStorage.removeItem(storeKey(f)); refreshList(); toast("삭제되었습니다"); };
 $("btnInspect").onclick=()=>{ inspect(); toast("내검 완료"); $("chkBox").scrollIntoView({block:"center"}); };
 $("btnPrint").onclick=()=>{ collectBase(); window.print(); };
 $("btnXlsx").onclick=doXlsx;
 $("btnCsv").onclick=doCsv;
 $("period").onchange=()=>{ buildTables(); recalc(); inspect(); hsub(); };
-$("year").onchange=hsub;
+$("year").onchange=switchContext;   // [v117] 연도 바꾸면 그 연도 자료 로드(+전년12월 이월)
+$("farm").onchange=switchContext;   // [v117] 농장명 바꾸면 그 농가 자료 로드
 document.querySelectorAll("#chips .chip").forEach(ch=>ch.onclick=()=>setSpecies(ch.dataset.sp));
 
 /* ===== 사이드 바로가기(저장) 패널 ===== */
