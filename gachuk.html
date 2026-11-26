@@ -1,4 +1,4 @@
-<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-11-26 13:43 KST · [v120] 농가 기본정보 엑셀 일괄등록(텐아르 '가축조사구' 양식): 📥 버튼→.xlsx 선택→행마다 농가 1건 저장(축종열로 돼지/닭/오리 자동분류, 사육마릿수는 빈 양식, 올해 분기연도 record의 base에 저장, 기존농가면 갱신). 주소=초입주소 or 리+본번(-부번) 조합. · [v119] UI 재구성: 조사연도·농장명 상단 입력란 제거(숨김상태로 유지)·조사월을 연도콤보 옆으로, 농가=저장콤보에서 선택(➕추가/✏수정[활성농가일때만] 버튼), 불러오기 누르면 기본=올해 분기 기준달 표시(연도 선택시 그 연도·전년12월 이월 유지), 인쇄/Excel/CSV를 '📎 내보내기' 토글(기본 닫힘)로 묶음 · [v118] ①입력 포커스 시 화면확대 방지(viewport maximum-scale·user-scalable=no) ②불러오기 UI를 농가 콤보 + 연도 콤보 2단으로 분리(농가 고르면 그 농가 저장연도만 연도콤보에 표시) · [v117] 저장/불러오기 개선: 농가명으로 연도별 저장(store[year], 이미 분리됨-확인), 연도/농장명 바꾸면 그 자료 자동 로드(직전자료 자동저장)·빈 연도면 전년 12월(m12)→올해 '전년 12월'(prev12) 자동 이월(+기본정보 이어줌), 불러오기 전에도 현재자료 자동저장. · [v116] 6건: ①합계를 '자동합계'→'합계'로 라벨변경+조사시기 바로 다음으로 이동+직접입력 가능(비우면 자동복귀, 돼지·닭·오리 공통) ②돼지 6개월이상~8개월미만 그룹헤더(수컷·암컷·그중 모돈용(후보돈)) ③오른쪽 슬라이드 바로가기 저장패널(축비와 동일) ④첫 진입 시 현재월로 분기 자동선택(11·12·1→12월/2·3·4→3월/5·6·7→6월/8·9·10→9월) ⑤조사연도·조사월·농장명 입력란 높이 통일(min-height 40px) · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
+<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-11-26 13:53 KST · [v121] 일괄등록이 텐아르 '조사구 백업(JSON)'도 받음: tenar-area-backup(types.livestock)·tenar-area-plots(areaType=livestock)에서 가축 plot→농가 기본정보 복원(farmName/경영주명·phone·manager·managerPhone·kind축종·주소·비고/메모). 암호화 백업이면 암호 입력 후 PBKDF2(210,000)+AES-256-GCM 복호(텐아르와 동일 규격, 암호는 브라우저 안에서만). 사육마릿수는 조사구에 없어 빈 양식. · [v120] 농가 기본정보 엑셀 일괄등록(텐아르 '가축조사구' 양식): 📥 버튼→.xlsx 선택→행마다 농가 1건 저장(축종열로 돼지/닭/오리 자동분류, 사육마릿수는 빈 양식, 올해 분기연도 record의 base에 저장, 기존농가면 갱신). 주소=초입주소 or 리+본번(-부번) 조합. · [v119] UI 재구성: 조사연도·농장명 상단 입력란 제거(숨김상태로 유지)·조사월을 연도콤보 옆으로, 농가=저장콤보에서 선택(➕추가/✏수정[활성농가일때만] 버튼), 불러오기 누르면 기본=올해 분기 기준달 표시(연도 선택시 그 연도·전년12월 이월 유지), 인쇄/Excel/CSV를 '📎 내보내기' 토글(기본 닫힘)로 묶음 · [v118] ①입력 포커스 시 화면확대 방지(viewport maximum-scale·user-scalable=no) ②불러오기 UI를 농가 콤보 + 연도 콤보 2단으로 분리(농가 고르면 그 농가 저장연도만 연도콤보에 표시) · [v117] 저장/불러오기 개선: 농가명으로 연도별 저장(store[year], 이미 분리됨-확인), 연도/농장명 바꾸면 그 자료 자동 로드(직전자료 자동저장)·빈 연도면 전년 12월(m12)→올해 '전년 12월'(prev12) 자동 이월(+기본정보 이어줌), 불러오기 전에도 현재자료 자동저장. · [v116] 6건: ①합계를 '자동합계'→'합계'로 라벨변경+조사시기 바로 다음으로 이동+직접입력 가능(비우면 자동복귀, 돼지·닭·오리 공통) ②돼지 6개월이상~8개월미만 그룹헤더(수컷·암컷·그중 모돈용(후보돈)) ③오른쪽 슬라이드 바로가기 저장패널(축비와 동일) ④첫 진입 시 현재월로 분기 자동선택(11·12·1→12월/2·3·4→3월/5·6·7→6월/8·9·10→9월) ⑤조사연도·조사월·농장명 입력란 높이 통일(min-height 40px) · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
 <!doctype html>
 <html lang="ko">
 <head>
@@ -112,8 +112,8 @@
       <button class="btn g" id="btnSave">💾 저장</button>
       <button class="btn p" id="btnLoad">📂 불러오기</button>
       <button class="btn" id="btnDel">🗑 삭제</button>
-      <button class="btn" id="btnBulk">📥 농가 일괄등록(엑셀)</button>
-      <input type="file" id="bulkFile" accept=".xlsx,.xls" style="display:none">
+      <button class="btn" id="btnBulk">📥 농가 일괄등록(엑셀·조사구백업)</button>
+      <input type="file" id="bulkFile" accept=".xlsx,.xls,.json" style="display:none">
       <button class="btn o" id="btnInspect">🔍 내검</button>
       <button class="btn" id="btnExportToggle">📎 내보내기 ▾</button>
       <span id="exportBtns" style="display:none;gap:8px;align-items:center">
@@ -268,6 +268,47 @@ function importFarmsFromExcel(file){
     toast("일괄등록: 신규 "+added+" · 갱신 "+updated);
   }catch(err){ alert("엑셀 읽기 오류: "+(err&&err.message||err)); } };
   reader.readAsArrayBuffer(file);
+}
+/* [v121] 텐아르 조사구 백업 복호(PBKDF2 210,000 + AES-256-GCM, 텐아르와 동일 규격) — 암호는 브라우저 안에서만 사용, 외부 전송 없음 */
+async function tenarDecrypt(obj,password){
+  const b64ToBuf=b64=>{ const bin=atob(b64),u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return u.buffer; };
+  const baseKey=await crypto.subtle.importKey("raw",new TextEncoder().encode(String(password)),{name:"PBKDF2"},false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:new Uint8Array(b64ToBuf(obj.salt)),iterations:obj.iterations||210000,hash:"SHA-256"},baseKey,{name:"AES-GCM",length:256},false,["decrypt"]);
+  const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:new Uint8Array(b64ToBuf(obj.iv))},key,b64ToBuf(obj.ciphertext));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+/* [v121] 복원 적용: 가축(livestock) 조사구 plot → 농가 기본정보 저장 */
+function applyAreaBackup(obj){
+  if(!obj||typeof obj!=="object"){ alert("백업 형식을 알 수 없습니다."); return; }
+  let plots=[];
+  if(obj.type==="tenar-area-backup"&&obj.types){ plots=obj.types.livestock||[]; }
+  else if(obj.type==="tenar-area-plots"){ plots=(obj.areaType==="livestock")?(obj.plots||[]):[]; }
+  else if(Array.isArray(obj.plots)){ plots=obj.plots.filter(p=>p&&(p.kind||p.farmName||p.name)); }
+  if(!plots.length){ alert("백업에 가축 조사구 자료가 없습니다.\n(텐아르에서 '가축' 종류 또는 '전체 백업'을 내보냈는지 확인하세요)"); return; }
+  const dp=defaultPeriodByMonth(), year=String(dp.y); let added=0,updated=0,skip=0;
+  plots.forEach(p=>{ const farm=String(p.farmName||p.name||"").trim(); if(!farm){ skip++; return; }
+    const sp=spOf(p.kind)||"pig";
+    const base={ ledgerNo:"", sido:p.sido||"", sigungu:p.sigungu||"", emd:p.eupmyeondong||"", addr:p.address1||"", owner:p.name||"", ownerTel:p.phone||"", mgr:p.manager||"", mgrTel:p.managerPhone||"", method:"", note:[p.note,p.memo].filter(Boolean).join(" / "), change:"" };
+    const store=loadStoreOf(sp,farm);
+    if(store[year]){ store[year].base=Object.assign(store[year].base||{},base); store[year].species=sp; updated++; }
+    else { store[year]={species:sp,base:base,data:{prev12:{},m3:{},m6:{},m9:{},m12:{}},status:"작성중"}; added++; }
+    saveStoreOf(sp,farm,store);
+  });
+  refreshList();
+  alert("텐아르 조사구 백업 → 가축 농가 복원 완료 (연도 "+year+" 기준)\n신규 "+added+"건 · 갱신 "+updated+"건"+(skip?"\n농장명 없음 "+skip+"건(건너뜀)":""));
+  toast("조사구 백업 복원: 신규 "+added+" · 갱신 "+updated);
+}
+/* [v121] 조사구 백업(.json) 읽기 — 암호화면 암호 입력 후 복호 */
+function importFarmsFromJSON(file){
+  const reader=new FileReader();
+  reader.onload=ev=>{ let obj; try{ obj=JSON.parse(ev.target.result); }catch(e){ alert("JSON 파일이 아닙니다."); return; }
+    if(obj&&obj.tenarSecure===true){
+      if(!(window.crypto&&crypto.subtle)){ alert("이 브라우저는 암호화 백업 복호를 지원하지 않습니다."); return; }
+      const pw=prompt("조사구 백업 암호를 입력하세요\n(텐아르에서 내보낼 때 쓴 암호):"); if(pw==null)return;
+      tenarDecrypt(obj,pw).then(applyAreaBackup).catch(()=>alert("복호화 실패 — 암호가 틀렸거나 지원하지 않는 형식입니다."));
+    } else { applyAreaBackup(obj); }
+  };
+  reader.readAsText(file);
 }
 function gv(r,k){ const v=r?r[k]:null; return (v===null||v===undefined||v==="")?null:+v; }
 function rowTotal(r){ let s=0,any=false; sumKeys().forEach(k=>{ const v=gv(r,k); if(v!==null){s+=v;any=true;} }); return any?s:null; }
@@ -461,7 +502,7 @@ $("btnLoad").onclick=()=>{ const fv=$("loadFarm").value; if(!fv){ alert("농가�
   loadYearForFarm(); syncLoadCombos(f,y); updateEditBtn(); };
 $("btnDel").onclick=()=>{ const fv=$("loadFarm").value, y=$("loadYear").value; if(!fv||!y){ alert("삭제할 농가·연도를 선택하세요."); return; } const f=decodeURIComponent(fv); if(!confirm(`${f} · ${y}년 자료를 삭제할까요?`))return; const store=loadStore(f); delete store[y]; if(Object.keys(store).length) saveStore(f,store); else localStorage.removeItem(storeKey(f)); refreshList(); toast("삭제되었습니다"); };
 $("btnBulk").onclick=()=>$("bulkFile").click();   // [v120] 엑셀 일괄등록
-$("bulkFile").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f) importFarmsFromExcel(f); e.target.value=""; };
+$("bulkFile").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f){ if(/\.json$/i.test(f.name)) importFarmsFromJSON(f); else importFarmsFromExcel(f); } e.target.value=""; };
 $("btnInspect").onclick=()=>{ inspect(); toast("내검 완료"); $("chkBox").scrollIntoView({block:"center"}); };
 $("btnExportToggle").onclick=()=>{ const sp=$("exportBtns"), open=sp.style.display!=="none"; sp.style.display=open?"none":"inline-flex"; $("btnExportToggle").textContent=open?"📎 내보내기 ▾":"📎 내보내기 ▴"; };
 $("btnPrint").onclick=()=>{ collectBase(); window.print(); };
