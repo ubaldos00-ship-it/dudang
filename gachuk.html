@@ -1,4 +1,4 @@
-<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-11-26 10:09 KST · [v118] ①입력 포커스 시 화면확대 방지(viewport maximum-scale·user-scalable=no) ②불러오기 UI를 농가 콤보 + 연도 콤보 2단으로 분리(농가 고르면 그 농가 저장연도만 연도콤보에 표시) · [v117] 저장/불러오기 개선: 농가명으로 연도별 저장(store[year], 이미 분리됨-확인), 연도/농장명 바꾸면 그 자료 자동 로드(직전자료 자동저장)·빈 연도면 전년 12월(m12)→올해 '전년 12월'(prev12) 자동 이월(+기본정보 이어줌), 불러오기 전에도 현재자료 자동저장. · [v116] 6건: ①합계를 '자동합계'→'합계'로 라벨변경+조사시기 바로 다음으로 이동+직접입력 가능(비우면 자동복귀, 돼지·닭·오리 공통) ②돼지 6개월이상~8개월미만 그룹헤더(수컷·암컷·그중 모돈용(후보돈)) ③오른쪽 슬라이드 바로가기 저장패널(축비와 동일) ④첫 진입 시 현재월로 분기 자동선택(11·12·1→12월/2·3·4→3월/5·6·7→6월/8·9·10→9월) ⑤조사연도·조사월·농장명 입력란 높이 통일(min-height 40px) · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
+<!-- gachuk.html · 가축동향조사표(돼지·닭·오리) · 저장: 2026-11-26 13:43 KST · [v120] 농가 기본정보 엑셀 일괄등록(텐아르 '가축조사구' 양식): 📥 버튼→.xlsx 선택→행마다 농가 1건 저장(축종열로 돼지/닭/오리 자동분류, 사육마릿수는 빈 양식, 올해 분기연도 record의 base에 저장, 기존농가면 갱신). 주소=초입주소 or 리+본번(-부번) 조합. · [v119] UI 재구성: 조사연도·농장명 상단 입력란 제거(숨김상태로 유지)·조사월을 연도콤보 옆으로, 농가=저장콤보에서 선택(➕추가/✏수정[활성농가일때만] 버튼), 불러오기 누르면 기본=올해 분기 기준달 표시(연도 선택시 그 연도·전년12월 이월 유지), 인쇄/Excel/CSV를 '📎 내보내기' 토글(기본 닫힘)로 묶음 · [v118] ①입력 포커스 시 화면확대 방지(viewport maximum-scale·user-scalable=no) ②불러오기 UI를 농가 콤보 + 연도 콤보 2단으로 분리(농가 고르면 그 농가 저장연도만 연도콤보에 표시) · [v117] 저장/불러오기 개선: 농가명으로 연도별 저장(store[year], 이미 분리됨-확인), 연도/농장명 바꾸면 그 자료 자동 로드(직전자료 자동저장)·빈 연도면 전년 12월(m12)→올해 '전년 12월'(prev12) 자동 이월(+기본정보 이어줌), 불러오기 전에도 현재자료 자동저장. · [v116] 6건: ①합계를 '자동합계'→'합계'로 라벨변경+조사시기 바로 다음으로 이동+직접입력 가능(비우면 자동복귀, 돼지·닭·오리 공통) ②돼지 6개월이상~8개월미만 그룹헤더(수컷·암컷·그중 모돈용(후보돈)) ③오른쪽 슬라이드 바로가기 저장패널(축비와 동일) ④첫 진입 시 현재월로 분기 자동선택(11·12·1→12월/2·3·4→3월/5·6·7→6월/8·9·10→9월) ⑤조사연도·조사월·농장명 입력란 높이 통일(min-height 40px) · v84: 닭·오리 조사표 추가(설정기반 SPCFG 3축종), 농가 기본정보 접기/열기(기본 닫힘). v83[신규]: 돼지 가축동향조사표 — 사육마릿수(자동합계·후보돈 제외)·생산/폐사·분만/임신, 조사시기(전년12·3·6·9·12월) 시계열(현재월 입력·과거 조회), 돼지 관계내검(두당생산11~14·폐사·임신↔분만·회전율·증감), localStorage 암호화(XOR+b64), 인쇄/PDF·Excel·CSV. 축비(survey.html) 무변경 별도모듈 -->
 <!doctype html>
 <html lang="ko">
 <head>
@@ -94,22 +94,33 @@
       <button class="chip" data-sp="chicken">🐔 닭</button>
       <button class="chip" data-sp="duck">🦆 오리</button>
     </div>
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">
-      <div class="fld"><label>조사연도</label><input id="year" type="number" min="2020" max="2100" value="2026"></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+      <div class="fld" style="grid-column:span 2"><label>농가 (저장된 농장 선택)</label>
+        <div style="display:flex;gap:6px">
+          <select id="loadFarm" style="flex:1"><option value="">— 농가 선택 —</option></select>
+          <button class="btn" id="btnAdd" style="white-space:nowrap">➕ 추가</button>
+          <button class="btn" id="btnEdit" style="white-space:nowrap;display:none">✏ 수정</button>
+        </div>
+      </div>
+      <div class="fld"><label>조사연도</label><select id="loadYear"><option value="">— 연도 —</option></select></div>
       <div class="fld"><label>조사월(입력 대상)</label><select id="period">
         <option value="prev12">전년 12월</option><option value="m3">3월</option><option value="m6" selected>6월</option><option value="m9">9월</option><option value="m12">12월</option></select></div>
-      <div class="fld" style="grid-column:span 2"><label>농장명(조사대장번호로 식별 권장)</label><input id="farm" placeholder="예) 행복농장" autocomplete="off"></div>
     </div>
+    <!-- 활성 농가·연도 상태(숨김) -->
+    <input type="hidden" id="farm"><input type="hidden" id="year" value="2026">
     <div class="btnrow" style="margin-top:10px">
       <button class="btn g" id="btnSave">💾 저장</button>
-      <select id="loadFarm" style="max-width:180px"><option value="">— 농가 선택 —</option></select>
-      <select id="loadYear" style="max-width:120px"><option value="">— 연도 —</option></select>
-      <button class="btn" id="btnLoad">📂 불러오기</button>
+      <button class="btn p" id="btnLoad">📂 불러오기</button>
       <button class="btn" id="btnDel">🗑 삭제</button>
+      <button class="btn" id="btnBulk">📥 농가 일괄등록(엑셀)</button>
+      <input type="file" id="bulkFile" accept=".xlsx,.xls" style="display:none">
       <button class="btn o" id="btnInspect">🔍 내검</button>
-      <button class="btn p" id="btnPrint">🖨 인쇄/PDF</button>
-      <button class="btn" id="btnXlsx">📊 Excel</button>
-      <button class="btn" id="btnCsv">📄 CSV</button>
+      <button class="btn" id="btnExportToggle">📎 내보내기 ▾</button>
+      <span id="exportBtns" style="display:none;gap:8px;align-items:center">
+        <button class="btn p" id="btnPrint">🖨 인쇄/PDF</button>
+        <button class="btn" id="btnXlsx">📊 Excel</button>
+        <button class="btn" id="btnCsv">📄 CSV</button>
+      </span>
     </div>
   </div>
 
@@ -213,6 +224,51 @@ function blankModel(){ const d={}; PERIODS.forEach(([k])=>d[k]=blankRow()); retu
 function cur(){ return $("period").value; }
 function yr(){ return ($("year").value||"").trim(); }
 function storeKey(f){ return "dudang_gachuk_"+SP+"_"+(f||"_default"); }
+/* [v120] 임의 축종 store 접근(일괄등록용) */
+function storeKeyOf(sp,f){ return "dudang_gachuk_"+sp+"_"+(f||"_default"); }
+function loadStoreOf(sp,f){ try{ const raw=localStorage.getItem(storeKeyOf(sp,f)); return raw?JSON.parse(decStr(raw)):{}; }catch(e){ return {}; } }
+function saveStoreOf(sp,f,o){ try{ localStorage.setItem(storeKeyOf(sp,f),encStr(JSON.stringify(o))); }catch(e){} }
+/* [v120] 엑셀 축종명 → 내부 SP */
+function spOf(ch){ ch=String(ch||""); if(/돼지|돈/.test(ch)) return "pig"; if(/오리/.test(ch)) return "duck"; if(ch.trim()) return "chicken"; return null; }
+/* [v120] 주소 조합: 초입주소 있으면 그대로, 없으면 리+본번(-부번) */
+function compAddr(r){ if((r["초입주소"]||"").trim()) return String(r["초입주소"]).trim();
+  const ri=(r["리"]||"").trim();
+  let bon=String(r["본지번"]||"").replace(/[^0-9]/g,""); bon=bon?String(parseInt(bon,10)):"";
+  let bu=String(r["부지번"]||"").replace(/[^0-9]/g,""); bu=bu?parseInt(bu,10):0;
+  const jibun=bon?(bon+(bu?("-"+bu):"")):"";
+  const head=[r["시도"],r["시군구"],r["읍면동"],ri].filter(x=>x&&String(x).trim()).join(" ");
+  return (head+(jibun?(" "+jibun):"")).trim(); }
+/* [v120] 텐아르 '가축조사구' 엑셀 → 농가 기본정보 일괄등록(사육마릿수는 빈 양식) */
+function importFarmsFromExcel(file){
+  const reader=new FileReader();
+  reader.onload=ev=>{ try{
+    const wb=XLSX.read(new Uint8Array(ev.target.result),{type:"array"});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+    let hi=-1; for(let i=0;i<aoa.length;i++){ if(aoa[i]&&aoa[i].some(c=>String(c).trim()==="농장명")){ hi=i; break; } }
+    if(hi<0){ alert("엑셀에서 '농장명' 머리글을 찾지 못했습니다. 텐아르 가축조사구 양식인지 확인하세요."); return; }
+    const H=aoa[hi].map(c=>String(c).trim()), col=n=>H.indexOf(n);
+    const dp=defaultPeriodByMonth(), year=String(dp.y);
+    let added=0,updated=0,skip=0,nofarm=0;
+    for(let i=hi+1;i<aoa.length;i++){ const row=aoa[i]; if(!row) continue;
+      const g=n=>{ const j=col(n); return j>=0?String(row[j]==null?"":row[j]).trim():""; };
+      const farm=g("농장명"); if(!farm){ nofarm++; continue; }
+      const sp=spOf(g("축종")); if(!sp){ skip++; continue; }
+      const base={ ledgerNo:"", sido:g("시도"), sigungu:g("시군구"), emd:g("읍면동"),
+        addr:compAddr({초입주소:g("초입주소"),시도:g("시도"),시군구:g("시군구"),읍면동:g("읍면동"),리:g("리"),본지번:g("본지번"),부지번:g("부지번")}),
+        owner:g("경영주명"), ownerTel:g("전화번호"), mgr:g("관리인"), mgrTel:g("관리인연락처"),
+        method:"", note:[g("비고"),g("메모")].filter(Boolean).join(" / "), change:"" };
+      const store=loadStoreOf(sp,farm);
+      if(store[year]){ store[year].base=Object.assign(store[year].base||{},base); store[year].species=sp; updated++; }
+      else { store[year]={species:sp,base:base,data:{prev12:{},m3:{},m6:{},m9:{},m12:{}},status:"작성중"}; added++; }
+      saveStoreOf(sp,farm,store);
+    }
+    refreshList();
+    alert("농가 일괄등록 완료 (연도 "+year+" 기준)\n신규 "+added+"건 · 갱신 "+updated+"건"+(skip?"\n축종불명 "+skip+"건(건너뜀)":"")+(nofarm?"\n농장명 없음 "+nofarm+"행(건너뜀)":""));
+    toast("일괄등록: 신규 "+added+" · 갱신 "+updated);
+  }catch(err){ alert("엑셀 읽기 오류: "+(err&&err.message||err)); } };
+  reader.readAsArrayBuffer(file);
+}
 function gv(r,k){ const v=r?r[k]:null; return (v===null||v===undefined||v==="")?null:+v; }
 function rowTotal(r){ let s=0,any=false; sumKeys().forEach(k=>{ const v=gv(r,k); if(v!==null){s+=v;any=true;} }); return any?s:null; }
 /* [v116] 표시용 합계: 직접입력(_totMan)이면 그 값, 아니면 자동합계 */
@@ -365,8 +421,8 @@ function hsub(){ $("hSub").textContent=`${CFG.label} · ${$("farm").value.trim()
 /* ===== 축종 전환 ===== */
 function setSpecies(sp){ if(!SPCFG[sp])return; SP=sp; CFG=SPCFG[sp]; M=blankModel();
   document.querySelectorAll("#chips .chip").forEach(ch=>ch.classList.toggle("on",ch.dataset.sp===sp));
-  buildBase(); buildTables(); recalc(); $("chkBox").innerHTML="<div class='sub'>🔍 값을 입력하면 자동으로 검토합니다.</div>"; $("numChk").textContent=2+CFG.tables.length; refreshList();
-  LOADED_FARM=null; LOADED_YEAR=null; loadYearForFarm();   // [v117] 같은 농가면 축종 전환 시에도 그 축종 자료 로드
+  buildBase(); buildTables(); recalc(); $("chkBox").innerHTML="<div class='sub'>🔍 값을 입력하면 자동으로 검토합니다.</div>"; $("numChk").textContent=2+CFG.tables.length;
+  $("farm").value=""; LOADED_FARM=null; LOADED_YEAR=null; refreshList(); if($("loadFarm"))$("loadFarm").value=""; if($("loadYear"))$("loadYear").innerHTML="<option value=''>— 연도 —</option>"; updateEditBtn(); hsub();   // [v119] 축종 바꾸면 농가 선택 초기화
 }
 
 /* ===== Excel / CSV ===== */
@@ -379,18 +435,39 @@ function buildAOA(){ const aoa=[]; aoa.push([`가축동향조사표(${CFG.label}
 function doXlsx(){ collectBase(); const ws=XLSX.utils.aoa_to_sheet(buildAOA()), wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,CFG.label); XLSX.writeFile(wb,`가축동향_${CFG.label}_${$("farm").value.trim()||"농가"}_${yr()}.xlsx`); }
 function doCsv(){ collectBase(); const csv="﻿"+buildAOA().map(row=>row.map(c=>{ const s=(c==null?"":String(c)); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }).join(",")).join("\n"); const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=`가축동향_${CFG.label}_${$("farm").value.trim()||"농가"}_${yr()}.csv`; a.click(); }
 
+/* ===== [v119] 농가 추가/수정 · 콤보 동기화 ===== */
+function updateEditBtn(){ const b=$("btnEdit"); if(b) b.style.display=$("farm").value.trim()?"":"none"; }   // 불러온(활성) 농가면 수정버튼
+function setYearCombo(y){ const ys=$("loadYear"); y=String(y); if(![...ys.options].some(o=>o.value===y)){ const op=document.createElement("option"); op.value=y; op.textContent=y+"년"; ys.appendChild(op); } ys.value=y; }
+function syncLoadCombos(f,y){ const fs=$("loadFarm"), ev=encodeURIComponent(f); if(![...fs.options].some(o=>o.value===ev)){ const op=document.createElement("option"); op.value=ev; op.textContent=f; fs.appendChild(op); } fs.value=ev; fillYearList(); setYearCombo(y); }
+function addFarm(){ autosaveCurrent(); const nn=prompt("새 농장명을 입력하세요:"); if(nn==null)return; const f=nn.trim(); if(!f){ alert("농장명을 입력하세요."); return; }
+  const dp=defaultPeriodByMonth(); $("farm").value=f; $("year").value=String(dp.y); $("period").value=dp.p;
+  M=blankModel(); LOADED_FARM=f; LOADED_YEAR=String(dp.y);
+  buildBase(); buildTables(); recalc(); inspect(); syncLoadCombos(f,dp.y); updateEditBtn(); hsub();
+  toast("새 농가 '"+f+"' — 입력 후 💾 저장하세요"); }
+function editFarm(){ const old=$("farm").value.trim(); if(!old){ alert("불러온 농가가 없습니다."); return; }
+  const nn=prompt("농장명 수정:",old); if(nn==null)return; const n=nn.trim(); if(!n||n===old)return;
+  const store=loadStore(old); saveStore(n,store); localStorage.removeItem(storeKey(old));
+  $("farm").value=n; if(LOADED_FARM===old) LOADED_FARM=n; refreshList(); syncLoadCombos(n,yr()); updateEditBtn(); hsub(); toast("농장명 수정: "+old+" → "+n); }
+
 /* ===== 이벤트 ===== */
-$("btnSave").onclick=doSave;
-$("loadFarm").onchange=fillYearList;   // [v118] 농가 고르면 그 농가 연도만 채움
-$("btnLoad").onclick=()=>{ const fv=$("loadFarm").value, y=$("loadYear").value; if(!fv||!y){ alert("농가와 연도를 선택하세요."); return; } autosaveCurrent(); if(doLoad(decodeURIComponent(fv),y)) toast("불러왔습니다"); };
+$("btnSave").onclick=()=>{ doSave(); syncLoadCombos($("farm").value.trim(),yr()); updateEditBtn(); };
+$("loadFarm").onchange=fillYearList;   // 농가 고르면 그 농가 연도만 채움
+$("btnAdd").onclick=addFarm;
+$("btnEdit").onclick=editFarm;
+$("btnLoad").onclick=()=>{ const fv=$("loadFarm").value; if(!fv){ alert("농가를 선택하세요(없으면 ➕ 추가)."); return; }
+  autosaveCurrent(); const f=decodeURIComponent(fv), dp=defaultPeriodByMonth();
+  const y=$("loadYear").value || String(dp.y);   // 연도 미선택이면 기본 올해(분기)
+  $("farm").value=f; $("year").value=y; $("period").value=dp.p;   // [v119] 기준달 표시
+  loadYearForFarm(); syncLoadCombos(f,y); updateEditBtn(); };
 $("btnDel").onclick=()=>{ const fv=$("loadFarm").value, y=$("loadYear").value; if(!fv||!y){ alert("삭제할 농가·연도를 선택하세요."); return; } const f=decodeURIComponent(fv); if(!confirm(`${f} · ${y}년 자료를 삭제할까요?`))return; const store=loadStore(f); delete store[y]; if(Object.keys(store).length) saveStore(f,store); else localStorage.removeItem(storeKey(f)); refreshList(); toast("삭제되었습니다"); };
+$("btnBulk").onclick=()=>$("bulkFile").click();   // [v120] 엑셀 일괄등록
+$("bulkFile").onchange=e=>{ const f=e.target.files&&e.target.files[0]; if(f) importFarmsFromExcel(f); e.target.value=""; };
 $("btnInspect").onclick=()=>{ inspect(); toast("내검 완료"); $("chkBox").scrollIntoView({block:"center"}); };
+$("btnExportToggle").onclick=()=>{ const sp=$("exportBtns"), open=sp.style.display!=="none"; sp.style.display=open?"none":"inline-flex"; $("btnExportToggle").textContent=open?"📎 내보내기 ▾":"📎 내보내기 ▴"; };
 $("btnPrint").onclick=()=>{ collectBase(); window.print(); };
 $("btnXlsx").onclick=doXlsx;
 $("btnCsv").onclick=doCsv;
 $("period").onchange=()=>{ buildTables(); recalc(); inspect(); hsub(); };
-$("year").onchange=switchContext;   // [v117] 연도 바꾸면 그 연도 자료 로드(+전년12월 이월)
-$("farm").onchange=switchContext;   // [v117] 농장명 바꾸면 그 농가 자료 로드
 document.querySelectorAll("#chips .chip").forEach(ch=>ch.onclick=()=>setSpecies(ch.dataset.sp));
 
 /* ===== 사이드 바로가기(저장) 패널 ===== */
